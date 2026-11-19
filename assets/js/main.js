@@ -10,7 +10,6 @@
   var root = doc.documentElement;
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var PRODUCTS = window.ADA_PRODUCTS || [];
-  var lenis = null; // smooth scrolling, set up near the end
   var CONTACT = window.ADA_CONTACT || { whatsapp: "2348093712578" };
 
   /* ---------- helpers ---------- */
@@ -47,29 +46,32 @@
   /* ======================================================================
      1. Curtain: load fade + page-to-page fade
      ====================================================================== */
+  // Arriving from another ADA BEKE page? Then skip the brand pause and lift at once.
+  var NAV_KEY = "adabeke-nav";
+  var fromInside = false;
+  try { fromInside = sessionStorage.getItem(NAV_KEY) === "1"; sessionStorage.setItem(NAV_KEY, "0"); } catch (e) {}
+
   var started = false;
   function reveal() {
     // the aqua panel lifts away, then resets out of sight
     root.classList.add("is-revealing");
     root.classList.remove("is-loading", "is-leaving");
-    setTimeout(function () { root.classList.remove("is-revealing"); }, reduceMotion ? 0 : 1000);
+    setTimeout(function () { root.classList.remove("is-revealing"); }, reduceMotion ? 0 : 720);
   }
   function lift() {
     if (started) return;
     started = true;
     reveal();
-    // hero words start as the curtain lifts
+    // page words start while the curtain lifts
     setTimeout(function () {
       $$('[data-split="load"], [data-chars="load"]').forEach(function (el) { el.classList.add("is-in"); });
       $$('[data-reveal-load]').forEach(function (el) { el.classList.add("is-in"); });
       $$(".hero .megamark, .page-hero .megamark").forEach(function (el) { el.classList.add("is-in"); });
-    }, reduceMotion ? 0 : 380);
+    }, reduceMotion || fromInside ? 0 : 140);
   }
   function whenReady() {
-    var fontsReady = doc.fonts && doc.fonts.ready ? doc.fonts.ready : Promise.resolve();
-    var timeout = new Promise(function (r) { setTimeout(r, 900); });
-    var minShow = new Promise(function (r) { setTimeout(r, reduceMotion ? 0 : 300); });
-    Promise.all([Promise.race([fontsReady, timeout]), minShow]).then(lift);
+    // Fonts swap in on their own; never hold the page back waiting for them.
+    setTimeout(lift, reduceMotion || fromInside ? 0 : 420);
   }
   if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", whenReady);
   else whenReady();
@@ -91,8 +93,8 @@
     if (reduceMotion) return;
     e.preventDefault();
     root.classList.add("is-leaving");
-    if (lenis) lenis.stop();
-    setTimeout(function () { location.href = a.href; }, 760);
+    try { sessionStorage.setItem(NAV_KEY, "1"); } catch (err) {}
+    setTimeout(function () { location.href = a.href; }, 430);
   });
 
   /* ======================================================================
@@ -119,7 +121,6 @@
     if (!menuBtn || !menu) return;
     if (open) { menu.removeAttribute("hidden"); void menu.offsetWidth; header && header.classList.remove("is-hidden"); }
     root.classList.toggle("menu-open", open);
-    if (lenis) { if (open) lenis.stop(); else lenis.start(); }
     menuBtn.setAttribute("aria-expanded", String(open));
     menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
     if (!open) setTimeout(function () { if (!root.classList.contains("menu-open")) menu.setAttribute("hidden", ""); }, 500);
@@ -470,7 +471,6 @@
 
   function setBag(open) {
     root.classList.toggle("bag-open", open);
-    if (lenis) { if (open) lenis.stop(); else lenis.start(); }
     drawer.setAttribute("aria-hidden", String(!open));
     [$("#main"), $(".site-footer"), header].forEach(function (el) { if (el) el.inert = open; });
     if (open) {
@@ -525,7 +525,6 @@
       if (th) showImage(th.getAttribute("data-pd-thumb"));
     });
     dlg.addEventListener("close", function () {
-      if (lenis) lenis.start();
       if (/[?&]p=/.test(location.search) && history.replaceState) history.replaceState(null, "", location.pathname);
     });
   }
@@ -566,7 +565,6 @@
     }
     showImage(0);
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
-    if (lenis) lenis.stop();
     if (history.replaceState && $(".cards--shop")) history.replaceState(null, "", location.pathname + "?p=" + encodeURIComponent(p.id));
   }
   // On the shop page, open details in place instead of reloading
@@ -670,7 +668,12 @@
   }
   function initLotties(ctx) {
     $$("[data-lottie]", ctx).forEach(function (el) {
-      if ("IntersectionObserver" in window && !el.closest(".drawer")) {
+      // The bag's animation loads only once the bag is actually opened
+      if (el.closest(".drawer")) {
+        if (root.classList.contains("bag-open")) mountLottie(el);
+        return;
+      }
+      if ("IntersectionObserver" in window) {
         var lo = new IntersectionObserver(function (en) {
           en.forEach(function (x) { if (x.isIntersecting) { mountLottie(el); lo.disconnect(); } });
         }, { rootMargin: "200px" });
@@ -721,21 +724,7 @@
   window.addEventListener("resize", onScroll);
 
   /* ======================================================================
-     13. Smooth scrolling (Lenis) — mouse & trackpad only, off for reduced motion
-     ====================================================================== */
-  if (window.Lenis && !reduceMotion) {
-    lenis = new window.Lenis({
-      lerp: 0.085,
-      wheelMultiplier: 0.95,
-      anchors: { offset: -90 },
-      prevent: function (node) { return !!(node.closest && node.closest(".pdialog, .drawer, .menu, .chips")); },
-    });
-    lenis.on("scroll", onScroll);
-    (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(performance.now());
-  }
-
-  /* ======================================================================
-     14. "View" cursor bubble over pieces (mouse only)
+     13. "View" cursor bubble over pieces (mouse only)
      ====================================================================== */
   if (window.matchMedia("(hover: hover) and (pointer: fine)").matches && !reduceMotion) {
     root.classList.add("has-cursor");

@@ -45,8 +45,12 @@ Photos go in `assets/img/`. Portrait photos (4:5) look best, and the second phot
 
 - **Colours:** brand aqua `#58DADC` (taken from the ADA BEKE bags and end card), navy `#0F2A4A` (from the Omalicha fabric), and a pale aqua mist `#EAF8F8`.
 - **Type:** Bodoni Moda italic (the high-contrast "fashion magazine" serif) for the headline and emphasised words, Jost (a Futura-style geometric sans) for headings and text, and Cinzel for the ADA BEKE wordmark.
-- **Motion:** the home headline appears letter by letter, then drifts up and fades as you scroll while the film slowly pushes in. Section words appear one by one, photos fade up and drift gently (parallax), the story paragraph lights up word by word, and an aqua ADA BEKE panel wipes between pages. On a computer, scrolling is smoothed ([Lenis](https://github.com/darkroomengineering/lenis), MIT, in `assets/vendor/`) and a "View" bubble follows the mouse over pieces. All motion switches off for visitors who have "reduce motion" turned on.
+- **Motion:** the home headline appears letter by letter, then drifts up and fades as you scroll while the film slowly pushes in. Section words appear one by one, photos fade up and drift gently (parallax), the story paragraph lights up word by word, and an aqua ADA BEKE panel wipes between pages. On a computer, a "View" bubble follows the mouse over pieces. All motion switches off for visitors who have "reduce motion" turned on.
 - **Lottie:** the "choosing a dress" animation appears when the bag is empty, on the Shop page, and on the Contact page. It's served from this site (`assets/lottie/choosing.js`), played with [lottie-web](https://github.com/airbnb/lottie-web) (MIT, `assets/vendor/`), and only loads when it's needed.
+
+## Speed
+
+The home film comes in two sizes: `hero-bags-phone.mp4` (about 650 KB) for phones and `hero-bags.mp4` (about 1 MB) for larger screens. The aqua curtain never waits for fonts, and moving between pages takes well under a second.
 
 ## Putting it online (GitHub Pages)
 
