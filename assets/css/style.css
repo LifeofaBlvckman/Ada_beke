@@ -1463,33 +1463,6 @@ html:not(.menu-open) .page-home .site-header:not(.is-solid) :focus-visible { out
 @media (min-width: 640px) { .helper { grid-template-columns: auto 1fr; gap: 28px; } }
 
 /* --------------------------------------------------------------------------
-   Marquee
-   -------------------------------------------------------------------------- */
-.marquee {
-  overflow: hidden;
-  border-block: 1px solid var(--line);
-  background: var(--white);
-}
-.marquee__track {
-  display: flex;
-  width: max-content;
-  animation: marquee 38s linear infinite;
-}
-.marquee__item {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  padding: 18px 14px;
-  font-size: clamp(18px, 1.6vw, 22px);
-  letter-spacing: -0.015em;
-  white-space: nowrap;
-}
-.marquee__item em { font-family: var(--font-serif); font-style: italic; }
-.marquee__item .sparkle { width: 14px; height: 14px; color: var(--aqua-deep); }
-.marquee:hover .marquee__track { animation-play-state: paused; }
-@keyframes marquee { to { transform: translateX(-50%); } }
-
-/* --------------------------------------------------------------------------
    Motion — fades and word-by-word reveals
    (Hidden states only apply when JS is running.)
    -------------------------------------------------------------------------- */
@@ -1548,5 +1521,4 @@ html:not(.menu-open) .page-home .site-header:not(.is-solid) :focus-visible { out
   .js [data-split] .w,
   .js [data-scrub] .sw,
   .js .megamark tspan { opacity: 1 !important; fill-opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; }
-  .marquee__track { animation: none; }
 }
