@@ -548,7 +548,7 @@
     price.textContent = priceText(p);
     price.classList.toggle("is-request", p.price == null);
     $("[data-pd-desc]", dlg).textContent = p.description;
-    var rows = [["Colour", p.colour], ["Fabric", p.fabric], ["Fit", p.fit], ["Includes", p.includes], ["Delivery", "Worldwide"]];
+    var rows = [["Colour", p.colour], ["Fabric", p.fabric], ["Fit", p.fit], ["Includes", p.includes], ["Delivery", "Worldwide via DHL"]];
     $("[data-pd-spec]", dlg).innerHTML = rows.filter(function (r) { return r[1]; }).map(function (r) {
       return "<div><dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd></div>";
     }).join("");
@@ -700,6 +700,84 @@
     var p = Math.max(0, Math.min(1, window.scrollY / (window.innerHeight * 0.9)));
     heroEl.style.setProperty("--hero-p", p.toFixed(4));
   }
+
+  /* Home photo slideshow: auto-advances, dots to jump, swipe on phones */
+  var slideBox = $("[data-slides]");
+  if (slideBox) (function () {
+    var slides = $$(".slide", slideBox);
+    var dots = $$(".hero__dot", slideBox);
+    var SLIDE_MS = 5500;
+    var wide = window.matchMedia("(min-aspect-ratio: 5/4) and (min-width: 900px)");
+    var idx = 0, timer = null, onScreen = true;
+    slideBox.style.setProperty("--slide-ms", SLIDE_MS + "ms");
+
+    function load(i) {
+      $$("img[data-src]", slides[i]).forEach(function (im) {
+        im.src = im.getAttribute("data-src");
+        im.removeAttribute("data-src");
+      });
+    }
+    // White words on darker photos, navy on bright studio photos
+    function setTone() {
+      var s = slides[idx];
+      var text = wide.matches ? s.getAttribute("data-tone-desk") : "dark";
+      var head = wide.matches ? text : s.getAttribute("data-head-phone");
+      slideBox.setAttribute("data-tone", text);
+      slideBox.setAttribute("data-head", head);
+      root.setAttribute("data-hero", head);
+    }
+    function schedule() {
+      clearTimeout(timer);
+      var paused = reduceMotion || !onScreen || doc.hidden;
+      slideBox.classList.toggle("is-paused", paused);
+      if (!paused) timer = setTimeout(function () { show(idx + 1); }, SLIDE_MS);
+    }
+    function show(i) {
+      idx = (i + slides.length) % slides.length;
+      load(idx);
+      load((idx + 1) % slides.length);
+      slides.forEach(function (s, k) {
+        s.classList.toggle("is-active", k === idx);
+        s.setAttribute("aria-hidden", String(k !== idx));
+      });
+      dots.forEach(function (d, k) {
+        d.classList.toggle("is-active", false);
+        if (k === idx) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current");
+      });
+      void slideBox.offsetWidth; // restart the fill bar
+      if (dots[idx]) dots[idx].classList.add("is-active");
+      setTone();
+      schedule();
+    }
+
+    dots.forEach(function (d) {
+      d.addEventListener("click", function () { show(parseInt(d.getAttribute("data-go"), 10)); });
+    });
+
+    var sx = null, sy = null;
+    slideBox.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    slideBox.addEventListener("touchend", function (e) {
+      if (sx === null) return;
+      var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) show(idx + (dx < 0 ? 1 : -1));
+      sx = null;
+    }, { passive: true });
+
+    // Pause while the photos are off screen or the tab is hidden
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (en) {
+        var was = onScreen;
+        onScreen = en[0].isIntersecting;
+        if (onScreen && !was) show(idx); else if (!onScreen) schedule();
+      }, { threshold: 0.25 }).observe(slideBox);
+    }
+    doc.addEventListener("visibilitychange", function () { if (doc.hidden) schedule(); else show(idx); });
+    if (wide.addEventListener) wide.addEventListener("change", setTone); else if (wide.addListener) wide.addListener(setTone);
+    window.addEventListener("load", function () { load(1); });
+
+    setTone();
+    schedule();
+  })();
 
   /* Gentle parallax on editorial photos: [data-parallax="0.08"] */
   var parallaxEls = reduceMotion ? [] : $$("[data-parallax]");

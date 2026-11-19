@@ -17,6 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..500&family=Cinzel:wght@400;500&family=Jost:wght@300..600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="preload" as="image" href="assets/img/hero-1-white-brown.webp" fetchpriority="high">
 </head>
 <body class="page-home">
 <a class="skip" href="#main">Skip to content</a>
@@ -53,16 +54,18 @@
 </div>
 
 <main id="main">
-  <section class="hero" aria-labelledby="hero-title" data-video>
-    <div class="hero__media" data-reveal="zoom" data-reveal-load>
-      <video poster="assets/img/bags-glass.webp" autoplay muted loop playsinline preload="auto" aria-label="Film: ADA BEKE shopping bags, red heels and a glass of wine">
-        <source src="assets/video/hero-bags-phone.mp4" type="video/mp4" media="(max-width: 767px)">
-        <source src="assets/video/hero-bags.mp4" type="video/mp4">
-      </video>
+  <section class="hero" aria-labelledby="hero-title" aria-roledescription="carousel" data-slides data-tone="dark">
+    <div class="hero__slides">
+      <figure class="slide is-active" data-tone-desk="dark" data-head-phone="dark" aria-roledescription="slide" aria-label="1 of 4"><img class="slide__bg" src="assets/img/hero-1-white-brown-blur.webp" alt="" aria-hidden="true"><img class="slide__img" src="assets/img/hero-1-white-brown.webp" alt="Model with arms outstretched in a white boubou with large brown circle prints" width="1024" height="1280" fetchpriority="high"></figure>
+      <figure class="slide" data-tone-desk="light" data-head-phone="light" aria-roledescription="slide" aria-label="2 of 4" aria-hidden="true"><img class="slide__bg" data-src="assets/img/hero-2-blue-blur.webp" alt="" aria-hidden="true"><img class="slide__img" data-src="assets/img/hero-2-blue.webp" alt="Model leaning on a wall in a royal blue pinstripe crop top and wide trousers" width="1024" height="1280"></figure>
+      <figure class="slide" data-tone-desk="light" data-head-phone="light" aria-roledescription="slide" aria-label="3 of 4" aria-hidden="true"><img class="slide__bg" data-src="assets/img/hero-3-black-blur.webp" alt="" aria-hidden="true"><img class="slide__img" data-src="assets/img/hero-3-black.webp" alt="Model in the sheer black Wifey boubou" width="1024" height="1280"></figure>
+      <figure class="slide" data-tone-desk="light" data-head-phone="light" aria-roledescription="slide" aria-label="4 of 4" aria-hidden="true"><img class="slide__bg" data-src="assets/img/hero-4-ash-blur.webp" alt="" aria-hidden="true"><img class="slide__img" data-src="assets/img/hero-4-ash.webp" alt="Model in an ash halter maxi dress with red trim" width="1024" height="1280"></figure>
     </div>
+    <div class="hero__veil" aria-hidden="true"><span class="veil veil--bottom"></span><span class="veil veil--side-dark"></span><span class="veil veil--side-light"></span><span class="veil veil--top-dark"></span><span class="veil veil--top-light"></span></div>
     <div class="hero__inner">
       <h1 class="hero__title" id="hero-title" data-chars="load" aria-label="Feel good fashion for every body."><span class="ln" aria-hidden="true">Feel good</span><span class="ln ln--in" aria-hidden="true">fashion for</span><span class="ln" aria-hidden="true">every body<span class="dot">.</span></span></h1>
-      <div class="hero__cta" data-reveal data-reveal-load style="--d:1500ms"><a class="pill pill--film" href="shop.html"><span class="pill__text">Shop the collection</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></div>
+      <div class="hero__cta" data-reveal data-reveal-load style="--d:900ms"><a class="pill pill--film" href="shop.html"><span class="pill__text">Shop the collection</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></div>
+      <div class="hero__dots" role="group" aria-label="Photos" data-reveal data-reveal-load style="--d:1100ms"><button class="hero__dot is-active" type="button" data-go="0" aria-label="Show photo 1 of 4" aria-current="true"><span></span></button><button class="hero__dot" type="button" data-go="1" aria-label="Show photo 2 of 4"><span></span></button><button class="hero__dot" type="button" data-go="2" aria-label="Show photo 3 of 4"><span></span></button><button class="hero__dot" type="button" data-go="3" aria-label="Show photo 4 of 4"><span></span></button></div>
     </div>
   </section>
 

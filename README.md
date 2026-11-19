@@ -4,7 +4,7 @@
 
 | Page | File | What's on it |
 | --- | --- | --- |
-| Home | `index.html` | Full-screen shopping-bag film with the headline on top, the brand story, "Free size, perfect fit", featured pieces, a note from Ada Beke, and a "made in Nigeria" banner |
+| Home | `index.html` | Full-screen photo slideshow with the headline on top, the brand story, "Free size, perfect fit", featured pieces, a note from Ada Beke, and a "made in Nigeria" banner |
 | Shop | `shop.html` | All pieces with filters, a product details panel, and the bag |
 | About | `about.html` | Brand story, the full "We're back" letter, Chic / relaxed / Elegance |
 | Contact | `contact.html` | How to order, a WhatsApp contact form, the free-size guide and questions |
@@ -39,7 +39,7 @@ Everything lives in **`assets/js/products.js`**. Add a new block to the list and
 },
 ```
 
-Photos go in `assets/img/`. Portrait photos (4:5) look best, and the second photo shows when the shopper hovers. A piece with `images: []` shows a coloured "Photo coming soon" card, which is what the **Abira** set uses until its photo is added.
+Photos go in `assets/img/`. Portrait photos (4:5) look best, and the second photo shows when the shopper hovers. A piece with `images: []` shows a coloured "Photo coming soon" card.
 
 ## Design
 
@@ -48,9 +48,13 @@ Photos go in `assets/img/`. Portrait photos (4:5) look best, and the second phot
 - **Motion:** the home headline appears letter by letter, then drifts up and fades as you scroll while the film slowly pushes in. Section words appear one by one, photos fade up and drift gently (parallax), the story paragraph lights up word by word, and an aqua ADA BEKE panel wipes between pages. On a computer, a "View" bubble follows the mouse over pieces. All motion switches off for visitors who have "reduce motion" turned on.
 - **Lottie:** the "choosing a dress" animation appears when the bag is empty, on the Shop page, and on the Contact page. It's served from this site (`assets/lottie/choosing.js`), played with [lottie-web](https://github.com/airbnb/lottie-web) (MIT, `assets/vendor/`), and only loads when it's needed.
 
+## Home slideshow
+
+The opening photos live in `assets/img/hero-1-white-brown.webp` … `hero-4-ash.webp`, each with a tiny `-blur` copy used for the soft background on wide screens. To change a photo, replace both files (portrait 4:5, about 1024×1280) and keep the names, or edit the `slides` list in the page builder. Each slide is marked `light` or `dark` so the words switch between navy and white to stay readable. Photos change every 5.5 seconds. Visitors can tap the bars or swipe on a phone, and the slideshow pauses when it's off screen.
+
 ## Speed
 
-The home film comes in two sizes: `hero-bags-phone.mp4` (about 650 KB) for phones and `hero-bags.mp4` (about 1 MB) for larger screens. The aqua curtain never waits for fonts, and moving between pages takes well under a second.
+The home page downloads about 500 KB on a phone: the first photo is preloaded, and the others load in the background. The aqua curtain never waits for fonts, and moving between pages takes well under a second.
 
 ## Putting it online (GitHub Pages)
 
@@ -58,6 +62,5 @@ In the repository go to **Settings → Pages**, choose "Deploy from a branch", p
 
 ## Still to add
 
-- The Abira photo and price
 - Photos for the other pieces on Instagram (silver boubou, ivory set, gingham set, tee & gingham), with names and prices
 - The size chart values, if you want them on the Contact page instead of linking to the Instagram highlight

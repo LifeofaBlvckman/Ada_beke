@@ -37,22 +37,21 @@ window.ADA_PRODUCTS = [
     fit: "Free size",
     description:
       "A sheer, softly dotted black boubou with wide, floating sleeves. Sold with its co-ord set.",
-    images: ["assets/img/wifey-seated.webp", "assets/img/wifey-standing.webp", "assets/img/wifey-gaze.webp"],
+    images: ["assets/img/wifey-seated.webp", "assets/img/hero-3-black.webp", "assets/img/wifey-standing.webp"],
   },
   {
     id: "abira",
     name: "*Abira* hoodie set",
     colour: "Rust & cobalt leaf print",
-    price: null,
+    price: 50000,
     status: "available",
     badge: "Restocked",
-    includes: "Abira hoodie boubou & Abira hoodie pants set",
+    includes: "Abira hoodie boubou & pants set",
     fabric: null, // add the fabric name when known
     fit: "Free size",
     description:
-      "The Abira hoodie boubou with matching hoodie pants. Restocked and available for immediate delivery.",
-    images: [],
-    placeholder: "Abira",
+      "For that woman who loves to show up in relaxed elegance. The Abira hoodie boubou with matching pants, available for immediate delivery.",
+    images: ["assets/img/abira-front.webp", "assets/img/abira-set.webp", "assets/img/abira-back.webp"],
   },
   {
     id: "something-soft",

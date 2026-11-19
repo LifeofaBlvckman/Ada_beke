@@ -468,7 +468,7 @@ ul, ol { padding: 0; list-style: none; }
 .menu-open { overflow: hidden; }
 
 /* --------------------------------------------------------------------------
-   Hero (home) — full-screen film, one italic line and a button
+   Hero (home) — photo slideshow, one italic line, a button and photo dots
    -------------------------------------------------------------------------- */
 .hero {
   position: relative;
@@ -476,37 +476,48 @@ ul, ol { padding: 0; list-style: none; }
   overflow: hidden;
   min-height: 100svh;
   color: var(--white);
-  background: var(--navy);
+  background: #6b4a3a;
 }
-.hero :focus-visible { outline-color: var(--white); }
+.hero :focus-visible { outline-color: currentColor; }
 
-/* The film fills the whole screen */
-.hero__media {
+/* Photos */
+.hero__slides {
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background: var(--navy) url("../img/bags-glass.webp") center / cover no-repeat;
+  scale: calc(1 + var(--hero-p, 0) * 0.06);
 }
-.hero__media video {
+.slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-in-out);
+}
+.slide.is-active { opacity: 1; z-index: 1; }
+.slide__img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 52%;
+  object-position: center 22%;
+  transform: scale(1.07);
+  transform-origin: 50% 30%;
+  transition: transform 7s linear;
 }
-/* A light navy shade only where the words sit */
-.hero__media::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, rgba(9, 27, 50, 0.4) 0%, rgba(9, 27, 50, 0) 20%),
-    linear-gradient(0deg, rgba(9, 27, 50, 0.82) 0%, rgba(9, 27, 50, 0.5) 30%, rgba(9, 27, 50, 0) 58%);
-}
-.js .hero__media[data-reveal="zoom"] { opacity: 0; transform: none; transition: opacity 0.6s var(--ease-out); }
-.js .hero__media[data-reveal="zoom"] video { transform: scale(1.08); transition: transform 1.8s var(--ease-out); }
-.js .hero__media[data-reveal="zoom"].is-in { opacity: 1; }
-.js .hero__media[data-reveal="zoom"].is-in video { transform: none; }
+.slide.is-active .slide__img { transform: scale(1); }
+.slide__bg { display: none; }
+
+/* Shades that keep the words readable on every photo */
+.hero__veil { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.veil { position: absolute; inset: 0; opacity: 0; transition: opacity 1s var(--ease-in-out); }
+.veil--bottom { opacity: 1; background: linear-gradient(0deg, rgba(9, 27, 50, 0.82) 0%, rgba(9, 27, 50, 0.5) 30%, rgba(9, 27, 50, 0) 58%); }
+.veil--top-dark { background: linear-gradient(180deg, rgba(9, 27, 50, 0.5) 0%, rgba(9, 27, 50, 0) 150px); }
+.veil--top-light { background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 150px); }
+.hero[data-head="dark"] .veil--top-dark,
+.hero[data-head="light"] .veil--top-light { opacity: 1; }
 
 .hero__inner {
   position: relative;
@@ -515,52 +526,111 @@ ul, ol { padding: 0; list-style: none; }
   flex-direction: column;
   justify-content: flex-end;
   align-items: flex-start;
-  gap: 28px;
+  gap: 26px;
   min-height: 100svh;
   max-width: var(--maxw);
   margin-inline: auto;
-  padding: calc(var(--header-h) + 28px) var(--gutter) clamp(44px, 9vh, 96px);
+  padding: calc(var(--header-h) + 28px) var(--gutter) clamp(28px, 6vh, 64px);
+  transform: translate3d(0, calc(var(--hero-p, 0) * -14vh), 0);
+  opacity: calc(1 - var(--hero-p, 0) * 1.25);
 }
 .hero__title {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 500;
   font-optical-sizing: auto;
-  font-size: clamp(56px, 8.8vw, 152px);
+  font-size: clamp(56px, 8.4vw, 148px);
   line-height: 0.9;
   letter-spacing: -0.012em;
-  text-shadow: 0 2px 44px rgba(9, 27, 50, 0.4);
+  color: var(--white);
+  text-shadow: 0 2px 40px rgba(9, 27, 50, 0.35);
+  transition: color 0.9s var(--ease-in-out), text-shadow 0.9s var(--ease-in-out);
 }
 .hero__title .ln { display: block; white-space: nowrap; }
 .hero__title .ln--in { padding-left: 0.92em; }
 .hero__title .dot { color: var(--aqua); }
 
-/* Scroll: the words drift up and fade while the film slowly pushes in */
-.hero__inner { transform: translate3d(0, calc(var(--hero-p, 0) * -14vh), 0); opacity: calc(1 - var(--hero-p, 0) * 1.25); will-change: transform, opacity; }
-.hero__media { scale: calc(1 + var(--hero-p, 0) * 0.09); }
+/* Photo dots: thin bars that fill while each photo shows */
+.hero__dots { display: flex; gap: 4px; margin-top: 6px; }
+.hero__dot {
+  display: grid;
+  align-items: center;
+  width: 44px;
+  height: 32px;
+  padding: 0 4px;
+  color: inherit;
+}
+.hero__dot span {
+  position: relative;
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.hero__dot span::before,
+.hero__dot span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+}
+.hero__dot span::before { opacity: 0.38; transition: opacity 0.3s; }
+.hero__dot:hover span::before { opacity: 0.7; }
+.hero__dot span::after { transform: scaleX(0); transform-origin: left; }
+.hero__dot.is-active span::after { animation: dot-fill var(--slide-ms, 5500ms) linear forwards; }
+.hero.is-paused .hero__dot.is-active span::after { animation: none; transform: scaleX(1); }
+@keyframes dot-fill { to { transform: scaleX(1); } }
 
-@media (min-width: 1024px) {
-  .hero__media video { object-position: center 55%; }
-  .hero__media::after {
-    background:
-      linear-gradient(180deg, rgba(9, 27, 50, 0.38) 0%, rgba(9, 27, 50, 0) 18%),
-      linear-gradient(90deg, rgba(9, 27, 50, 0.55) 0%, rgba(9, 27, 50, 0.25) 30%, rgba(9, 27, 50, 0) 52%),
-      linear-gradient(0deg, rgba(9, 27, 50, 0.6) 0%, rgba(9, 27, 50, 0) 50%);
+/* Pill on photos: white pill, aqua circle; navy on light photos */
+.pill--film .pill__text { background: var(--white); color: var(--navy); transition: background 0.6s, color 0.6s, padding 0.4s var(--ease-out); }
+.pill--film .pill__icon { background: var(--aqua); color: var(--navy); }
+.hero[data-tone="light"] .pill--film .pill__text { background: var(--navy); color: var(--white); }
+
+/* Wide screens: show the whole outfit on the right, and let the same photo
+   spill softly across the left where the words sit */
+@media (min-aspect-ratio: 5/4) and (min-width: 900px) {
+  .slide__bg {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* only the photo's left edge (wall, plants) spills behind the words, never the outfit */
+    object-position: left center;
+    transform: scale(1.7);
+    transform-origin: left center;
   }
-  .hero__inner { padding-bottom: clamp(56px, 11vh, 120px); }
+  .slide__img {
+    left: auto;
+    right: 0;
+    width: auto;
+    max-width: 62%;
+    aspect-ratio: 4 / 5;
+    object-position: center top;
+    transform-origin: 70% 40%;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 16%);
+  }
+  .veil--bottom { opacity: 0; }
+  .veil--side-dark { background: linear-gradient(90deg, rgba(9, 27, 50, 0.5) 0%, rgba(9, 27, 50, 0.28) 40%, rgba(9, 27, 50, 0) 62%); }
+  .veil--side-light { background: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.22) 40%, rgba(255, 255, 255, 0) 62%); }
+  .hero[data-tone="dark"] .veil--side-dark,
+  .hero[data-tone="light"] .veil--side-light { opacity: 1; }
+  .hero[data-tone="light"] { color: var(--navy); }
+  .hero[data-tone="light"] .hero__title { color: var(--navy); text-shadow: 0 1px 30px rgba(255, 255, 255, 0.45); }
+  .hero__inner { justify-content: center; padding-top: calc(var(--header-h) + 6vh); padding-bottom: 6vh; }
+  .hero__title { font-size: clamp(64px, 7.2vw, 132px); }
 }
 
-/* Pill on the film: white pill, aqua circle */
-.pill--film .pill__text { background: var(--white); color: var(--navy); }
-.pill--film .pill__icon { background: var(--aqua); color: var(--navy); }
-
-/* Header sits on the film (white) until the page scrolls */
-html:not(.menu-open) .page-home .site-header:not(.is-solid) { color: var(--white); border-bottom-color: rgba(255, 255, 255, 0.22); }
-html:not(.menu-open) .page-home .site-header:not(.is-solid) .nav a,
-html:not(.menu-open) .page-home .site-header:not(.is-solid) .header-actions { border-left-color: rgba(255, 255, 255, 0.22); }
-html:not(.menu-open) .page-home .site-header:not(.is-solid) .icon-btn:hover { background: rgba(255, 255, 255, 0.14); }
-html:not(.menu-open) .page-home .site-header:not(.is-solid) .bag-count { background: var(--aqua); color: var(--navy); }
-html:not(.menu-open) .page-home .site-header:not(.is-solid) :focus-visible { outline-color: var(--white); }
+/* Header sits on the photos until the page scrolls: white on dark photos */
+html[data-hero="dark"]:not(.menu-open) .page-home .site-header:not(.is-solid) { color: var(--white); border-bottom-color: rgba(255, 255, 255, 0.22); }
+html[data-hero="dark"]:not(.menu-open) .page-home .site-header:not(.is-solid) .nav a,
+html[data-hero="dark"]:not(.menu-open) .page-home .site-header:not(.is-solid) .header-actions { border-left-color: rgba(255, 255, 255, 0.22); }
+html[data-hero="dark"]:not(.menu-open) .page-home .site-header:not(.is-solid) .icon-btn:hover { background: rgba(255, 255, 255, 0.14); }
+html[data-hero="dark"]:not(.menu-open) .page-home .site-header:not(.is-solid) .bag-count { background: var(--aqua); color: var(--navy); }
+html[data-hero="dark"]:not(.menu-open) .page-home .site-header:not(.is-solid) :focus-visible { outline-color: var(--white); }
+.page-home .site-header { transition: background 0.4s var(--ease-out), border-color 0.6s, color 0.9s var(--ease-in-out), transform 0.5s var(--ease-out); }
 
 /* --------------------------------------------------------------------------
    Shared pieces used by the inner-page heroes, banner and footer
