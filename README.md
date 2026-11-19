@@ -4,7 +4,7 @@
 
 | Page | File | What's on it |
 | --- | --- | --- |
-| Home | `index.html` | Aqua hero with the shopping-bag film, the brand story, "Free size, perfect fit", featured pieces, a note from Ada Beke, and a "made in Nigeria" banner |
+| Home | `index.html` | Full-screen shopping-bag film with the headline on top, the brand story, "Free size, perfect fit", featured pieces, a note from Ada Beke, and a "made in Nigeria" banner |
 | Shop | `shop.html` | All pieces with filters, a product details panel, and the bag |
 | About | `about.html` | Brand story, the full "We're back" letter, Chic / relaxed / Elegance |
 | Contact | `contact.html` | How to order, a WhatsApp contact form, the free-size guide and questions |

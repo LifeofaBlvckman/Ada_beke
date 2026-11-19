@@ -410,6 +410,7 @@
     if (line) line.qty++;
     else bag.push({ id: id, qty: 1 });
     saveBag();
+    if (header) header.classList.toggle("is-hidden", false); // show the bag count as it bumps
     $$("[data-bag-count]").forEach(function (el) {
       el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump");
     });
