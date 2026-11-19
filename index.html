@@ -15,12 +15,12 @@
 <script>document.documentElement.classList.add("js","is-loading");</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Inter+Tight:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,400;1,500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..600&family=Cinzel:wght@400;500&family=Jost:wght@300..600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="page-home">
 <a class="skip" href="#main">Skip to content</a>
-<div class="curtain" aria-hidden="true"><span class="curtain__mark">ADA BEKE</span></div>
+<div class="curtain" aria-hidden="true"><span class="curtain__mark"><span style="--ci:0">A</span><span style="--ci:1">D</span><span style="--ci:2">A</span><span style="--ci:3">&nbsp;</span><span style="--ci:4">B</span><span style="--ci:5">E</span><span style="--ci:6">K</span><span style="--ci:7">E</span></span></div>
 <header class="site-header" data-header>
   <div class="site-header__inner">
     <a class="brand" href="index.html" aria-label="ADA BEKE, home">ADA BEKE</a>
@@ -58,8 +58,8 @@
       <video src="assets/video/hero-bags.mp4" poster="assets/img/bags-glass.webp" autoplay muted loop playsinline preload="auto" aria-label="Film: ADA BEKE shopping bags, red heels and a glass of wine"></video>
     </div>
     <div class="hero__inner">
-      <h1 class="hero__title" id="hero-title" data-split="load">Feel good<br>fashion for<br>every body.</h1>
-      <div data-reveal data-reveal-load style="--d:900ms"><a class="pill pill--film" href="shop.html"><span class="pill__text">Shop the collection</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></div>
+      <h1 class="hero__title" id="hero-title" data-chars="load" aria-label="Feel good fashion for every body."><span class="ln" aria-hidden="true">Feel good</span><span class="ln ln--in" aria-hidden="true">fashion for</span><span class="ln" aria-hidden="true">every body<span class="dot">.</span></span></h1>
+      <div class="hero__cta" data-reveal data-reveal-load style="--d:1500ms"><a class="pill pill--film" href="shop.html"><span class="pill__text">Shop the collection</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></div>
     </div>
   </section>
 
@@ -69,13 +69,13 @@
         <p class="label" id="story-label" data-reveal>Our story</p>
         <div>
           <p class="lede story__lede" data-scrub>At <span class="mark">ADA BEKE</span>, fashion is more than what you wear <svg class="sparkle" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c.9 6.4 5 10.9 12 12-7 1.1-11.1 5.6-12 12-.9-6.4-5-10.9-12-12C7 10.9 11.1 6.4 12 0Z"/></svg> it&rsquo;s how you feel in it. We make free-size pieces in soft, flowing fabrics, so every woman can feel chic, relaxed and elegant.</p>
-          <figure class="story__float" data-reveal style="--d:100ms">
+          <figure class="story__float" data-reveal data-parallax="0.1" style="--d:100ms">
             <img src="assets/img/omalicha-runway.webp" alt="Model walking in the Omalicha set with a navy head wrap" loading="lazy" width="591" height="700">
             <figcaption class="tag">Omalicha, in motion</figcaption>
           </figure>
         </div>
         <div>
-          <div class="story__thumb" data-reveal="clip"><img src="assets/img/wifey-gaze.webp" alt="Model in the sheer black Wifey boubou" loading="lazy" width="720" height="900"></div>
+          <div class="story__thumb" data-reveal="clip"><img data-parallax="0.05" src="assets/img/wifey-gaze.webp" alt="Model in the sheer black Wifey boubou" loading="lazy" width="720" height="900"></div>
         </div>
       </div>
       <div class="story__row">
@@ -132,7 +132,7 @@
         <h2 class="heading" id="note-title" data-split>We&rsquo;re back.<br><em>A new chapter.</em></h2>
       </div>
       <div class="note__body">
-        <div class="note__img" data-reveal="clip"><img src="assets/img/wifey-seated.webp" alt="Model seated in the black Wifey boubou" loading="lazy" width="720" height="900"></div>
+        <div class="note__img" data-reveal="clip"><img data-parallax="0.06" src="assets/img/wifey-seated.webp" alt="Model seated in the black Wifey boubou" loading="lazy" width="720" height="900"></div>
         <div class="note__right">
           <div class="note__quotes" data-reveal>
             <div class="note__set is-active">
@@ -166,7 +166,7 @@
           </div>
         </div>
         <div class="banner__media" data-video>
-          <video src="assets/video/wifey.mp4" poster="assets/img/wifey-standing.webp" muted loop playsinline preload="none" aria-label="Film: model in the black Wifey boubou"></video>
+          <video data-parallax="0.05" src="assets/video/wifey.mp4" poster="assets/img/wifey-standing.webp" muted loop playsinline preload="none" aria-label="Film: model in the black Wifey boubou"></video>
           <button class="media-toggle" type="button" aria-label="Pause video"><svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg></button>
         </div>
       </div>
@@ -220,6 +220,7 @@
   </div>
   <div class="megamark" aria-hidden="true"><svg viewBox="0 0 1000 150" preserveAspectRatio="xMidYMax meet" focusable="false"><text x="500" y="139" text-anchor="middle" font-size="178" textLength="992" lengthAdjust="spacingAndGlyphs"><tspan style="transition-delay:0ms">A</tspan><tspan style="transition-delay:90ms">D</tspan><tspan style="transition-delay:180ms">A</tspan> <tspan style="transition-delay:330ms">B</tspan><tspan style="transition-delay:420ms">E</tspan><tspan style="transition-delay:510ms">K</tspan><tspan style="transition-delay:600ms">E</tspan></text></svg></div>
 </footer>
+<script src="assets/vendor/lenis.min.js"></script>
 <script src="assets/js/products.js"></script>
 <script src="assets/js/main.js"></script>
 </body>
