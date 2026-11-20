@@ -40,6 +40,7 @@
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
     minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14"/></svg>',
+    rings: '<svg class="rings" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><g class="rings__solid"><circle cx="100" cy="100" r="14"/><circle cx="100" cy="100" r="38"/><circle cx="100" cy="100" r="62"/><circle cx="100" cy="100" r="86"/></g><g class="rings__dash"><circle cx="100" cy="100" r="26"/><circle cx="100" cy="100" r="50"/><circle cx="100" cy="100" r="74"/><circle cx="100" cy="100" r="98"/></g><circle class="rings__core" cx="100" cy="100" r="4"/></svg>',
     wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15l-1.4 5 5.2-1.36A9.9 9.9 0 1 0 12.04 2Zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.08.81.82-3-.2-.31a8.2 8.2 0 1 1 6.94 3.83Zm4.5-6.14c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.55.12-.16.25-.63.8-.78.97-.14.16-.29.18-.53.06a6.7 6.7 0 0 1-3.32-2.9c-.25-.43.25-.4.72-1.33.08-.16.04-.3-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.3 2.74 2.74 0 0 0-.85 2.03 4.76 4.76 0 0 0 1 2.53 10.9 10.9 0 0 0 4.17 3.68c1.55.67 2.16.73 2.94.61.47-.07 1.46-.6 1.66-1.17.2-.58.2-1.07.14-1.17-.06-.1-.22-.16-.47-.28Z"/></svg>',
   };
 
@@ -86,7 +87,7 @@
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     if (a.target && a.target !== "_self") return;
     if (a.hasAttribute("download") || a.dataset.noTransition !== undefined) return;
-    if (a.hasAttribute("data-product") && $(".cards--shop")) return; // opens details in place
+    if (a.hasAttribute("data-product")) return; // pieces open their details in place
     if (a.protocol !== location.protocol || a.host !== location.host) return;
     if (a.pathname === location.pathname && a.search === location.search && a.hash) return;
     if (!/\.html?$|\/$/.test(a.pathname)) return;
@@ -109,6 +110,8 @@
     var menuOpen = root.classList.contains("menu-open");
     if (!menuOpen && y > 520 && y > lastY + 4) header.classList.add("is-hidden");
     else if (y < lastY - 4 || y < 520) header.classList.remove("is-hidden");
+    // the shop filter bar follows the header up and down
+    root.classList.toggle("header-hidden", header.classList.contains("is-hidden"));
     lastY = y;
   }
 
@@ -151,7 +154,7 @@
           });
           ch.parentNode.replaceChild(frag, ch);
         } else if (ch.nodeType === 1) {
-          if (ch.tagName === "BR") return;
+          if (ch.tagName === "BR" || ch.classList.contains("spark")) return;
           if (ch.tagName.toLowerCase() === "svg" || ch.classList.contains("mark")) {
             var w = doc.createElement("span");
             w.className = cls;
@@ -168,8 +171,8 @@
   }
   $$("[data-split]").forEach(function (el) { splitWords(el, "w"); });
 
-  // Letter-by-letter (hero headline)
-  $$("[data-chars]").forEach(function (el) {
+  // Letter by letter
+  function splitChars(el, cls) {
     var i = 0;
     (function walk(node) {
       Array.prototype.slice.call(node.childNodes).forEach(function (ch) {
@@ -178,17 +181,45 @@
           Array.prototype.forEach.call(ch.textContent, function (c) {
             if (/\s/.test(c)) { frag.appendChild(doc.createTextNode(c)); return; }
             var s = doc.createElement("span");
-            s.className = "ch";
+            s.className = cls;
             s.style.setProperty("--i", i++);
             s.textContent = c;
             frag.appendChild(s);
           });
           ch.parentNode.replaceChild(frag, ch);
         } else if (ch.nodeType === 1) {
+          if (ch.tagName.toLowerCase() === "svg") {
+            var w = doc.createElement("span");
+            w.className = cls;
+            w.style.setProperty("--i", i++);
+            ch.parentNode.replaceChild(w, ch);
+            w.appendChild(ch);
+            return;
+          }
           walk(ch);
         }
       });
     })(el);
+  }
+  $$("[data-chars]").forEach(function (el) { splitChars(el, "ch"); });
+
+  // Pop-in: children ("items"), words or letters appear one after another
+  $$("[data-pop]").forEach(function (el) {
+    var mode = el.getAttribute("data-pop");
+    if (mode === "words") {
+      splitWords(el, "pw");
+    } else if (mode === "chars") {
+      // screen readers get the whole word, not single letters
+      var text = el.textContent.replace(/\s+/g, " ").trim();
+      splitChars(el, "pc");
+      $$(".pc", el).forEach(function (s) { s.setAttribute("aria-hidden", "true"); });
+      var sr = doc.createElement("span");
+      sr.className = "sr-only";
+      sr.textContent = text;
+      el.appendChild(sr);
+    } else {
+      Array.prototype.forEach.call(el.children, function (c, i) { c.style.setProperty("--i", i); });
+    }
   });
 
   /* Scroll-scrubbed paragraph: words light up as you scroll */
@@ -232,7 +263,7 @@
     watchers.get(target).push(el);
   }
   function observeAll(ctx) {
-    $$("[data-reveal]:not([data-reveal-load]), [data-split]:not([data-split='load']), .site-footer .megamark", ctx).forEach(observe);
+    $$("[data-reveal]:not([data-reveal-load]), [data-split]:not([data-split='load']), [data-pop], .site-footer .megamark", ctx).forEach(observe);
   }
 
   /* ======================================================================
@@ -274,10 +305,10 @@
     if (p.images[1]) html += '<img class="alt" src="' + esc(p.images[1]) + '" alt="" loading="lazy" decoding="async" width="720" height="900">';
     return html;
   }
-  function cardHTML(p, i) {
+  function cardHTML(p, i, step) {
     var badgeCls = p.status === "soon" ? "card__badge card__badge--aqua" : "card__badge";
     return (
-      '<article class="card" data-reveal data-cursor="' + (p.status === "soon" ? "Soon" : "View") + '" style="--d:' + (i % 4) * 110 + 'ms" data-status="' + esc(p.status) + '" data-id="' + esc(p.id) + '">' +
+      '<article class="card" data-reveal data-cursor="' + (p.status === "soon" ? "Soon" : "View") + '" style="--d:' + (i % 4) * (step || 110) + 'ms" data-status="' + esc(p.status) + '" data-id="' + esc(p.id) + '">' +
         '<div class="card__media">' + cardMedia(p, false) + (p.badge ? '<span class="' + badgeCls + '">' + esc(p.badge) + "</span>" : "") + "</div>" +
         '<div class="card__row"><h3 class="card__name"><a class="card__link" href="shop.html?p=' + encodeURIComponent(p.id) + '" data-product="' + esc(p.id) + '">' + richName(p.name) + "</a></h3>" +
         '<span class="card__price' + (p.price == null ? " is-request" : "") + '">' + esc(priceText(p)) + "</span></div>" +
@@ -286,12 +317,17 @@
     );
   }
   $$("[data-products]").forEach(function (box) {
-    var mode = box.getAttribute("data-products");
-    var list = PRODUCTS.slice(0, mode === "featured" ? 4 : PRODUCTS.length);
-    box.innerHTML = list.map(function (p, i) {
-      var c = cardHTML(p, i);
-      return mode === "featured" ? '<div class="scatter-item">' + c + "</div>" : c;
-    }).join("");
+    if (box.getAttribute("data-products") === "rail") {
+      // Home slider: every piece, then a card that leads to the shop
+      box.innerHTML = PRODUCTS.map(function (p, i) {
+        return '<li class="rail__item">' + cardHTML(p, i, 70) + "</li>";
+      }).join("") +
+        '<li class="rail__item rail__item--end"><a class="rail__end" href="shop.html" data-cursor="Shop" data-reveal>' +
+          ICON.rings + '<span class="rail__end-title">See every<br><em>piece.</em></span>' +
+          '<span class="pill__icon">' + ICON.arrow + "</span></a></li>";
+      return;
+    }
+    box.innerHTML = PRODUCTS.map(function (p, i) { return cardHTML(p, i); }).join("");
   });
 
   /* Shop filters */
@@ -316,7 +352,9 @@
   $$("[data-fit]").forEach(function (box) {
     var imgs = $$(".fit__preview img", box);
     var links = $$(".fit__list a", box);
+    var cur = 0, hovering = false, cycle = null;
     function activate(i) {
+      cur = i;
       imgs.forEach(function (im, k) { im.classList.toggle("is-active", k === i); });
       links.forEach(function (l, k) { l.classList.toggle("is-active", k === i); });
     }
@@ -324,6 +362,15 @@
       l.addEventListener("mouseenter", function () { activate(i); });
       l.addEventListener("focus", function () { activate(i); });
     });
+    // cycles through the looks by itself (phones have no hover), pausing while you point at a word
+    box.addEventListener("mouseenter", function () { hovering = true; });
+    box.addEventListener("mouseleave", function () { hovering = false; });
+    if (!reduceMotion && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (en) {
+        clearInterval(cycle);
+        if (en[0].isIntersecting) cycle = setInterval(function () { if (!hovering) activate((cur + 1) % links.length); }, 2600);
+      }, { threshold: 0.3 }).observe(box);
+    }
     activate(0);
   });
 
@@ -383,22 +430,22 @@
     if (!bag.length) {
       bagBody.innerHTML =
         '<div class="drawer__empty">' +
-          '<div class="lottie lottie--bag" data-lottie aria-hidden="true"></div>' +
-          "<p>Your bag is empty.<br><em class=\"serif-i\">Find a piece that feels like you.</em></p>" +
-          '<a class="pill" href="shop.html"><span class="pill__text">Browse the collection</span><span class="pill__icon">' + ICON.arrow + "</span></a>" +
+          '<div class="lottie lottie--bag" data-lottie aria-hidden="true" style="--i:0"></div>' +
+          '<p style="--i:1">Your bag is empty.<br><em class="serif-i">Find a piece that feels like you.</em></p>' +
+          '<a class="pill" href="shop.html" style="--i:2"><span class="pill__text">Browse the collection</span><span class="pill__icon">' + ICON.arrow + "</span></a>" +
         "</div>";
       bagFoot.hidden = true;
       if (root.classList.contains("bag-open")) initLotties(bagBody);
       return;
     }
     bagFoot.hidden = false;
-    bagBody.innerHTML = bag.map(function (l) {
+    bagBody.innerHTML = bag.map(function (l, k) {
       var p = byId(l.id);
       var img = p.images && p.images[0]
         ? '<img src="' + esc(p.images[0]) + '" alt="" loading="lazy">'
         : '<div class="ph"><span class="ph__name">' + esc(p.placeholder || plainName(p.name)) + "</span></div>";
       return (
-        '<div class="line-item" data-line="' + esc(p.id) + '">' +
+        '<div class="line-item" data-line="' + esc(p.id) + '" style="--i:' + k + '">' +
           '<div class="line-item__img">' + img + "</div>" +
           "<div>" +
             '<div class="line-item__top"><span>' + richName(p.name) + "</span><span>" + esc(p.price == null ? "On request" : naira(p.price * l.qty)) + "</span></div>" +
@@ -444,6 +491,7 @@
     else bag.push({ id: id, qty: 1 });
     saveBag();
     if (header) header.classList.toggle("is-hidden", false); // show the bag count as it bumps
+    root.classList.toggle("header-hidden", false);
     $$("[data-bag-count]").forEach(function (el) {
       el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump");
     });
@@ -473,8 +521,10 @@
     root.classList.toggle("bag-open", open);
     drawer.setAttribute("aria-hidden", String(!open));
     [$("#main"), $(".site-footer"), header].forEach(function (el) { if (el) el.inert = open; });
+    drawer.classList.toggle("is-settled", false);
     if (open) {
       lastFocus = doc.activeElement;
+      setTimeout(function () { drawer.classList.add("is-settled"); }, 1400);
       initLotties(bagBody);
       setTimeout(function () { $("[data-bag-close]", drawer).focus(); }, 80);
     } else if (lastFocus && lastFocus.focus) {
@@ -506,12 +556,12 @@
         '<div class="pdialog__grid">' +
           '<div class="pdialog__gallery"><div class="pdialog__main" data-pd-main></div><div class="pdialog__thumbs" data-pd-thumbs></div></div>' +
           '<div class="pdialog__info">' +
-            '<p class="label" data-pd-label></p>' +
-            '<h2 class="pdialog__title" id="pd-title" data-pd-title></h2>' +
-            '<p class="pdialog__price" data-pd-price></p>' +
-            '<p class="small" data-pd-desc></p>' +
-            '<dl class="spec" data-pd-spec></dl>' +
-            '<div class="pdialog__actions" data-pd-actions></div>' +
+            '<p class="label" data-pd-label style="--i:0"></p>' +
+            '<h2 class="pdialog__title" id="pd-title" data-pd-title style="--i:1"></h2>' +
+            '<p class="pdialog__price" data-pd-price style="--i:2"></p>' +
+            '<p class="small" data-pd-desc style="--i:3"></p>' +
+            '<dl class="spec" data-pd-spec style="--i:4"></dl>' +
+            '<div class="pdialog__actions" data-pd-actions style="--i:5"></div>' +
           "</div>" +
         "</div>" +
       "</dialog>"
@@ -525,12 +575,24 @@
       if (th) showImage(th.getAttribute("data-pd-thumb"));
     });
     dlg.addEventListener("close", function () {
-      if (/[?&]p=/.test(location.search) && history.replaceState) history.replaceState(null, "", location.pathname);
+      if (/[?&]p=/.test(location.search) && history.replaceState) history.replaceState(null, "", location.pathname + location.hash);
     });
+    // swipe between photos on phones
+    var main = $("[data-pd-main]", dlg), sx = null, sy = null;
+    main.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    main.addEventListener("touchend", function (e) {
+      if (sx === null || !current || current.images.length < 2) return;
+      var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      sx = null;
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+      var n = current.images.length;
+      showImage((shown + (dx < 0 ? 1 : -1) + n) % n);
+    }, { passive: true });
   }
-  var current = null;
+  var current = null, shown = 0;
   function showImage(i) {
     i = Number(i);
+    shown = i;
     var p = current;
     $("[data-pd-main]", dlg).innerHTML = p.images.length
       ? '<img src="' + esc(p.images[i]) + '" alt="' + esc(plainName(p.name) + ", " + p.colour + ", photo " + (i + 1)) + '">'
@@ -549,8 +611,8 @@
     price.classList.toggle("is-request", p.price == null);
     $("[data-pd-desc]", dlg).textContent = p.description;
     var rows = [["Colour", p.colour], ["Fabric", p.fabric], ["Fit", p.fit], ["Includes", p.includes], ["Delivery", "Worldwide via DHL"]];
-    $("[data-pd-spec]", dlg).innerHTML = rows.filter(function (r) { return r[1]; }).map(function (r) {
-      return "<div><dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd></div>";
+    $("[data-pd-spec]", dlg).innerHTML = rows.filter(function (r) { return r[1]; }).map(function (r, i) {
+      return '<div style="--i:' + i + '"><dt>' + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd></div>";
     }).join("");
     $("[data-pd-thumbs]", dlg).innerHTML = p.images.length > 1 ? p.images.map(function (src, i) {
       return '<button type="button" data-pd-thumb="' + i + '" aria-label="Show photo ' + (i + 1) + '"><img src="' + esc(src) + '" alt=""></button>';
@@ -565,18 +627,19 @@
     }
     showImage(0);
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
-    if (history.replaceState && $(".cards--shop")) history.replaceState(null, "", location.pathname + "?p=" + encodeURIComponent(p.id));
+    // shareable link to this piece, without leaving the page
+    if (history.replaceState) history.replaceState(null, "", location.pathname + "?p=" + encodeURIComponent(p.id) + location.hash);
   }
-  // On the shop page, open details in place instead of reloading
+  // Tapping a piece anywhere opens its details right here: no page change
   doc.addEventListener("click", function (e) {
     var a = e.target.closest && e.target.closest("[data-product]");
-    if (!a || !$(".cards--shop")) return;
+    if (!a) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey) return;
     e.preventDefault();
     openProduct(a.getAttribute("data-product"));
   });
   var qp = /[?&]p=([^&]+)/.exec(location.search);
-  if (qp && $(".cards--shop")) setTimeout(function () { openProduct(decodeURIComponent(qp[1])); }, reduceMotion ? 0 : 700);
+  if (qp) setTimeout(function () { openProduct(decodeURIComponent(qp[1])); }, reduceMotion ? 0 : 700);
 
   /* ======================================================================
      10. WhatsApp forms (footer + contact page)
@@ -701,15 +764,13 @@
     heroEl.style.setProperty("--hero-p", p.toFixed(4));
   }
 
-  /* Home photo slideshow: auto-advances, dots to jump, swipe on phones */
+  /* Home photo slideshow: changes on its own, swipe on phones */
   var slideBox = $("[data-slides]");
   if (slideBox) (function () {
     var slides = $$(".slide", slideBox);
-    var dots = $$(".hero__dot", slideBox);
     var SLIDE_MS = 5500;
     var wide = window.matchMedia("(min-aspect-ratio: 5/4) and (min-width: 900px)");
     var idx = 0, timer = null, onScreen = true;
-    slideBox.style.setProperty("--slide-ms", SLIDE_MS + "ms");
 
     function load(i) {
       $$("img[data-src]", slides[i]).forEach(function (im) {
@@ -740,19 +801,9 @@
         s.classList.toggle("is-active", k === idx);
         s.setAttribute("aria-hidden", String(k !== idx));
       });
-      dots.forEach(function (d, k) {
-        d.classList.toggle("is-active", false);
-        if (k === idx) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current");
-      });
-      void slideBox.offsetWidth; // restart the fill bar
-      if (dots[idx]) dots[idx].classList.add("is-active");
       setTone();
       schedule();
     }
-
-    dots.forEach(function (d) {
-      d.addEventListener("click", function () { show(parseInt(d.getAttribute("data-go"), 10)); });
-    });
 
     var sx = null, sy = null;
     slideBox.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
@@ -779,6 +830,156 @@
     schedule();
   })();
 
+  /* "Handpicked for you" slider: swipe, arrows, mouse drag, progress */
+  $$("[data-rail]").forEach(function (rail) {
+    var sec = rail.closest("section") || doc;
+    var prev = $("[data-rail-prev]", sec), next = $("[data-rail-next]", sec);
+    var fill = $("[data-rail-fill]", sec), now = $("[data-rail-now]", sec), total = $("[data-rail-total]", sec);
+    var bar = fill && fill.parentElement;
+    function items() { return $$(".rail__item", rail); }
+    function step() {
+      var it = items();
+      return it.length > 1 ? it[1].offsetLeft - it[0].offsetLeft : rail.clientWidth;
+    }
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    function update() {
+      var max = rail.scrollWidth - rail.clientWidth;
+      var p = max > 0 ? rail.scrollLeft / max : 0;
+      var count = items().length;
+      if (fill && bar) {
+        var bw = bar.clientWidth;
+        var tw = Math.max(0.12, Math.min(1, rail.clientWidth / rail.scrollWidth)) * bw;
+        fill.style.setProperty("--tw", tw.toFixed(1) + "px");
+        fill.style.setProperty("--tx", (p * (bw - tw)).toFixed(1) + "px");
+      }
+      var n = max <= 0 ? 1 : rail.scrollLeft >= max - 4 ? count : Math.min(count, Math.round(rail.scrollLeft / step()) + 1);
+      if (now) now.textContent = pad(n);
+      if (total) total.textContent = pad(count);
+      if (prev) prev.disabled = rail.scrollLeft < 4;
+      if (next) next.disabled = rail.scrollLeft > max - 4;
+    }
+    var queued = false;
+    rail.addEventListener("scroll", function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { update(); queued = false; });
+    }, { passive: true });
+    window.addEventListener("resize", update);
+    function go(dir) { rail.scrollBy({ left: dir * step(), behavior: reduceMotion ? "auto" : "smooth" }); }
+    if (prev) prev.addEventListener("click", function () { go(-1); });
+    if (next) next.addEventListener("click", function () { go(1); });
+
+    // drag with a mouse (fingers already swipe it natively)
+    var down = false, moved = false, startX = 0, startL = 0;
+    rail.addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      down = true; moved = false; startX = e.clientX; startL = rail.scrollLeft;
+    });
+    window.addEventListener("pointermove", function (e) {
+      if (!down) return;
+      var dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) > 6) { moved = true; rail.classList.add("is-dragging"); }
+      if (moved) rail.scrollLeft = startL - dx;
+    });
+    window.addEventListener("pointerup", function () {
+      if (!down) return;
+      down = false;
+      if (!moved) return;
+      rail.classList.toggle("is-dragging", false);
+      var s = step();
+      rail.scrollTo({ left: Math.round(rail.scrollLeft / s) * s, behavior: reduceMotion ? "auto" : "smooth" });
+    });
+    // a drag is not a tap: don't open a piece after dragging
+    rail.addEventListener("click", function (e) {
+      if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
+    }, true);
+    update();
+  });
+
+  /* Decorations only move while they're on screen */
+  var decoEls = $$(".decor, .badge, .rail__end");
+  if ("IntersectionObserver" in window) {
+    var decoIO = new IntersectionObserver(function (en) {
+      en.forEach(function (x) {
+        x.target.classList.toggle("in-view", x.isIntersecting);
+        if (x.isIntersecting) x.target.classList.add("is-seen");
+      });
+    }, { rootMargin: "80px" });
+    decoEls.forEach(function (el) { decoIO.observe(el); });
+  } else {
+    decoEls.forEach(function (el) { el.classList.add("in-view", "is-seen"); });
+  }
+
+  /* Big outlined words drift sideways as you scroll */
+  var drifters = reduceMotion ? [] : $$("[data-drift]");
+  function onScrollDrift() {
+    var vh = window.innerHeight;
+    drifters.forEach(function (el) {
+      var r = el.parentElement.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > vh) return;
+      var speed = parseFloat(el.getAttribute("data-drift")) || -0.1;
+      el.style.setProperty("--gx", ((r.top + r.height / 2 - vh / 2) * speed).toFixed(1) + "px");
+    });
+  }
+
+  /* Thin aqua line at the top shows how far down the page you are */
+  var progressBar = $(".progress");
+  function onScrollProgress() {
+    if (!progressBar) return;
+    var max = root.scrollHeight - window.innerHeight;
+    progressBar.style.setProperty("--sp", max > 0 ? Math.min(1, window.scrollY / max).toFixed(4) : "0");
+  }
+
+  /* Buttons lean towards the mouse */
+  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches && !reduceMotion) {
+    var magnet = null;
+    doc.addEventListener("mousemove", function (e) {
+      var p = e.target.closest && e.target.closest(".pill");
+      if (magnet && magnet !== p) { magnet.style.translate = ""; magnet = null; }
+      if (!p || p.closest(".pdialog, .drawer")) return;
+      var r = p.getBoundingClientRect();
+      var dx = (e.clientX - (r.left + r.width / 2)) * 0.16;
+      var dy = (e.clientY - (r.top + r.height / 2)) * 0.3;
+      p.style.translate = dx.toFixed(1) + "px " + dy.toFixed(1) + "px";
+      magnet = p;
+    }, { passive: true });
+  }
+
+  /* Search engines: the shop's pieces as structured data, from products.js */
+  (function () {
+    if (!$(".cards--shop") || !PRODUCTS.length) return;
+    var base = /^https?:$/.test(location.protocol) ? location.origin : "https://adabeke.vercel.app";
+    var items = PRODUCTS.filter(function (p) { return p.price != null && p.images && p.images.length; }).map(function (p, i) {
+      var url = base + "/shop.html?p=" + encodeURIComponent(p.id);
+      return {
+        "@type": "ListItem",
+        position: i + 1,
+        item: {
+          "@type": "Product",
+          name: plainName(p.name),
+          description: p.description,
+          sku: p.id,
+          color: p.colour,
+          image: p.images.map(function (src) { return base + "/" + src; }),
+          brand: { "@type": "Brand", name: "ADA BEKE" },
+          url: url,
+          offers: {
+            "@type": "Offer",
+            price: String(p.price),
+            priceCurrency: "NGN",
+            availability: p.status === "soon" ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
+            url: url,
+            seller: { "@id": "https://adabeke.vercel.app/#store" },
+          },
+        },
+      };
+    });
+    var s = doc.createElement("script");
+    s.type = "application/ld+json";
+    s.textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "ItemList", name: "ADA BEKE collection", itemListElement: items });
+    doc.head.appendChild(s);
+  })();
+
   /* Gentle parallax on editorial photos: [data-parallax="0.08"] */
   var parallaxEls = reduceMotion ? [] : $$("[data-parallax]");
   function onScrollParallax() {
@@ -796,7 +997,10 @@
   function onScroll() {
     if (ticking) return;
     ticking = true;
-    requestAnimationFrame(function () { onScrollHeader(); onScrollScrub(); onScrollHero(); onScrollParallax(); ticking = false; });
+    requestAnimationFrame(function () {
+      onScrollHeader(); onScrollScrub(); onScrollHero(); onScrollParallax(); onScrollDrift(); onScrollProgress();
+      ticking = false;
+    });
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
@@ -841,4 +1045,6 @@
   onScrollScrub();
   onScrollHero();
   onScrollParallax();
+  onScrollDrift();
+  onScrollProgress();
 })();

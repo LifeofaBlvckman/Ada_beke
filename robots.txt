@@ -1,0 +1,5 @@
+# ADA BEKE
+User-agent: *
+Allow: /
+
+Sitemap: https://adabeke.vercel.app/sitemap.xml
