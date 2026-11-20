@@ -929,7 +929,7 @@
   });
 
   /* Decorations only move while they're on screen */
-  var decoEls = $$(".decor, .badge, .rail__end");
+  var decoEls = $$(".decor, .rail__end");
   if ("IntersectionObserver" in window) {
     var decoIO = new IntersectionObserver(function (en) {
       en.forEach(function (x) {

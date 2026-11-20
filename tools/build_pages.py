@@ -91,16 +91,6 @@ def rings(cls=""):
             f'<circle class="rings__core" cx="100" cy="100" r="4"/></svg>')
 
 
-def badge(uid, cls=""):
-    """Slowly turning round stamp: FEEL GOOD FASHION • ADA BEKE •"""
-    return (f'<div class="badge {cls}" aria-hidden="true">'
-            f'<svg class="badge__ring" viewBox="0 0 200 200" focusable="false"><defs>'
-            f'<path id="{uid}" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs>'
-            f'<text class="badge__text"><textPath href="#{uid}" textLength="488" lengthAdjust="spacing">'
-            f'FEEL GOOD FASHION &#8226; ADA BEKE &#8226; </textPath></text></svg>'
-            f'<span class="badge__core">{ICON["sparkle"]}</span></div>')
-
-
 def spark(x, y, size=18, delay=0.0):
     return (f'<span class="spark" style="--sx:{x};--sy:{y};--ss:{size}px;--sd:{delay}s" '
             f'aria-hidden="true">{ICON["sparkle"]}</span>')
@@ -364,7 +354,6 @@ home = head(
           <figure class="story__float" data-parallax="0.1">
             <div class="arch" data-reveal="wipe"><img src="assets/img/omalicha-runway.webp" alt="Model walking in the Omalicha set with a navy head wrap" loading="lazy" width="591" height="700"></div>
             <figcaption class="tag" data-pop="words">Omalicha, in motion</figcaption>
-            {badge("bp-story", "badge--story")}
           </figure>
         </div>
         <div>
@@ -505,7 +494,6 @@ shop = head(
         <p class="hero__desc">Every piece is free size and ready to wear. Add pieces to your bag and check out on WhatsApp. We deliver worldwide.</p>
       </div>
     </div>
-    {badge("bp-shop", "badge--hero")}
     {megamark()}
   </section>
 
@@ -583,7 +571,6 @@ about = head(
       <p class="lede" data-scrub style="max-width:22ch"><span class="mark">ADA BEKE</span> is a feel good fashion brand {ICON["sparkle"]} built on free size culture. Getting dressed should feel easy: generous shapes, soft fabrics and pieces that flatter without fuss.</p>
       <div class="who__img">
         <div class="arch" data-reveal="wipe"><img data-parallax="0.05" src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set in royal navy" loading="lazy"></div>
-        {badge("bp-about", "badge--who")}
       </div>
     </div>
   </section>
@@ -722,7 +709,6 @@ contact = head(
         <div>{pill("Message us on WhatsApp", WA, "light", "wa", ' target="_blank" rel="noopener"')}</div>
       </div>
     </div>
-    {badge("bp-contact", "badge--hero")}
     {megamark()}
   </section>
 
@@ -851,7 +837,6 @@ notfound = head(
         <div class="nf-actions">{pill("Shop the collection", "shop.html", "light")}{pill("Back home", "index.html", "ghost")}</div>
       </div>
     </div>
-    {badge("bp-404", "badge--hero")}
     {megamark()}
   </section>
 </main>

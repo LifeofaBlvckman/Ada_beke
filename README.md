@@ -73,7 +73,6 @@ The decorations come from the brand itself:
 - **Rings:** the circle print on the white & brown boubou, slowly turning.
 - **Arch frames:** the arch behind the Omalicha mannequin.
 - **Wavy section edges:** the curved white bench in the studio photos.
-- **Turning badge:** "FEEL GOOD FASHION • ADA BEKE".
 - **Aqua sparkles:** they twinkle.
 - **Outlined words:** large outlined words drift behind some sections.
 

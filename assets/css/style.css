@@ -1700,52 +1700,7 @@ main, .site-footer { overflow-x: clip; }
 .curve { position: relative; z-index: 2; height: var(--curve-h); margin-top: calc(-1 * var(--curve-h)); pointer-events: none; }
 .curve--navy { background: var(--navy); -webkit-mask: var(--wave) center / 100% 100% no-repeat; mask: var(--wave) center / 100% 100% no-repeat; }
 
-/* --- Turning round stamp -------------------------------------------------- */
-.badge {
-  position: absolute;
-  z-index: 4;
-  display: grid;
-  place-items: center;
-  width: var(--bs, 128px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  overflow: hidden;            /* the turning ring never pokes past the circle */
-  color: var(--navy);
-  box-shadow: 0 20px 44px -22px rgba(15, 42, 74, 0.5);
-  pointer-events: none;
-}
-.badge::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--white);
-}
-.badge__ring { position: absolute; inset: 0; width: 100%; height: 100%; animation: spin 26s linear infinite; animation-play-state: paused; }
-.badge.in-view .badge__ring { animation-play-state: running; }
-.badge__text { font-family: var(--font-sans); font-size: 14.5px; font-weight: 500; letter-spacing: 0.08em; fill: currentColor; }
-.badge__core {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 36%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--aqua);
-  color: var(--navy);
-}
-.badge__core .sparkle { width: 46%; height: 46%; vertical-align: top; color: inherit; animation: twinkle 3s ease-in-out infinite; }
-.js .badge { opacity: 0; transform: scale(0.4) rotate(-40deg); transition: opacity 0.6s var(--ease-out), transform 1s var(--spring); }
-.js .badge.in-view, .js .badge.is-seen { opacity: 1; transform: none; }
-.badge--story { --bs: clamp(96px, 9vw, 128px); right: -30px; top: -34px; }
-.badge--who { --bs: clamp(92px, 9vw, 124px); left: -36px; bottom: 26px; }
-.badge--hero { --bs: 88px; right: var(--gutter); bottom: 6px; }
-@media (min-width: 1024px) {
-  /* lower left, layered over the big wordmark: clear of the title and the side text */
-  .badge--hero { --bs: 128px; right: auto; left: var(--gutter); bottom: 5.5vw; }
-}
 @media (max-width: 1023px) {
-  .badge--story { top: auto; bottom: 26px; right: -16px; }
   .rings--story { top: 44%; right: -30%; }
 }
 
@@ -1881,9 +1836,9 @@ main, .site-footer { overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) {
   .js [data-pop="items"] > *, .js [data-pop] .pw, .js [data-pop] .pc,
   .js .card .card__name, .js .card .card__price, .js .card .card__sub, .js .card .card__badge,
-  .js .badge, .js [data-reveal="wipe"] > img { opacity: 1 !important; transform: none !important; }
+  .js [data-reveal="wipe"] > img { opacity: 1 !important; transform: none !important; }
   .js [data-reveal="wipe"]::after { transform: scaleX(0) !important; }
-  .rings__dash, .rings__solid, .badge__ring, .spark, .sparkle { animation: none !important; }
+  .rings__dash, .rings__solid, .spark, .sparkle { animation: none !important; }
 }
 
 /* ==========================================================================
