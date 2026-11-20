@@ -371,32 +371,6 @@ home = head(
     </div>
   </section>
 
-  <section class="section section--mist curvy" aria-labelledby="fit-title">
-    {decor(ghost("free size", "-0.14"), rings("rings--fit"))}
-    <div class="wrap fit" data-fit>
-      <div class="fit__left">
-        <p class="label" data-pop="chars">The ADA BEKE way</p>
-        <h2 class="heading heading--spark" id="fit-title" data-split>Free size,<br><em>perfect fit.</em>{spark("100%", "8%", 20, 0.6)}</h2>
-        <p class="small" data-pop="words" style="max-width:38ch">Every piece is cut generously to flow, so it sits beautifully on a wide range of bodies.</p>
-        <div data-reveal>{pill("Shop new arrivals", "shop.html")}</div>
-        <div class="fit__preview arch" data-reveal="wipe" aria-hidden="true">
-          <img src="assets/img/hero-2-blue.webp" alt="" loading="lazy">
-          <img src="assets/img/hero-1-white-brown.webp" alt="" loading="lazy">
-          <img src="assets/img/hero-3-black.webp" alt="" loading="lazy">
-          <img src="assets/img/hero-4-ash.webp" alt="" loading="lazy">
-          <img src="assets/img/bags-heels.webp" alt="" loading="lazy">
-        </div>
-      </div>
-      <ul class="fit__list" data-pop="items">
-        <li><a href="about.html#values"><span>Chic</span><span class="meta">Clean lines, rich fabric</span></a></li>
-        <li><a href="about.html#values"><span><em class="serif-i">relaxed</em></span><span class="meta">Easy shapes you can move in</span></a></li>
-        <li><a href="about.html#values"><span>Elegance</span><span class="meta">From day into evening</span></a></li>
-        <li><a href="contact.html#size"><span>Free <em class="serif-i">size</em></span><span class="meta">One generous cut</span></a></li>
-        <li><a href="about.html#made"><span>Made in Nigeria</span><span class="meta">Delivered worldwide</span></a></li>
-      </ul>
-    </div>
-  </section>
-
   <section class="section edit" aria-labelledby="edit-title">
     {decor(spark("94%", "12%", 18, 1.1))}
     <div class="wrap">

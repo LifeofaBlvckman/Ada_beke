@@ -377,32 +377,6 @@
   });
   if (chips.length) applyFilter("all");
 
-  /* Piece list with image swap (home) */
-  $$("[data-fit]").forEach(function (box) {
-    var imgs = $$(".fit__preview img", box);
-    var links = $$(".fit__list a", box);
-    var cur = 0, hovering = false, cycle = null;
-    function activate(i) {
-      cur = i;
-      imgs.forEach(function (im, k) { im.classList.toggle("is-active", k === i); });
-      links.forEach(function (l, k) { l.classList.toggle("is-active", k === i); });
-    }
-    links.forEach(function (l, i) {
-      l.addEventListener("mouseenter", function () { activate(i); });
-      l.addEventListener("focus", function () { activate(i); });
-    });
-    // cycles through the looks by itself (phones have no hover), pausing while you point at a word
-    box.addEventListener("mouseenter", function () { hovering = true; });
-    box.addEventListener("mouseleave", function () { hovering = false; });
-    if (!reduceMotion && "IntersectionObserver" in window) {
-      new IntersectionObserver(function (en) {
-        clearInterval(cycle);
-        if (en[0].isIntersecting) cycle = setInterval(function () { if (!hovering) activate((cur + 1) % links.length); }, 2600);
-      }, { threshold: 0.3 }).observe(box);
-    }
-    activate(0);
-  });
-
   /* Quote slider */
   $$("[data-slider]").forEach(function (box) {
     var sets = $$(".note__set", box);
