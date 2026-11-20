@@ -8,6 +8,8 @@
 
   var doc = document;
   var root = doc.documentElement;
+  window.ADA_READY = true; // tells the safety net in the page head that the script arrived
+  var plain = !root.classList.contains("js"); // script came very late: page already shown plainly
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var PRODUCTS = window.ADA_PRODUCTS || [];
   var CONTACT = window.ADA_CONTACT || { whatsapp: "2348093712578" };
@@ -45,6 +47,32 @@
   };
 
   /* ======================================================================
+     0. Skeleton loading: photos shimmer until they arrive, then settle in
+     ====================================================================== */
+  function watchImg(img) {
+    if (img.__skel || !img.getAttribute("src")) return; // slides get a src later
+    img.__skel = true;
+    if (img.complete && img.naturalWidth) return;      // already here: no placeholder
+    img.classList.add("skel");
+    img.addEventListener("load", function () {
+      img.classList.toggle("skel", false);
+      if (!reduceMotion) img.classList.add("is-loaded");
+    }, { once: true });
+    img.addEventListener("error", function () { img.classList.toggle("skel", false); }, { once: true });
+  }
+  function skel(ctx) {
+    $$("img", ctx || doc).forEach(watchImg);
+    $$("video[poster]", ctx || doc).forEach(function (v) {
+      if (v.__skel) return;
+      v.__skel = true;
+      v.classList.add("skel");
+      var poster = new Image();
+      poster.onload = poster.onerror = function () { v.classList.toggle("skel", false); };
+      poster.src = v.getAttribute("poster");
+    });
+  }
+
+  /* ======================================================================
      1. Curtain: load fade + page-to-page fade
      ====================================================================== */
   // Arriving from another ADA BEKE page? Then skip the brand pause and lift at once.
@@ -62,6 +90,7 @@
   function lift() {
     if (started) return;
     started = true;
+    if (plain) return; // nothing to lift: the page is already showing
     reveal();
     // page words start while the curtain lifts
     setTimeout(function () {
@@ -438,6 +467,7 @@
       if (root.classList.contains("bag-open")) initLotties(bagBody);
       return;
     }
+    setTimeout(function () { skel(bagBody); }, 0);
     bagFoot.hidden = false;
     bagBody.innerHTML = bag.map(function (l, k) {
       var p = byId(l.id);
@@ -598,6 +628,7 @@
       ? '<img src="' + esc(p.images[i]) + '" alt="' + esc(plainName(p.name) + ", " + p.colour + ", photo " + (i + 1)) + '">'
       : '<div class="ph"><span class="ph__name">' + esc(p.placeholder || plainName(p.name)) + '</span><span class="ph__note">Photo coming soon</span></div>';
     $$("[data-pd-thumb]", dlg).forEach(function (b) { b.setAttribute("aria-current", String(Number(b.getAttribute("data-pd-thumb")) === i)); });
+    skel(dlg);
   }
   function openProduct(id) {
     var p = byId(id);
@@ -776,6 +807,7 @@
       $$("img[data-src]", slides[i]).forEach(function (im) {
         im.src = im.getAttribute("data-src");
         im.removeAttribute("data-src");
+        watchImg(im);
       });
     }
     // White words on darker photos, navy on bright studio photos
@@ -1038,6 +1070,7 @@
 
   $$(".js-year").forEach(function (el) { el.textContent = new Date().getFullYear(); });
 
+  skel(doc);
   observeAll(doc);
   renderBag();
   initLotties(doc);

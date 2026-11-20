@@ -110,6 +110,14 @@ def ghost(text, drift="-0.12", cls=""):
     return f'<p class="ghost {cls}" data-drift="{drift}">{text}</p>'
 
 
+def skel_cards(n, tag="li", cls="rail__item skel-card"):
+    """Placeholder cards shown until the real pieces are drawn in."""
+    one = (f'<{tag} class="{cls}" aria-hidden="true"><div class="skel-card__media"></div>'
+           f'<div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div>'
+           f'<span class="skel-card__line skel-card__line--short"></span></{tag}>')
+    return one * n
+
+
 def decor(*items):
     return '<div class="decor" aria-hidden="true">' + "".join(items) + "</div>"
 
@@ -193,7 +201,7 @@ def head(title, desc, page, path, og_image, og_alt, graph=None, robots="index, f
 <meta name="twitter:image" content="{SITE}/assets/img/og/{og_image}">
 <meta name="twitter:image:alt" content="{og_alt}">
 {data}
-<script>document.documentElement.classList.add("js","is-loading");</script>
+<script>(function(d){{d.classList.add("js","is-loading");setTimeout(function(){{if(!window.ADA_READY){{d.className=d.className.replace(/\\b(js|is-loading)\\b/g,"");}}}},4000);}})(document.documentElement);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{FONTS}">
@@ -413,7 +421,7 @@ home = head(
       </div>
     </div>
     <div class="rail" data-rail data-cursor="Drag" tabindex="0" aria-label="Handpicked pieces. Swipe or use the arrows to see more.">
-      <ul class="rail__track" data-products="rail"></ul>
+      <ul class="rail__track" data-products="rail">{skel_cards(4)}</ul>
     </div>
     <div class="wrap rail__foot" data-reveal>
       <div class="rail__bar" aria-hidden="true"><span data-rail-fill></span></div>
@@ -515,7 +523,7 @@ shop = head(
   <section class="section shop-grid" aria-label="Pieces">
     {decor(rings("rings--shop"))}
     <div class="wrap">
-      <div class="cards cards--shop" data-products="all"></div>
+      <div class="cards cards--shop" data-products="all">{skel_cards(4, "div", "skel-card")}</div>
     </div>
   </section>
 

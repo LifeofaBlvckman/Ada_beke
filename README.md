@@ -85,6 +85,11 @@ Other details:
 
 All movement stops for visitors with "reduce motion" on.
 
+## Loading
+
+- **Skeleton loading:** while things load, the shop grid and the "Handpicked" slider show shimmering placeholder cards, and every photo shows a mist shimmer until it arrives, then settles in from soft to sharp. The details panel, the bag and the dress animation do the same.
+- **Safety net:** if the page script is very slow or fails, the page shows everything plainly after 4 seconds instead of waiting.
+
 ## Home slideshow
 
 The opening photos live in `assets/img/hero-1-white-brown.webp` … `hero-4-ash.webp`, each with a tiny `-blur` copy used for the soft background on wide screens. To change a photo, replace both files (portrait 4:5, about 1024×1280) and keep the names, or edit the `slides` list in the page builder. Each slide is marked `light` or `dark` so the words switch between navy and white to stay readable. Photos change every 5.5 seconds, visitors can swipe on a phone, and the slideshow pauses when it's off screen.

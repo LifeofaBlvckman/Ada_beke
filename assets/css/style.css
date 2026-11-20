@@ -1466,8 +1466,7 @@ html[data-hero="dark"]:not(.menu-open) .page-home .site-header:not(.is-solid) :f
 /* --------------------------------------------------------------------------
    Lottie illustration
    -------------------------------------------------------------------------- */
-.lottie { width: 100%; aspect-ratio: 1 / 1; opacity: 0; transition: opacity 0.8s var(--ease-out); }
-.lottie.is-ready { opacity: 1; }
+.lottie { width: 100%; aspect-ratio: 1 / 1; border-radius: 50%; }
 .lottie svg { width: 100% !important; height: 100% !important; }
 .lottie--bag { width: 190px; margin: 0 0 -8px -14px; }
 .helper { display: grid; gap: 20px; align-items: center; padding: clamp(24px, 3vw, 40px); background: var(--mist); }
@@ -1885,4 +1884,54 @@ main, .site-footer { overflow-x: clip; }
   .js .badge, .js [data-reveal="wipe"] > img { opacity: 1 !important; transform: none !important; }
   .js [data-reveal="wipe"]::after { transform: scaleX(0) !important; }
   .rings__dash, .rings__solid, .badge__ring, .spark, .sparkle { animation: none !important; }
+}
+
+/* ==========================================================================
+   SKELETON LOADING
+   Photos, pieces and the dress animation shimmer in the brand mist until
+   they arrive, then settle in. Nothing waits on purpose: placeholders only
+   show while something is genuinely still loading.
+   ========================================================================== */
+.skel-card__media,
+.skel-card__line,
+.js img.skel,
+.js video.skel,
+.js .lottie:not(.is-ready) {
+  background-color: #e2f2f2;
+  background-image: linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0) 70%);
+  background-size: 240% 100%;
+  background-repeat: no-repeat;
+  animation: skel 1.25s ease-in-out infinite;
+}
+@keyframes skel {
+  from { background-position: 120% 0; }
+  to { background-position: -120% 0; }
+}
+/* warmer, darker shimmer behind the home photos */
+.js .hero img.skel {
+  background-color: #6b4a3a;
+  background-image: linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.16) 50%, rgba(255, 255, 255, 0) 70%);
+}
+/* placeholder cards */
+.skel-card { display: block; }
+.skel-card__media { aspect-ratio: 4 / 5; }
+.skel-card__row { display: flex; justify-content: space-between; gap: 16px; padding: 18px 0 12px; border-bottom: 1px solid var(--line); }
+.skel-card__line { display: block; height: 14px; width: 52%; border-radius: 4px; }
+.skel-card__line--price { width: 24%; }
+.skel-card__line--short { width: 64%; height: 11px; margin-top: 12px; }
+.skel-card:nth-child(2) .skel-card__media,
+.skel-card:nth-child(2) .skel-card__line { animation-delay: 0.12s; }
+.skel-card:nth-child(3) .skel-card__media,
+.skel-card:nth-child(3) .skel-card__line { animation-delay: 0.24s; }
+.skel-card:nth-child(4) .skel-card__media,
+.skel-card:nth-child(4) .skel-card__line { animation-delay: 0.36s; }
+html:not(.js) .skel-card { display: none; }
+
+/* a photo that has just arrived settles in from soft to sharp */
+@keyframes img-in { from { filter: blur(10px) saturate(0.7); } }
+.js img.is-loaded { animation: img-in 0.7s var(--ease-out) both; }
+.lottie.is-ready { animation: fade-in 0.6s var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce) {
+  .js img.is-loaded { animation: none; }
 }
