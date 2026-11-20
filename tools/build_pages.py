@@ -39,6 +39,8 @@ def version(rel):
 V_CSS = version("assets/css/style.css")
 V_JS = version("assets/js/main.js")
 V_PRODUCTS = version("assets/js/products.js")
+V_ADMIN_CSS = version("assets/admin/admin.css")
+V_ADMIN_JS = version("assets/admin/admin.js")
 
 ICON = {
     "arrow": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
@@ -192,6 +194,7 @@ def head(title, desc, page, path, og_image, og_alt, graph=None, robots="index, f
 <meta name="twitter:image:alt" content="{og_alt}">
 {data}
 <script>(function(d){{d.classList.add("js","is-loading");setTimeout(function(){{if(!window.ADA_READY){{d.className=d.className.replace(/\\b(js|is-loading)\\b/g,"");}}}},4000);}})(document.documentElement);</script>
+<script src="/api/catalogue" async onerror="window.ADA_SHOP={{}};document.dispatchEvent(new Event('ada:catalogue'))"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{FONTS}">
@@ -465,7 +468,7 @@ shop = head(
       <h1 class="display page-hero__title" id="shop-title" data-split="load">The<br><em>collection.</em></h1>
       <div class="page-hero__aside" data-reveal data-reveal-load style="--d:650ms">
         <p class="label">{ICON["sparkle"]} New chapter &middot; 2026</p>
-        <p class="hero__desc">Every piece is free size and ready to wear. Add pieces to your bag and check out on WhatsApp. We deliver worldwide.</p>
+        <p class="hero__desc">Every piece is free size and ready to wear. Add pieces to your bag and check out in a few taps. We deliver worldwide.</p>
       </div>
     </div>
     {megamark()}
@@ -642,7 +645,8 @@ FAQ = [
      "Yes, we deliver worldwide via DHL. Send us your city and country with your order and we&rsquo;ll confirm delivery for you.",
      "Yes, we deliver worldwide via DHL. Send us your city and country with your order and we'll confirm delivery for you."),
     ("How do I order and pay?",
-     "Add pieces to your bag and choose &ldquo;Checkout on WhatsApp&rdquo;, or message us directly. We confirm your total and how to pay with you on WhatsApp.",
+     "<span data-pay=\"whatsapp\">Add pieces to your bag and choose &ldquo;Checkout on WhatsApp&rdquo;, or message us directly. We confirm your total and how to pay with you on WhatsApp.</span>"
+     "<span data-pay=\"online\">Add pieces to your bag and choose Checkout to pay securely online through Paystack, by card, bank transfer or USSD. Prefer to chat? Choose WhatsApp instead and we&rsquo;ll confirm your total there.</span>",
      "Add pieces to your bag and choose Checkout on WhatsApp, or message us directly. We confirm your total and how to pay with you on WhatsApp."),
     ("What comes with each piece?",
      "Every listing says what&rsquo;s included. For example, the Omalicha set is sold with the scarf only, and the Wifey boubou is sold with the co-ord set.",
@@ -695,8 +699,8 @@ contact = head(
       </div>
       <ol class="steps" data-pop="items">
         <li class="step"><h3>Choose your piece</h3><p>Browse the collection and add what you love to your bag.</p></li>
-        <li class="step"><h3>Send it on WhatsApp</h3><p>Checkout opens WhatsApp with your order already written out.</p></li>
-        <li class="step"><h3>Confirm the details</h3><p>We confirm your total, payment and delivery with you directly.</p></li>
+        <li class="step"><h3><span data-pay="whatsapp">Send it on WhatsApp</span><span data-pay="online">Check out your way</span></h3><p><span data-pay="whatsapp">Checkout opens WhatsApp with your order already written out.</span><span data-pay="online">Pay securely online by card, bank transfer or USSD, or send your order to us on WhatsApp.</span></p></li>
+        <li class="step"><h3>Confirm the details</h3><p><span data-pay="whatsapp">We confirm your total, payment and delivery with you directly.</span><span data-pay="online">We message you on WhatsApp to confirm your delivery.</span></p></li>
         <li class="step"><h3>We deliver worldwide</h3><p>Your piece is on its way to you via DHL, wherever you are.</p></li>
       </ol>
     </div>
@@ -817,6 +821,70 @@ notfound = head(
 """ + FOOTER + SCRIPTS
 
 
+# Order page: Paystack brings customers back here after paying
+# --------------------------------------------------------------------------
+order = head(
+    "Your order — ADA BEKE",
+    "Your ADA BEKE order.",
+    "order", "/order.html", "og-home.jpg", "ADA BEKE", robots="noindex, nofollow",
+) + header("") + f"""
+<main id="main">
+  <section class="page-hero page-hero--order" aria-labelledby="order-title">
+    {LINES}
+    {decor(rings("rings--hero"), spark("88%", "22%", 22, 0.4))}
+    <div class="page-hero__inner">
+      <p class="crumbs label" data-reveal data-reveal-load><span data-order-ref>Your order</span></p>
+      <h1 class="display page-hero__title" id="order-title" data-order-title data-split="load">One<br><em>moment.</em></h1>
+      <div class="page-hero__aside" data-reveal data-reveal-load style="--d:600ms">
+        <p class="hero__desc" data-order-desc aria-live="polite">Checking your order&hellip;</p>
+        <div class="nf-actions" data-order-actions></div>
+      </div>
+    </div>
+    {megamark()}
+  </section>
+  <section class="section order-section">
+    <div class="wrap" data-order>
+      <div class="order-card order-card--skel" aria-hidden="true">
+        <span class="skel-card__line" style="width:34%;height:22px"></span>
+        <div class="order-line"><div class="order-line__img skel-card__media"></div><div><span class="skel-card__line" style="width:70%"></span><span class="skel-card__line skel-card__line--short"></span></div></div>
+        <div class="order-line"><div class="order-line__img skel-card__media"></div><div><span class="skel-card__line" style="width:55%"></span><span class="skel-card__line skel-card__line--short"></span></div></div>
+        <span class="skel-card__line" style="width:100%;height:18px"></span>
+      </div>
+    </div>
+  </section>
+</main>
+""" + FOOTER + SCRIPTS
+
+
+# --------------------------------------------------------------------------
+# Admin dashboard (/admin): its own lightweight page, never indexed
+# --------------------------------------------------------------------------
+admin = f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin — ADA BEKE</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="same-origin">
+<meta name="theme-color" content="#f5fbfb">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/img/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="{FONTS}">
+<link rel="stylesheet" href="/assets/admin/admin.css?v={V_ADMIN_CSS}">
+</head>
+<body>
+<div id="app"><div class="gate"><div class="gate__card"><p class="gate__mark">ADA BEKE<span>Admin</span></p><span class="sk" style="height:38px;width:70%"></span><span class="sk" style="height:48px"></span><span class="sk" style="height:44px;border-radius:999px"></span></div></div></div>
+<noscript><p style="padding:24px">The admin dashboard needs JavaScript turned on.</p></noscript>
+<script src="/assets/admin/admin.js?v={V_ADMIN_JS}"></script>
+</body>
+</html>
+"""
+
+
 def absolutise(html):
     for a, b in [('href="assets/', 'href="/assets/'), ('src="assets/', 'src="/assets/'),
                  ('data-src="assets/', 'data-src="/assets/'), ('href="index.html"', 'href="/"'),
@@ -830,13 +898,19 @@ def absolutise(html):
 # Write pages and site files
 # --------------------------------------------------------------------------
 for name, html in [("index.html", home), ("shop.html", shop), ("about.html", about),
-                   ("contact.html", contact), ("404.html", absolutise(notfound))]:
+                   ("contact.html", contact), ("404.html", absolutise(notfound)), ("order.html", order)]:
     (OUT / name).write_text(html, encoding="utf-8")
     print("wrote", name, len(html))
+(OUT / "admin").mkdir(exist_ok=True)
+(OUT / "admin" / "index.html").write_text(admin, encoding="utf-8")
+print("wrote admin/index.html", len(admin))
 
 (OUT / "robots.txt").write_text(f"""# ADA BEKE
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /order.html
 
 Sitemap: {SITE}/sitemap.xml
 """, encoding="utf-8")
@@ -889,6 +963,12 @@ urls = "".join(
         {"source": "/assets/css/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
         {"source": "/assets/js/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
         {"source": "/assets/(img|video|lottie|vendor)/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800"}]},
+        {"source": "/assets/admin/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
+        {"source": "/admin(.*)", "headers": [
+            {"key": "X-Robots-Tag", "value": "noindex, nofollow"},
+            {"key": "X-Frame-Options", "value": "DENY"},
+            {"key": "Cache-Control", "value": "no-store"},
+        ]},
         {"source": "/(.*)", "headers": [
             {"key": "X-Content-Type-Options", "value": "nosniff"},
             {"key": "Referrer-Policy", "value": "strict-origin-when-cross-origin"},

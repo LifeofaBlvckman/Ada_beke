@@ -11,8 +11,10 @@
   window.ADA_READY = true; // tells the safety net in the page head that the script arrived
   var plain = !root.classList.contains("js"); // script came very late: page already shown plainly
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var PRODUCTS = window.ADA_PRODUCTS || [];
+  var PRODUCTS = (window.ADA_PRODUCTS || []).filter(function (p) { return p.status !== "hidden"; });
   var CONTACT = window.ADA_CONTACT || { whatsapp: "2348093712578" };
+  // Filled from /api/catalogue: live pieces, delivery options, online payment on/off
+  var SHOP = { db: false, paystack: false, delivery: [] };
 
   /* ---------- helpers ---------- */
   function $(sel, ctx) { return (ctx || doc).querySelector(sel); }
@@ -43,6 +45,9 @@
     plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
     minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14"/></svg>',
     rings: '<svg class="rings" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><g class="rings__solid"><circle cx="100" cy="100" r="14"/><circle cx="100" cy="100" r="38"/><circle cx="100" cy="100" r="62"/><circle cx="100" cy="100" r="86"/></g><g class="rings__dash"><circle cx="100" cy="100" r="26"/><circle cx="100" cy="100" r="50"/><circle cx="100" cy="100" r="74"/><circle cx="100" cy="100" r="98"/></g><circle class="rings__core" cx="100" cy="100" r="4"/></svg>',
+    left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
+    lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
     wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15l-1.4 5 5.2-1.36A9.9 9.9 0 1 0 12.04 2Zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.08.81.82-3-.2-.31a8.2 8.2 0 1 1 6.94 3.83Zm4.5-6.14c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.55.12-.16.25-.63.8-.78.97-.14.16-.29.18-.53.06a6.7 6.7 0 0 1-3.32-2.9c-.25-.43.25-.4.72-1.33.08-.16.04-.3-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.3 2.74 2.74 0 0 0-.85 2.03 4.76 4.76 0 0 0 1 2.53 10.9 10.9 0 0 0 4.17 3.68c1.55.67 2.16.73 2.94.61.47-.07 1.46-.6 1.66-1.17.2-.58.2-1.07.14-1.17-.06-.1-.22-.16-.47-.28Z"/></svg>',
   };
 
@@ -330,39 +335,51 @@
     if (!p.images || !p.images.length) {
       return '<div class="ph" aria-hidden="true"><span class="ph__name">' + esc(p.placeholder || plainName(p.name)) + '</span><span class="ph__note">Photo coming soon</span></div>';
     }
-    var html = '<img src="' + esc(p.images[0]) + '" alt="' + esc(plainName(p.name) + ", " + p.colour) + '" loading="' + (eager ? "eager" : "lazy") + '" decoding="async" width="720" height="900">';
+    var html = '<img src="' + esc(p.images[0]) + '" alt="' + esc([plainName(p.name), p.colour].filter(Boolean).join(", ")) + '" loading="' + (eager ? "eager" : "lazy") + '" decoding="async" width="720" height="900">';
     if (p.images[1]) html += '<img class="alt" src="' + esc(p.images[1]) + '" alt="" loading="lazy" decoding="async" width="720" height="900">';
     return html;
   }
+  function subLine(p) { return [p.colour, p.fit].filter(Boolean).map(esc).join(" &middot; "); }
   function cardHTML(p, i, step) {
-    var badgeCls = p.status === "soon" ? "card__badge card__badge--aqua" : "card__badge";
+    var badgeCls = p.status === "soon" ? "card__badge card__badge--aqua" : p.status === "sold_out" ? "card__badge card__badge--out" : "card__badge";
+    var badge = p.status === "sold_out" ? "Sold out" : p.badge;
     return (
       '<article class="card" data-reveal data-cursor="' + (p.status === "soon" ? "Soon" : "View") + '" style="--d:' + (i % 4) * (step || 110) + 'ms" data-status="' + esc(p.status) + '" data-id="' + esc(p.id) + '">' +
-        '<div class="card__media">' + cardMedia(p, false) + (p.badge ? '<span class="' + badgeCls + '">' + esc(p.badge) + "</span>" : "") + "</div>" +
+        '<div class="card__media">' + cardMedia(p, false) + (badge ? '<span class="' + badgeCls + '">' + esc(badge) + "</span>" : "") + "</div>" +
         '<div class="card__row"><h3 class="card__name"><a class="card__link" href="shop.html?p=' + encodeURIComponent(p.id) + '" data-product="' + esc(p.id) + '">' + richName(p.name) + "</a></h3>" +
         '<span class="card__price' + (p.price == null ? " is-request" : "") + '">' + esc(priceText(p)) + "</span></div>" +
-        '<p class="card__sub">' + esc(p.colour) + " &middot; " + esc(p.fit) + "</p>" +
+        '<p class="card__sub">' + subLine(p) + "</p>" +
       "</article>"
     );
   }
-  $$("[data-products]").forEach(function (box) {
-    if (box.getAttribute("data-products") === "rail") {
-      // Home slider: every piece, then a card that leads to the shop
-      box.innerHTML = PRODUCTS.map(function (p, i) {
-        return '<li class="rail__item">' + cardHTML(p, i, 70) + "</li>";
-      }).join("") +
-        '<li class="rail__item rail__item--end"><a class="rail__end" href="shop.html" data-cursor="Shop" data-reveal>' +
-          ICON.rings + '<span class="rail__end-title">See every<br><em>piece.</em></span>' +
-          '<span class="pill__icon">' + ICON.arrow + "</span></a></li>";
-      return;
-    }
-    box.innerHTML = PRODUCTS.map(function (p, i) { return cardHTML(p, i); }).join("");
-  });
+  function renderProducts() {
+    $$("[data-products]").forEach(function (box) {
+      if (box.getAttribute("data-products") === "rail") {
+        // Home slider: every piece, then a card that leads to the shop
+        box.innerHTML = PRODUCTS.map(function (p, i) {
+          return '<li class="rail__item">' + cardHTML(p, i, 70) + "</li>";
+        }).join("") +
+          '<li class="rail__item rail__item--end"><a class="rail__end" href="shop.html" data-cursor="Shop" data-reveal>' +
+            ICON.rings + '<span class="rail__end-title">See every<br><em>piece.</em></span>' +
+            '<span class="pill__icon">' + ICON.arrow + "</span></a></li>";
+      } else {
+        box.innerHTML = PRODUCTS.length
+          ? PRODUCTS.map(function (p, i) { return cardHTML(p, i); }).join("")
+          : '<p class="cards__empty">New pieces are on the way. <a href="' + esc(waLink("Hello ADA BEKE! What's dropping next?")) + '" target="_blank" rel="noopener">Ask us what&rsquo;s next</a>.</p>';
+      }
+      skel(box);
+      observeAll(box);
+    });
+    if (chips.length) applyFilter(currentFilter);
+    doc.dispatchEvent(new Event("ada:products"));
+  }
 
   /* Shop filters */
   var chips = $$("[data-filter]");
   var countEl = $("[data-filter-count]");
+  var currentFilter = "all";
   function applyFilter(f) {
+    currentFilter = f;
     var shown = 0;
     $$(".cards--shop .card").forEach(function (c) {
       var ok = f === "all" || c.getAttribute("data-status") === f;
@@ -375,7 +392,6 @@
   chips.forEach(function (ch) {
     ch.addEventListener("click", function () { applyFilter(ch.getAttribute("data-filter")); });
   });
-  if (chips.length) applyFilter("all");
 
   /* Quote slider */
   $$("[data-slider]").forEach(function (box) {
@@ -401,7 +417,12 @@
      ====================================================================== */
   var BAG_KEY = "adabeke-bag";
   var bag = store(BAG_KEY) || [];
-  bag = bag.filter(function (l) { return byId(l.id); });
+  function tidyBag() {
+    bag = bag.filter(function (l) { var p = byId(l.id); return p && p.status === "available"; });
+  }
+  var bagStep = "bag"; // "bag" or "details" (Paystack checkout form)
+  var DETAILS_KEY = "adabeke-details";
+  var waRef = null, waRefFor = "";
 
   doc.body.insertAdjacentHTML("beforeend",
     '<div class="drawer-scrim" data-bag-close></div>' +
@@ -421,6 +442,24 @@
   function bagCount() { return bag.reduce(function (n, l) { return n + l.qty; }, 0); }
   function saveBag() { store(BAG_KEY, bag); renderBag(); }
 
+  function bagTotals() {
+    var subtotal = 0, onRequest = false;
+    bag.forEach(function (l) { var p = byId(l.id); if (!p) return; if (p.price == null) onRequest = true; else subtotal += p.price * l.qty; });
+    return { subtotal: subtotal, onRequest: onRequest };
+  }
+
+  // Order reference for WhatsApp orders, e.g. AB-7KQ2M9XP (same alphabet as the server)
+  function waReference() {
+    var sig = JSON.stringify(bag);
+    if (!waRef || waRefFor !== sig) {
+      var A = "23456789ABCDEFGHJKMNPQRSTUVWXYZ", buf = new Uint8Array(8), r = "AB-";
+      (window.crypto || {}).getRandomValues ? window.crypto.getRandomValues(buf) : buf.forEach(function (_, i) { buf[i] = Math.random() * 256; });
+      for (var i = 0; i < 8; i++) r += A[buf[i] % A.length];
+      waRef = r; waRefFor = sig;
+    }
+    return waRef;
+  }
+
   function renderBag() {
     var count = bagCount();
     $$("[data-bag-count]").forEach(function (el) {
@@ -430,6 +469,9 @@
     $$("[data-bag-open]").forEach(function (b) {
       if (b.classList.contains("bag-btn")) b.setAttribute("aria-label", "Open bag, " + count + (count === 1 ? " item" : " items"));
     });
+    if (!bag.length || !SHOP.paystack) bagStep = "bag";
+    $("#bag-title").innerHTML = bagStep === "details" ? "Check<em>out</em>" : "Your <em>bag</em>";
+    drawer.classList.toggle("is-checkout", bagStep === "details");
     if (!bag.length) {
       bagBody.innerHTML =
         '<div class="drawer__empty">' +
@@ -441,10 +483,12 @@
       if (root.classList.contains("bag-open")) initLotties(bagBody);
       return;
     }
-    setTimeout(function () { skel(bagBody); }, 0);
     bagFoot.hidden = false;
+    if (bagStep === "details") return renderDetails();
+    setTimeout(function () { skel(bagBody); }, 0);
     bagBody.innerHTML = bag.map(function (l, k) {
       var p = byId(l.id);
+      if (!p) return ""; // not in the list yet (the live list is still loading)
       var img = p.images && p.images[0]
         ? '<img src="' + esc(p.images[0]) + '" alt="" loading="lazy">'
         : '<div class="ph"><span class="ph__name">' + esc(p.placeholder || plainName(p.name)) + "</span></div>";
@@ -453,7 +497,7 @@
           '<div class="line-item__img">' + img + "</div>" +
           "<div>" +
             '<div class="line-item__top"><span>' + richName(p.name) + "</span><span>" + esc(p.price == null ? "On request" : naira(p.price * l.qty)) + "</span></div>" +
-            '<p class="line-item__sub">' + esc(p.colour) + " &middot; " + esc(p.fit) + "</p>" +
+            '<p class="line-item__sub">' + subLine(p) + "</p>" +
             '<div class="line-item__ctrl">' +
               '<div class="qty"><button type="button" data-qty="-1" aria-label="Remove one ' + esc(plainName(p.name)) + '">' + ICON.minus + "</button>" +
               "<output aria-live=\"polite\">" + l.qty + "</output>" +
@@ -465,28 +509,199 @@
       );
     }).join("");
 
-    var subtotal = 0, onRequest = false;
-    bag.forEach(function (l) { var p = byId(l.id); if (p.price == null) onRequest = true; else subtotal += p.price * l.qty; });
-    bagFoot.innerHTML =
-      '<div class="drawer__total"><span>Subtotal</span><strong>' + naira(subtotal) + "</strong></div>" +
-      '<p class="small">' + (onRequest ? "Some pieces are priced on request — we'll confirm the total with you. " : "") +
-      "We confirm delivery and payment with you on WhatsApp. We deliver worldwide.</p>" +
-      '<a class="pill pill--navy pill--block" data-checkout target="_blank" rel="noopener" href="#"><span class="pill__text">Checkout on WhatsApp</span><span class="pill__icon">' + ICON.wa + "</span></a>";
+    var t = bagTotals();
+    var online = SHOP.paystack && !t.onRequest;
+    var waBtn = '<span class="pill__text">Checkout on WhatsApp</span><span class="pill__icon">' + ICON.wa + "</span>";
+    var html = '<div class="drawer__total"><span>Subtotal</span><strong>' + naira(t.subtotal) + "</strong></div>";
+    if (online) {
+      html +=
+        '<p class="small">Delivery is added at the next step. Pay securely by card, bank transfer or USSD.</p>' +
+        '<button class="pill pill--navy pill--block" type="button" data-checkout-start><span class="pill__text">Checkout</span><span class="pill__icon">' + ICON.arrow + "</span></button>" +
+        '<a class="drawer__alt" data-checkout target="_blank" rel="noopener" href="#">' + ICON.wa + "<span>Or order on WhatsApp</span></a>";
+    } else {
+      html +=
+        '<p class="small">' + (t.onRequest ? "Some pieces are priced on request — we'll confirm the total with you. " : "") +
+        "We confirm delivery and payment with you on WhatsApp. We deliver worldwide.</p>" +
+        '<a class="pill pill--navy pill--block" data-checkout target="_blank" rel="noopener" href="#">' + waBtn + "</a>";
+    }
+    bagFoot.innerHTML = html;
     $("[data-checkout]", bagFoot).href = waLink(orderMessage());
   }
 
   function orderMessage() {
     var lines = ["Hello ADA BEKE! I'd like to order:", ""];
-    var subtotal = 0, onRequest = false;
+    var t = bagTotals();
     bag.forEach(function (l) {
       var p = byId(l.id);
+      if (!p) return;
       var price = p.price == null ? "price on request" : naira(p.price * l.qty);
-      if (p.price == null) onRequest = true; else subtotal += p.price * l.qty;
-      lines.push("• " + plainName(p.name) + " (" + p.colour + ") × " + l.qty + " — " + price);
+      lines.push("• " + plainName(p.name) + (p.colour ? " (" + p.colour + ")" : "") + " × " + l.qty + " — " + price);
     });
-    lines.push("", "Subtotal: " + naira(subtotal) + (onRequest ? " + pieces on request" : ""), "", "My name:", "Delivery city & country:");
+    lines.push("", "Subtotal: " + naira(t.subtotal) + (t.onRequest ? " + pieces on request" : ""));
+    if (SHOP.db) lines.push("Order ref: " + waReference());
+    lines.push("", "My name:", "Delivery city & country:");
     return lines.join("\n");
   }
+
+  // WhatsApp checkout: also note the order in the admin under the same reference
+  bagFoot.addEventListener("click", function (e) {
+    if (e.target.closest("[data-checkout-start]")) {
+      bagStep = "details";
+      renderBag();
+      var first = $("#co-name", bagBody);
+      if (first && !first.value) setTimeout(function () { first.focus(); }, 60);
+      return;
+    }
+    if (!e.target.closest("[data-checkout]") || !SHOP.db || !window.fetch) return;
+    var payload = JSON.stringify({ channel: "whatsapp", reference: waReference(), items: bag });
+    try {
+      fetch("/api/checkout", { method: "POST", keepalive: true, headers: { "Content-Type": "application/json" }, body: payload }).catch(function () {});
+    } catch (err) { /* never block the WhatsApp link */ }
+  });
+
+  /* Checkout form (Paystack) */
+  function coField(id, label, type, auto, value, opts) {
+    opts = opts || {};
+    var input = type === "textarea"
+      ? '<textarea id="co-' + id + '" name="' + id + '" rows="' + (opts.rows || 3) + '" autocomplete="' + auto + '"' + (opts.optional ? "" : " required") + ">" + esc(value || "") + "</textarea>"
+      : '<input id="co-' + id + '" name="' + id + '" type="' + type + '" autocomplete="' + auto + '" value="' + esc(value || "") + '"' +
+        (opts.inputmode ? ' inputmode="' + opts.inputmode + '"' : "") + (opts.optional ? "" : " required") + ">";
+    return '<div class="field" style="--i:' + (opts.i || 0) + '"><label for="co-' + id + '">' + label + (opts.optional ? ' <span class="field__opt">optional</span>' : "") + "</label>" + input +
+      (opts.hint ? '<span class="hint">' + opts.hint + "</span>" : "") +
+      '<p class="error">' + (opts.error || "Please fill this in.") + "</p></div>";
+  }
+  function chosenZone() {
+    var r = $('input[name="delivery"]:checked', bagBody);
+    var zones = SHOP.delivery || [];
+    for (var i = 0; i < zones.length; i++) if (r && zones[i].name === r.value) return zones[i];
+    return null;
+  }
+  function updateCheckoutTotals() {
+    var t = bagTotals();
+    var zones = SHOP.delivery || [];
+    var z = chosenZone();
+    var fee = z ? z.fee : 0;
+    var del = $("[data-co-delivery]", bagFoot), tot = $("[data-co-total]", bagFoot), pay = $("[data-co-pay]", bagFoot);
+    if (del) del.textContent = !zones.length ? "We'll confirm it with you" : z ? (z.fee ? naira(z.fee) : "Free") : "Choose below";
+    if (tot) tot.textContent = naira(t.subtotal + fee);
+    if (pay) pay.textContent = "Pay " + naira(t.subtotal + fee);
+  }
+  function renderDetails() {
+    var d = store(DETAILS_KEY) || {};
+    var zones = SHOP.delivery || [];
+    var picked = zones.some(function (z) { return z.name === d.delivery; }) ? d.delivery : zones.length === 1 ? zones[0].name : "";
+    var count = bagCount();
+    bagBody.innerHTML =
+      '<form class="checkout form" id="checkout-form" novalidate>' +
+        '<button type="button" class="checkout__back" data-checkout-back style="--i:0">' + ICON.left + "<span>Back to bag</span></button>" +
+        '<p class="checkout__lead" style="--i:1">' + count + (count === 1 ? " piece" : " pieces") + " &middot; " + naira(bagTotals().subtotal) + ". Where should we send " + (count === 1 ? "it" : "them") + "?</p>" +
+        '<div class="checkout__error" role="alert" hidden></div>' +
+        coField("name", "Full name", "text", "name", d.name, { i: 2, error: "Enter your full name." }) +
+        coField("email", "Email", "email", "email", d.email, { i: 3, inputmode: "email", hint: "Your receipt goes here.", error: "Enter a valid email address." }) +
+        coField("phone", "Phone (WhatsApp)", "tel", "tel", d.phone, { i: 4, inputmode: "tel", hint: "We&rsquo;ll message you about delivery.", error: "Enter a phone number we can reach you on." }) +
+        coField("country", "Country", "text", "country-name", d.country || "Nigeria", { i: 5 }) +
+        '<div class="form__row checkout__row">' +
+          coField("state", "State / region", "text", "address-level1", d.state, { i: 6, optional: true }) +
+          coField("city", "City / town", "text", "address-level2", d.city, { i: 6 }) +
+        "</div>" +
+        coField("address", "Delivery address", "textarea", "street-address", d.address, { i: 7, rows: 2, error: "Enter the address we should deliver to." }) +
+        (zones.length
+          ? '<fieldset class="zones field" style="--i:8"><legend>Delivery</legend>' +
+              zones.map(function (z, k) {
+                return '<label class="zone"><input type="radio" name="delivery" value="' + esc(z.name) + '"' + (z.name === picked ? " checked" : "") + (k === 0 ? " required" : "") + ">" +
+                  '<span class="zone__name">' + esc(z.name) + '</span><span class="zone__fee">' + (z.fee ? naira(z.fee) : "Free") + "</span></label>";
+              }).join("") +
+              '<p class="error">Choose how you&rsquo;d like it delivered.</p></fieldset>'
+          : '<p class="small checkout__note" style="--i:8">We deliver worldwide. We&rsquo;ll confirm the delivery cost with you on WhatsApp after you order.</p>') +
+        coField("note", "Note for us", "textarea", "off", "", { i: 9, rows: 2, optional: true }) +
+      "</form>";
+    bagFoot.innerHTML =
+      '<div class="checkout__sum">' +
+        '<div class="drawer__total drawer__total--sm"><span>Subtotal</span><span>' + naira(bagTotals().subtotal) + "</span></div>" +
+        '<div class="drawer__total drawer__total--sm"><span>Delivery</span><span data-co-delivery></span></div>' +
+        '<div class="drawer__total"><span>Total</span><strong data-co-total></strong></div>' +
+      "</div>" +
+      '<button class="pill pill--navy pill--block" type="submit" form="checkout-form"><span class="pill__text" data-co-pay></span><span class="pill__icon">' + ICON.lock + "</span></button>" +
+      '<p class="checkout__secure">Secured by Paystack &middot; card, bank transfer or USSD</p>';
+    updateCheckoutTotals();
+  }
+  function showCheckoutError(j, fields) {
+    var box = $(".checkout__error", bagBody);
+    if (!box) return;
+    var msg = (j && j.error) || "Something went wrong. Please try again.";
+    box.innerHTML = "<p>" + esc(msg) + "</p>" + (j && j.whatsapp ? '<a target="_blank" rel="noopener" href="' + esc(waLink(orderMessage())) + '">' + ICON.wa + "<span>Order on WhatsApp instead</span></a>" : "");
+    box.hidden = false;
+    (fields || []).forEach(function (f) {
+      var el = $('[name="' + f + '"]', bagBody);
+      var field = el && el.closest(".field");
+      if (field) field.classList.add("has-error");
+    });
+    box.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" });
+  }
+  bagBody.addEventListener("change", function (e) {
+    if (e.target.name === "delivery") {
+      var f = e.target.closest(".field");
+      if (f) f.classList.remove("has-error");
+      updateCheckoutTotals();
+    }
+  });
+  bagBody.addEventListener("input", function (e) {
+    var f = e.target.closest && e.target.closest(".field");
+    if (f && e.target.value.trim()) f.classList.remove("has-error");
+  });
+  bagBody.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var form = e.target;
+    var f = form.elements;
+    var val = function (n) { return f[n] ? String(f[n].value || "").trim() : ""; };
+    var bad = [];
+    if (!val("name")) bad.push("name");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val("email"))) bad.push("email");
+    if (val("phone").replace(/\D/g, "").length < 7) bad.push("phone");
+    if (!val("country")) bad.push("country");
+    if (!val("city")) bad.push("city");
+    if (!val("address")) bad.push("address");
+    if ((SHOP.delivery || []).length && !chosenZone()) bad.push("delivery");
+    $$(".field", form).forEach(function (fl) { fl.classList.remove("has-error"); });
+    $(".checkout__error", form).hidden = true;
+    if (bad.length) {
+      bad.forEach(function (n) { var el = $('[name="' + n + '"]', form); if (el) el.closest(".field").classList.add("has-error"); });
+      var firstBad = $('[name="' + bad[0] + '"]', form);
+      if (firstBad) firstBad.focus();
+      return;
+    }
+    var z = chosenZone();
+    var details = { name: val("name"), email: val("email"), phone: val("phone"), country: val("country"), state: val("state"), city: val("city"), address: val("address"), delivery: z ? z.name : "" };
+    store(DETAILS_KEY, details);
+    var btn = $('[form="checkout-form"]', bagFoot);
+    var label = $("[data-co-pay]", bagFoot);
+    btn.disabled = true;
+    btn.classList.add("is-busy");
+    label.textContent = "Taking you to Paystack…";
+    fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ channel: "paystack", items: bag, delivery: details.delivery, customer: Object.assign({ note: val("note") }, details) }),
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (res.ok && res.j.url) {
+          store("adabeke-pending", res.j.reference);
+          location.href = res.j.url;
+          return;
+        }
+        btn.disabled = false;
+        btn.classList.remove("is-busy");
+        updateCheckoutTotals();
+        showCheckoutError(res.j, res.j.fields);
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.classList.remove("is-busy");
+        updateCheckoutTotals();
+        showCheckoutError({ error: "We couldn't connect. Check your internet and try again." });
+      });
+  });
 
   function addToBag(id) {
     var line = null;
@@ -503,6 +718,13 @@
   }
 
   bagBody.addEventListener("click", function (e) {
+    if (e.target.closest("[data-checkout-back]")) {
+      bagStep = "bag";
+      renderBag();
+      var sb = $("[data-checkout-start]", bagFoot);
+      if (sb) sb.focus();
+      return;
+    }
     var row = e.target.closest("[data-line]");
     if (!row) return;
     var id = row.getAttribute("data-line");
@@ -531,8 +753,9 @@
       setTimeout(function () { drawer.classList.add("is-settled"); }, 1400);
       initLotties(bagBody);
       setTimeout(function () { $("[data-bag-close]", drawer).focus(); }, 80);
-    } else if (lastFocus && lastFocus.focus) {
-      lastFocus.focus();
+    } else {
+      if (bagStep !== "bag") setTimeout(function () { bagStep = "bag"; renderBag(); }, 600);
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
     }
   }
   doc.addEventListener("click", function (e) {
@@ -599,7 +822,7 @@
     shown = i;
     var p = current;
     $("[data-pd-main]", dlg).innerHTML = p.images.length
-      ? '<img src="' + esc(p.images[i]) + '" alt="' + esc(plainName(p.name) + ", " + p.colour + ", photo " + (i + 1)) + '">'
+      ? '<img src="' + esc(p.images[i]) + '" alt="' + esc([plainName(p.name), p.colour, "photo " + (i + 1)].filter(Boolean).join(", ")) + '">'
       : '<div class="ph"><span class="ph__name">' + esc(p.placeholder || plainName(p.name)) + '</span><span class="ph__note">Photo coming soon</span></div>';
     $$("[data-pd-thumb]", dlg).forEach(function (b) { b.setAttribute("aria-current", String(Number(b.getAttribute("data-pd-thumb")) === i)); });
     skel(dlg);
@@ -616,6 +839,7 @@
     price.classList.toggle("is-request", p.price == null);
     $("[data-pd-desc]", dlg).textContent = p.description;
     var rows = [["Colour", p.colour], ["Fabric", p.fabric], ["Fit", p.fit], ["Includes", p.includes], ["Delivery", "Worldwide via DHL"]];
+    if (p.status === "sold_out") $("[data-pd-label]", dlg).textContent = ["Sold out", p.fit].filter(Boolean).join(" · ");
     $("[data-pd-spec]", dlg).innerHTML = rows.filter(function (r) { return r[1]; }).map(function (r, i) {
       return '<div style="--i:' + i + '"><dt>' + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd></div>";
     }).join("");
@@ -623,12 +847,15 @@
       return '<button type="button" data-pd-thumb="' + i + '" aria-label="Show photo ' + (i + 1) + '"><img src="' + esc(src) + '" alt=""></button>';
     }).join("") : "";
     var actions = $("[data-pd-actions]", dlg);
-    if (p.status === "soon") {
+    if (p.status === "sold_out") {
+      actions.innerHTML = '<button class="pill pill--block pill--off" type="button" disabled><span class="pill__text">Sold out</span></button>' +
+        '<a class="pill pill--ghost pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! Will " + plainName(p.name) + " be restocked?")) + '"><span class="pill__text">Ask about a restock</span><span class="pill__icon">' + ICON.wa + "</span></a>";
+    } else if (p.status === "soon") {
       actions.innerHTML = '<a class="pill pill--navy pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! Please let me know when " + plainName(p.name) + " drops.")) + '"><span class="pill__text">Tell me when it drops</span><span class="pill__icon">' + ICON.wa + "</span></a>";
     } else {
       actions.innerHTML =
         '<button class="pill pill--navy pill--block" type="button" data-pd-add="' + esc(p.id) + '"><span class="pill__text">Add to bag</span><span class="pill__icon">' + ICON.plus + "</span></button>" +
-        '<a class="pill pill--ghost pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! I'd like to order the " + plainName(p.name) + " (" + p.colour + ")" + (p.price != null ? " — " + naira(p.price) : "") + ".")) + '"><span class="pill__text">Order this on WhatsApp</span><span class="pill__icon">' + ICON.wa + "</span></a>";
+        '<a class="pill pill--ghost pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! I'd like to order the " + plainName(p.name) + (p.colour ? " (" + p.colour + ")" : "") + (p.price != null ? " — " + naira(p.price) : "") + ".")) + '"><span class="pill__text">Order this on WhatsApp</span><span class="pill__icon">' + ICON.wa + "</span></a>";
     }
     showImage(0);
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
@@ -643,8 +870,112 @@
     e.preventDefault();
     openProduct(a.getAttribute("data-product"));
   });
-  var qp = /[?&]p=([^&]+)/.exec(location.search);
-  if (qp) setTimeout(function () { openProduct(decodeURIComponent(qp[1])); }, reduceMotion ? 0 : 700);
+  function openDeepLink() {
+    var qp = /[?&]p=([^&]+)/.exec(location.search);
+    if (qp) setTimeout(function () { openProduct(decodeURIComponent(qp[1])); }, reduceMotion ? 0 : 500);
+  }
+
+  /* ======================================================================
+     9b. Order page (after Paystack, or from a link)
+     ====================================================================== */
+  function initOrderPage() {
+    var box = $("[data-order]");
+    if (!box) return;
+    var qs = new URLSearchParams(location.search);
+    var fromPaystack = !!(qs.get("reference") || qs.get("trxref"));
+    var ref = String(qs.get("reference") || qs.get("trxref") || qs.get("ref") || store("adabeke-pending") || "").trim().toUpperCase();
+    var title = $("[data-order-title]"), desc = $("[data-order-desc]"), refEl = $("[data-order-ref]"), actions = $("[data-order-actions]");
+    var tries = 0;
+
+    function setTitle(html) {
+      title.classList.remove("is-in");
+      title.innerHTML = html;
+      splitWords(title, "w");
+      requestAnimationFrame(function () { requestAnimationFrame(function () { title.classList.add("is-in"); }); });
+    }
+    function pills(list) {
+      actions.innerHTML = list.map(function (a) {
+        return a.bag
+          ? '<button class="pill pill--light" type="button" data-bag-open><span class="pill__text">' + a.text + '</span><span class="pill__icon">' + ICON.arrow + "</span></button>"
+          : '<a class="pill ' + (a.cls || "pill--light") + '" href="' + esc(a.href) + '"' + (a.ext ? ' target="_blank" rel="noopener"' : "") + '><span class="pill__text">' + a.text + '</span><span class="pill__icon">' + (a.icon || ICON.arrow) + "</span></a>";
+      }).join("");
+    }
+    function summary(o) {
+      var rows = o.items.map(function (i, k) {
+        return '<li class="order-line" style="--i:' + k + '">' +
+          '<div class="order-line__img">' + (i.image ? '<img src="' + esc(i.image) + '" alt="" loading="lazy">' : "") + "</div>" +
+          '<div><p class="order-line__name">' + esc(i.name) + '</p><p class="order-line__sub">' + esc([i.colour, "× " + i.qty].filter(Boolean).join(" · ")) + "</p></div>" +
+          '<p class="order-line__price">' + (i.price == null ? "On request" : naira(i.price * i.qty)) + "</p></li>";
+      }).join("");
+      return '<div class="order-card" data-pop="items">' +
+        '<h2 class="order-card__title">Your <em>order</em></h2>' +
+        '<ul class="order-card__lines">' + rows + "</ul>" +
+        '<div class="order-card__sum">' +
+          '<div><span>Subtotal</span><span>' + naira(o.subtotal) + "</span></div>" +
+          (o.delivery ? "<div><span>Delivery &middot; " + esc(o.delivery.name) + "</span><span>" + (o.delivery.fee ? naira(o.delivery.fee) : "Free") + "</span></div>" : "") +
+          '<div class="order-card__total"><span>Total</span><strong>' + naira(o.total) + "</strong></div>" +
+        "</div></div>";
+    }
+    function show(o) {
+      var waText = "Hello ADA BEKE! " + (o ? "My order reference is " + o.reference + "." : "I have a question about my order.");
+      var wa = { text: "Message us on WhatsApp", href: waLink(waText), ext: true, icon: ICON.wa, cls: "pill--light" };
+      if (!o) {
+        refEl.textContent = ref ? ref : "Order";
+        setTitle("We can&rsquo;t find<br><em>that order.</em>");
+        desc.textContent = "The link may be incomplete. If you’ve paid, don’t worry: message us with your receipt and we’ll sort it out.";
+        pills([{ text: "Back to the shop", href: "shop.html" }, wa]);
+        box.innerHTML = "";
+        return;
+      }
+      refEl.textContent = "Order " + o.reference;
+      var name = o.firstName ? esc(o.firstName) : "";
+      if (o.payment === "paid") {
+        setTitle("Thank you" + (name ? ",<br><em>" + name + ".</em>" : "<em>.</em>"));
+        desc.textContent = o.channel === "paystack"
+          ? "Your payment of " + naira(o.total) + " is confirmed. Paystack has emailed your receipt, and we’ll message you on WhatsApp to arrange delivery."
+          : "Your order is confirmed and paid. We’ll message you on WhatsApp to arrange delivery.";
+        pills([{ text: "Continue shopping", href: "shop.html" }, wa]);
+        if (bag.length) { bag = []; saveBag(); }
+        try { localStorage.removeItem("adabeke-pending"); } catch (e) {}
+        root.classList.add("order-paid");
+      } else if (o.status === "cancelled") {
+        setTitle("This order was<br><em>cancelled.</em>");
+        desc.textContent = "If that’s a surprise, message us and we’ll help.";
+        pills([{ text: "Back to the shop", href: "shop.html" }, wa]);
+      } else if (o.channel === "whatsapp") {
+        setTitle("We&rsquo;ve got<br><em>your order.</em>");
+        desc.textContent = "We’ll confirm your total, payment and delivery with you on WhatsApp.";
+        pills([wa, { text: "Back to the shop", href: "shop.html", cls: "pill--ghost" }]);
+      } else {
+        setTitle("Payment not<br><em>completed.</em>");
+        desc.textContent = bag.length
+          ? "No money was taken. Your bag is saved, so you can try again whenever you’re ready."
+          : "No money was taken. You can place your order again, or message us and we’ll help.";
+        pills([bag.length ? { text: "Back to my bag", bag: true } : { text: "Back to the shop", href: "shop.html" }, wa]);
+      }
+      box.innerHTML = summary(o);
+      skel(box);
+      observeAll(box);
+    }
+    function load() {
+      if (!/^AB-[A-Z0-9]{8}$/.test(ref)) return show(null);
+      fetch("/api/order?ref=" + encodeURIComponent(ref), { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (o) {
+          // Paystack can take a moment to confirm: check a few more times
+          if (o && fromPaystack && o.channel === "paystack" && o.payment !== "paid" && o.status !== "cancelled" && tries < 4) {
+            tries++;
+            desc.textContent = "Confirming your payment with Paystack…";
+            return setTimeout(load, 2500);
+          }
+          show(o);
+        })
+        .catch(function () {
+          desc.textContent = "We couldn’t check your order just now. Refresh the page to try again.";
+        });
+    }
+    load();
+  }
 
   /* ======================================================================
      10. WhatsApp forms (footer + contact page)
@@ -683,7 +1014,8 @@
   });
 
   // Fill the "piece" dropdown on the contact page from the product list
-  $$("[data-piece-options]").forEach(function (sel) {
+  function fillPieceOptions() { $$("[data-piece-options]").forEach(function (sel) {
+    while (sel.options.length > 1) sel.remove(1);
     PRODUCTS.forEach(function (p) {
       var o = doc.createElement("option");
       o.value = plainName(p.name);
@@ -694,7 +1026,7 @@
     o.value = "Not sure yet — help me choose";
     o.textContent = "Not sure yet — help me choose";
     sel.appendChild(o);
-  });
+  }); }
 
   /* ======================================================================
      11. Lottie animation (self-hosted, loaded only when needed)
@@ -864,6 +1196,7 @@
       if (prev) prev.disabled = rail.scrollLeft < 4;
       if (next) next.disabled = rail.scrollLeft > max - 4;
     }
+    doc.addEventListener("ada:products", function () { rail.scrollLeft = 0; update(); });
     var queued = false;
     rail.addEventListener("scroll", function () {
       if (queued) return;
@@ -952,7 +1285,9 @@
   }
 
   /* Search engines: the shop's pieces as structured data, from products.js */
-  (function () {
+  function productLd() {
+    var old = $("script[data-product-ld]");
+    if (old) old.remove();
     if (!$(".cards--shop") || !PRODUCTS.length) return;
     var base = /^https?:$/.test(location.protocol) ? location.origin : "https://adabeke.vercel.app";
     var items = PRODUCTS.filter(function (p) { return p.price != null && p.images && p.images.length; }).map(function (p, i) {
@@ -966,14 +1301,14 @@
           description: p.description,
           sku: p.id,
           color: p.colour,
-          image: p.images.map(function (src) { return base + "/" + src; }),
+          image: p.images.map(function (src) { return /^https?:/.test(src) ? src : base + (src.charAt(0) === "/" ? "" : "/") + src; }),
           brand: { "@type": "Brand", name: "ADA BEKE" },
           url: url,
           offers: {
             "@type": "Offer",
             price: String(p.price),
             priceCurrency: "NGN",
-            availability: p.status === "soon" ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
+            availability: p.status === "soon" ? "https://schema.org/PreOrder" : p.status === "sold_out" ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
             url: url,
             seller: { "@id": "https://adabeke.vercel.app/#store" },
           },
@@ -982,9 +1317,10 @@
     });
     var s = doc.createElement("script");
     s.type = "application/ld+json";
+    s.setAttribute("data-product-ld", "");
     s.textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "ItemList", name: "ADA BEKE collection", itemListElement: items });
     doc.head.appendChild(s);
-  })();
+  }
 
   /* Gentle parallax on editorial photos: [data-parallax="0.08"] */
   var parallaxEls = reduceMotion ? [] : $$("[data-parallax]");
@@ -1047,6 +1383,33 @@
   skel(doc);
   observeAll(doc);
   renderBag();
+  initOrderPage();
+
+  // Live pieces from the database. Skeleton cards show meanwhile; if the
+  // catalogue is slow or missing, the built-in list is used after 2.5s.
+  var catalogueUsed = false;
+  function useCatalogue() {
+    var live = window.ADA_SHOP;
+    var first = !catalogueUsed;
+    if (live && typeof live === "object") {
+      SHOP = { db: !!live.db, paystack: !!live.paystack, delivery: live.delivery || [] };
+      if (Array.isArray(live.products)) PRODUCTS = live.products;
+    }
+    if (!first && !(live && Array.isArray(live.products))) return;
+    catalogueUsed = true;
+    root.classList.toggle("pay-online", SHOP.paystack);
+    renderProducts();
+    tidyBag();
+    renderBag();
+    fillPieceOptions();
+    productLd();
+    if (first) openDeepLink();
+  }
+  if (window.ADA_SHOP) useCatalogue();
+  else {
+    doc.addEventListener("ada:catalogue", useCatalogue);
+    setTimeout(function () { if (!catalogueUsed) useCatalogue(); }, 2500);
+  }
   initLotties(doc);
   onScrollHeader();
   onScrollScrub();

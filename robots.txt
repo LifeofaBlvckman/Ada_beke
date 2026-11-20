@@ -1,5 +1,8 @@
 # ADA BEKE
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /order.html
 
 Sitemap: https://adabeke.vercel.app/sitemap.xml

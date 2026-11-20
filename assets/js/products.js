@@ -1,16 +1,21 @@
 /* ==========================================================================
-   ADA BEKE — product list
+   ADA BEKE — starting product list
    --------------------------------------------------------------------------
-   Add, edit or remove pieces here and the Home + Shop pages update.
+   Once the database is connected, pieces are managed in the admin dashboard
+   (/admin) and this list is only:
+     - what the database starts with the very first time, and
+     - the backup the shop shows if the database can't be reached.
+   Before the database is connected, edit pieces here.
 
    id        short unique name, used in links (shop.html?p=omalicha)
    name      shown in the shop. Wrap a word in *stars* to set it in italics.
    price     a number in naira (45000), or null to show "Price on request"
-   status    "available" or "soon"
+   status    "available", "soon", "sold_out" or "hidden"
    images    paths to photos (first one is the main photo). Leave the list
              empty [] and the card shows a coloured placeholder instead.
    ========================================================================== */
-window.ADA_PRODUCTS = [
+(function (root) {
+root.ADA_PRODUCTS = [
   {
     id: "omalicha",
     name: "*Omalicha* set",
@@ -69,9 +74,10 @@ window.ADA_PRODUCTS = [
   },
 ];
 
-window.ADA_CONTACT = {
+root.ADA_CONTACT = {
   whatsapp: "2348093712578",
   whatsappDisplay: "+234 809 371 2578",
   instagram: "https://www.instagram.com/byadabeke/",
   threads: "https://www.threads.net/@byadabeke",
 };
+})(typeof window !== "undefined" ? window : module.exports);

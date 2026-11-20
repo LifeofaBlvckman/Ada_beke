@@ -1,0 +1,11 @@
+{
+  "name": "adabeke",
+  "private": true,
+  "description": "ADA BEKE shop: static pages plus Vercel functions for the database, checkout and admin dashboard.",
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "pg": "^8.23.1"
+  }
+}
