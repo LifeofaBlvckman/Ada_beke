@@ -352,7 +352,7 @@
     var badgeCls = p.status === "soon" ? "card__badge card__badge--aqua" : p.status === "sold_out" ? "card__badge card__badge--out" : "card__badge";
     var badge = p.status === "sold_out" ? "Sold out" : p.badge;
     return (
-      '<article class="card" data-reveal data-cursor="' + (p.status === "soon" ? "Soon" : "View") + '" style="--d:' + (i % 4) * (step || 110) + 'ms" data-status="' + esc(p.status) + '" data-collection="' + esc(p.collection || "") + '" data-id="' + esc(p.id) + '">' +
+      '<article class="card" data-reveal style="--d:' + (i % 4) * (step || 110) + 'ms" data-status="' + esc(p.status) + '" data-collection="' + esc(p.collection || "") + '" data-id="' + esc(p.id) + '">' +
         '<div class="card__media">' + cardMedia(p, false) + (badge ? '<span class="' + badgeCls + '">' + esc(badge) + "</span>" : "") + "</div>" +
         '<div class="card__row"><h3 class="card__name"><a class="card__link" href="shop.html?p=' + encodeURIComponent(p.id) + '" data-product="' + esc(p.id) + '">' + richName(p.name) + "</a></h3>" +
         '<span class="card__price' + (p.price == null ? " is-request" : "") + '">' + esc(priceText(p)) + "</span></div>" +
@@ -367,7 +367,7 @@
         box.innerHTML = PRODUCTS.map(function (p, i) {
           return '<li class="rail__item">' + cardHTML(p, i, 70) + "</li>";
         }).join("") +
-          '<li class="rail__item rail__item--end"><a class="rail__end" href="shop.html" data-cursor="Shop" data-reveal>' +
+          '<li class="rail__item rail__item--end"><a class="rail__end" href="shop.html" data-reveal>' +
             '<span class="rail__end-title">See every<br><em>piece.</em></span>' +
             '<span class="pill__icon">' + ICON.arrow + "</span></a></li>";
       } else {
@@ -430,7 +430,7 @@
     if (sec) sec.hidden = !COLLECTIONS.length;
     box.innerHTML = COLLECTIONS.map(function (c, i) {
       var count = PRODUCTS.filter(function (p) { return p.collection === c.id; }).length;
-      return '<a class="col-card" href="shop.html?c=' + encodeURIComponent(c.id) + '" data-reveal data-cursor="Shop" style="--d:' + i * 120 + 'ms">' +
+      return '<a class="col-card" href="shop.html?c=' + encodeURIComponent(c.id) + '" data-reveal style="--d:' + i * 120 + 'ms">' +
         '<div class="col-card__media">' + (c.image ? '<img src="' + esc(c.image) + '" alt="" loading="lazy" decoding="async">' : "") + "</div>" +
         '<div class="col-card__text"><p class="col-card__count">' + count + (count === 1 ? " piece" : " pieces") + "</p>" +
           '<h3 class="col-card__name">' + esc(c.name) + "</h3>" +
@@ -1525,37 +1525,6 @@
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
-
-  /* ======================================================================
-     13. "View" cursor bubble over pieces (mouse only)
-     ====================================================================== */
-  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches && !reduceMotion) {
-    root.classList.add("has-cursor");
-    var bubble = doc.createElement("div");
-    bubble.className = "cursor-view";
-    bubble.setAttribute("aria-hidden", "true");
-    bubble.textContent = "View";
-    doc.body.appendChild(bubble);
-    var tx = 0, ty = 0, cx = 0, cy = 0, on = false, running = false;
-    function follow() {
-      cx += (tx - cx) * 0.2;
-      cy += (ty - cy) * 0.2;
-      bubble.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) translate(-50%,-50%)";
-      if (on || Math.abs(tx - cx) > 0.5 || Math.abs(ty - cy) > 0.5) requestAnimationFrame(follow);
-      else running = false;
-    }
-    doc.addEventListener("mousemove", function (e) {
-      tx = e.clientX; ty = e.clientY;
-      var target = e.target.closest && e.target.closest("[data-cursor]");
-      var wasOn = on;
-      on = !!target;
-      if (target) bubble.textContent = target.getAttribute("data-cursor");
-      if (on && !wasOn) { cx = tx; cy = ty; }
-      bubble.classList.toggle("is-on", on);
-      if (!running) { running = true; requestAnimationFrame(follow); }
-    }, { passive: true });
-    doc.addEventListener("mouseleave", function () { on = false; bubble.classList.toggle("is-on", false); });
-  }
 
   $$(".js-year").forEach(function (el) { el.textContent = new Date().getFullYear(); });
 

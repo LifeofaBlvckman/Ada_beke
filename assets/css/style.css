@@ -1414,31 +1414,6 @@ html[data-hero="dark"]:not(.menu-open) .page-home .site-header:not(.is-solid) :f
 img[data-parallax],
 video[data-parallax] { scale: 1.14; }
 
-/* "View" bubble that follows the mouse over pieces */
-.cursor-view {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 130;
-  display: grid;
-  place-items: center;
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  background: var(--navy);
-  color: var(--white);
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 18px;
-  pointer-events: none;
-  opacity: 0;
-  scale: 0.3;
-  transition: opacity 0.35s var(--ease-out), scale 0.5s var(--ease-out);
-}
-.cursor-view.is-on { opacity: 1; scale: 1; }
-.has-cursor [data-cursor],
-.has-cursor [data-cursor] a { cursor: none; }
-
 /* Words appearing one by one */
 .js [data-split] .w {
   display: inline-block;

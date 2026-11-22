@@ -340,7 +340,7 @@ home = head(
         </div>
       </div>
     </div>
-    <div class="rail" data-rail data-cursor="Drag" tabindex="0" aria-label="Handpicked pieces. Swipe or use the arrows to see more.">
+    <div class="rail" data-rail tabindex="0" aria-label="Handpicked pieces. Swipe or use the arrows to see more.">
       <ul class="rail__track" data-products="rail">{skel_cards(4)}</ul>
     </div>
     <div class="wrap rail__foot" data-reveal>
