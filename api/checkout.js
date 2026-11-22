@@ -4,12 +4,13 @@
      channel "paystack": needs the customer's details; answers with the
                          Paystack payment page to send them to.
      channel "whatsapp": records the order under the reference that is in the
-                         customer's WhatsApp message, so it shows in the admin. */
+                         customer's WhatsApp message, so it shows in the admin.
+     action "quote":     checks a discount code against the bag (nothing saved). */
 "use strict";
 
 const { send, HttpError, readJson, clientIp, origin, handler } = require("../lib/http");
 const { q } = require("../lib/db");
-const { REF_RE, newReference, cleanText, getDelivery, limit, ipBucket } = require("../lib/shop");
+const { REF_RE, newReference, cleanText, getDelivery, limit, ipBucket, applyDiscount } = require("../lib/shop");
 const paystack = require("../lib/paystack");
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -22,7 +23,9 @@ module.exports = handler(async (req, res) => {
   if (channel === "paystack" && !paystack.enabled()) {
     throw new HttpError(409, "Online payment isn't switched on yet. Please order on WhatsApp.", { whatsapp: true });
   }
-  await limit(ipBucket("checkout", clientIp(req)), 30, 60);
+  const quote = data.action === "quote";
+  if (quote) await limit(ipBucket("quote", clientIp(req)), 60, 60);
+  else await limit(ipBucket("checkout", clientIp(req)), 30, 60);
 
   // What's in the bag
   const want = new Map();
@@ -58,6 +61,12 @@ module.exports = handler(async (req, res) => {
     items.push({ id: p.id, name: plain(p.name), colour: p.colour, price: p.price, qty, image: (p.images || [])[0] || null });
   }
 
+  if (quote) {
+    const d = await applyDiscount(data.code, subtotal);
+    if (!d) throw new HttpError(400, "Enter a discount code.", { fields: ["code"] });
+    return send(res, 200, { subtotal, discount: d });
+  }
+
   // Who it's for
   const c = data.customer || {};
   const customer = {
@@ -87,7 +96,8 @@ module.exports = handler(async (req, res) => {
     }
     if (missing.length) throw new HttpError(400, "Please check the highlighted details.", { fields: missing });
   }
-  const total = subtotal + delivery.fee;
+  const discount = channel === "paystack" && data.code ? await applyDiscount(data.code, subtotal) : null;
+  const total = subtotal - (discount ? discount.amount : 0) + delivery.fee;
   if (channel === "paystack" && total < 100) throw new HttpError(400, "The order total is too small to pay online.");
 
   // Save it
@@ -96,13 +106,13 @@ module.exports = handler(async (req, res) => {
   for (let attempt = 0; attempt < 3 && !order; attempt++) {
     const ins = await q(
       `insert into orders (reference, channel, name, email, phone, address, city, state, country, note,
-                           delivery_name, delivery_fee, items, subtotal, total, on_request)
-       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14,$15,$16)
+                           delivery_name, delivery_fee, items, subtotal, total, on_request, discount_code, discount)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14,$15,$16,$17,$18)
        on conflict (reference) do nothing returning *`,
       [
         reference, channel, customer.name, customer.email, customer.phone, customer.address, customer.city,
         customer.state, customer.country, customer.note, delivery.name, delivery.fee, JSON.stringify(items),
-        subtotal, total, onRequest,
+        subtotal, total, onRequest, discount ? discount.code : "", discount ? discount.amount : 0,
       ]
     );
     if (ins.rowCount) order = ins.rows[0];

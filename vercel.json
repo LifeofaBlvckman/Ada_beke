@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/catalogue?keepalive=1",
+      "schedule": "17 6 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/assets/css/(.*)",

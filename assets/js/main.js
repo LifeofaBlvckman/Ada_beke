@@ -14,7 +14,8 @@
   var PRODUCTS = (window.ADA_PRODUCTS || []).filter(function (p) { return p.status !== "hidden"; });
   var CONTACT = window.ADA_CONTACT || { whatsapp: "2348093712578" };
   // Filled from /api/catalogue: live pieces, delivery options, online payment on/off
-  var SHOP = { db: false, paystack: false, delivery: [] };
+  var SHOP = { db: false, paystack: false, delivery: [], collections: [], fx: null };
+  var COLLECTIONS = window.ADA_COLLECTIONS || [];
 
   /* ---------- helpers ---------- */
   function $(sel, ctx) { return (ctx || doc).querySelector(sel); }
@@ -28,6 +29,14 @@
   function richName(name) { return esc(name).replace(/\*(.+?)\*/g, "<em>$1</em>"); }
   function plainName(name) { return String(name).replace(/\*/g, ""); }
   function naira(n) { return "₦" + Number(n).toLocaleString("en-NG"); }
+  // Approximate price abroad, e.g. "≈ $29 · £23" (customers always pay in naira)
+  function fxText(n) {
+    var fx = SHOP.fx;
+    if (!fx || !(n > 0) || !(fx.usd > 0) || !(fx.gbp > 0)) return "";
+    var f = function (v) { return v >= 100 ? Math.round(v).toLocaleString("en-US") : v >= 10 ? String(Math.round(v)) : v.toFixed(2); };
+    return "≈ $" + f(n / fx.usd) + " · £" + f(n / fx.gbp);
+  }
+  function collectionById(id) { for (var i = 0; i < COLLECTIONS.length; i++) if (COLLECTIONS[i].id === id) return COLLECTIONS[i]; return null; }
   function priceText(p) { return p.price == null ? (p.status === "soon" ? "Coming soon" : "Price on request") : naira(p.price); }
   function byId(id) { for (var i = 0; i < PRODUCTS.length; i++) if (PRODUCTS[i].id === id) return PRODUCTS[i]; return null; }
   function waLink(text) { return "https://wa.me/" + CONTACT.whatsapp + "?text=" + encodeURIComponent(text); }
@@ -44,7 +53,6 @@
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
     plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
     minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14"/></svg>',
-    rings: '<svg class="rings" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><g class="rings__solid"><circle cx="100" cy="100" r="14"/><circle cx="100" cy="100" r="38"/><circle cx="100" cy="100" r="62"/><circle cx="100" cy="100" r="86"/></g><g class="rings__dash"><circle cx="100" cy="100" r="26"/><circle cx="100" cy="100" r="50"/><circle cx="100" cy="100" r="74"/><circle cx="100" cy="100" r="98"/></g><circle class="rings__core" cx="100" cy="100" r="4"/></svg>',
     left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
@@ -344,7 +352,7 @@
     var badgeCls = p.status === "soon" ? "card__badge card__badge--aqua" : p.status === "sold_out" ? "card__badge card__badge--out" : "card__badge";
     var badge = p.status === "sold_out" ? "Sold out" : p.badge;
     return (
-      '<article class="card" data-reveal data-cursor="' + (p.status === "soon" ? "Soon" : "View") + '" style="--d:' + (i % 4) * (step || 110) + 'ms" data-status="' + esc(p.status) + '" data-id="' + esc(p.id) + '">' +
+      '<article class="card" data-reveal data-cursor="' + (p.status === "soon" ? "Soon" : "View") + '" style="--d:' + (i % 4) * (step || 110) + 'ms" data-status="' + esc(p.status) + '" data-collection="' + esc(p.collection || "") + '" data-id="' + esc(p.id) + '">' +
         '<div class="card__media">' + cardMedia(p, false) + (badge ? '<span class="' + badgeCls + '">' + esc(badge) + "</span>" : "") + "</div>" +
         '<div class="card__row"><h3 class="card__name"><a class="card__link" href="shop.html?p=' + encodeURIComponent(p.id) + '" data-product="' + esc(p.id) + '">' + richName(p.name) + "</a></h3>" +
         '<span class="card__price' + (p.price == null ? " is-request" : "") + '">' + esc(priceText(p)) + "</span></div>" +
@@ -360,7 +368,7 @@
           return '<li class="rail__item">' + cardHTML(p, i, 70) + "</li>";
         }).join("") +
           '<li class="rail__item rail__item--end"><a class="rail__end" href="shop.html" data-cursor="Shop" data-reveal>' +
-            ICON.rings + '<span class="rail__end-title">See every<br><em>piece.</em></span>' +
+            '<span class="rail__end-title">See every<br><em>piece.</em></span>' +
             '<span class="pill__icon">' + ICON.arrow + "</span></a></li>";
       } else {
         box.innerHTML = PRODUCTS.length
@@ -370,28 +378,68 @@
       skel(box);
       observeAll(box);
     });
-    if (chips.length) applyFilter(currentFilter);
+    applyFilter(currentFilter);
     doc.dispatchEvent(new Event("ada:products"));
   }
 
-  /* Shop filters */
-  var chips = $$("[data-filter]");
+  /* Shop filters: All, each collection, Available now, Dropping soon */
+  var chipBox = $(".chips");
   var countEl = $("[data-filter-count]");
-  var currentFilter = "all";
+  var currentFilter = (function () {
+    var m = /[?&]c=([^&#]+)/.exec(location.search);
+    return m ? "c:" + decodeURIComponent(m[1]) : "all";
+  })();
   function applyFilter(f) {
+    if (!chipBox) return;
+    if (!$('[data-filter="' + f + '"]', chipBox)) f = "all";
     currentFilter = f;
     var shown = 0;
     $$(".cards--shop .card").forEach(function (c) {
-      var ok = f === "all" || c.getAttribute("data-status") === f;
+      var ok = f === "all" || (f.indexOf("c:") === 0 ? c.getAttribute("data-collection") === f.slice(2) : c.getAttribute("data-status") === f);
       c.classList.toggle("is-filtered-out", !ok);
       if (ok) { shown++; c.classList.add("is-in"); }
     });
-    chips.forEach(function (ch) { ch.setAttribute("aria-pressed", String(ch.getAttribute("data-filter") === f)); });
+    $$("[data-filter]", chipBox).forEach(function (ch) { ch.setAttribute("aria-pressed", String(ch.getAttribute("data-filter") === f)); });
     if (countEl) countEl.textContent = shown + (shown === 1 ? " piece" : " pieces");
   }
-  chips.forEach(function (ch) {
-    ch.addEventListener("click", function () { applyFilter(ch.getAttribute("data-filter")); });
+  function renderCollectionChips() {
+    if (!chipBox) return;
+    $$("[data-filter^='c:']", chipBox).forEach(function (ch) { ch.remove(); });
+    var all = $('[data-filter="all"]', chipBox);
+    var html = COLLECTIONS.map(function (c) {
+      return '<button class="chip" type="button" data-filter="c:' + esc(c.id) + '" aria-pressed="false">' + esc(c.name) + "</button>";
+    }).join("");
+    if (all) all.insertAdjacentHTML("afterend", html);
+  }
+  if (chipBox) chipBox.addEventListener("click", function (e) {
+    var ch = e.target.closest("[data-filter]");
+    if (!ch) return;
+    var f = ch.getAttribute("data-filter");
+    applyFilter(f);
+    if (history.replaceState) {
+      var q = f.indexOf("c:") === 0 ? "?c=" + encodeURIComponent(f.slice(2)) : "";
+      history.replaceState(null, "", location.pathname + q + location.hash);
+    }
   });
+
+  /* Home: shop by collection */
+  function renderCollections() {
+    var box = $("[data-collections]");
+    if (!box) return;
+    var sec = box.closest("[data-collections-section]");
+    if (sec) sec.hidden = !COLLECTIONS.length;
+    box.innerHTML = COLLECTIONS.map(function (c, i) {
+      var count = PRODUCTS.filter(function (p) { return p.collection === c.id; }).length;
+      return '<a class="col-card" href="shop.html?c=' + encodeURIComponent(c.id) + '" data-reveal data-cursor="Shop" style="--d:' + i * 120 + 'ms">' +
+        '<div class="col-card__media">' + (c.image ? '<img src="' + esc(c.image) + '" alt="" loading="lazy" decoding="async">' : "") + "</div>" +
+        '<div class="col-card__text"><p class="col-card__count">' + count + (count === 1 ? " piece" : " pieces") + "</p>" +
+          '<h3 class="col-card__name">' + esc(c.name) + "</h3>" +
+          (c.tagline ? '<p class="col-card__tag">' + esc(c.tagline) + "</p>" : "") +
+          '<span class="col-card__cta">Shop now<span class="pill__icon">' + ICON.arrow + "</span></span></div></a>";
+    }).join("");
+    skel(box);
+    observeAll(box);
+  }
 
   /* Quote slider */
   $$("[data-slider]").forEach(function (box) {
@@ -423,6 +471,7 @@
   var bagStep = "bag"; // "bag" or "details" (Paystack checkout form)
   var DETAILS_KEY = "adabeke-details";
   var waRef = null, waRefFor = "";
+  var discount = null, discountFor = ""; // { code, amount, label } checked against this bag
 
   doc.body.insertAdjacentHTML("beforeend",
     '<div class="drawer-scrim" data-bag-close></div>' +
@@ -576,15 +625,69 @@
     for (var i = 0; i < zones.length; i++) if (r && zones[i].name === r.value) return zones[i];
     return null;
   }
+  function currentDiscount() {
+    if (discount && discountFor !== JSON.stringify(bag)) discount = null; // the bag changed: check again
+    return discount;
+  }
   function updateCheckoutTotals() {
     var t = bagTotals();
     var zones = SHOP.delivery || [];
     var z = chosenZone();
     var fee = z ? z.fee : 0;
+    var d = currentDiscount();
+    var off = d ? d.amount : 0;
+    var total = t.subtotal - off + fee;
     var del = $("[data-co-delivery]", bagFoot), tot = $("[data-co-total]", bagFoot), pay = $("[data-co-pay]", bagFoot);
+    var drow = $("[data-co-discount-row]", bagFoot), fxEl = $("[data-co-fx]", bagFoot);
     if (del) del.textContent = !zones.length ? "We'll confirm it with you" : z ? (z.fee ? naira(z.fee) : "Free") : "Choose below";
-    if (tot) tot.textContent = naira(t.subtotal + fee);
-    if (pay) pay.textContent = "Pay " + naira(t.subtotal + fee);
+    if (drow) {
+      drow.hidden = !d;
+      if (d) $("[data-co-discount]", drow).textContent = "−" + naira(off);
+      if (d) $("[data-co-discount-label]", drow).textContent = "Discount (" + d.code + ")";
+    }
+    if (tot) tot.textContent = naira(total);
+    if (pay) pay.textContent = "Pay " + naira(total);
+    if (fxEl) {
+      var fx = fxText(total);
+      fxEl.hidden = !fx;
+      fxEl.textContent = fx ? fx + ". You pay in naira; your bank converts it." : "";
+    }
+  }
+  function applyCode() {
+    var input = $("#co-code", bagBody);
+    if (!input) return;
+    var field = input.closest(".field");
+    var msg = $("[data-code-msg]", bagBody);
+    var btn = $("[data-apply-code]", bagBody);
+    var code = input.value.trim();
+    field.classList.remove("has-error");
+    if (!code) { discount = null; msg.textContent = ""; updateCheckoutTotals(); return; }
+    btn.disabled = true;
+    btn.textContent = "Checking…";
+    fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "quote", items: bag, code: code }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        btn.disabled = false;
+        btn.textContent = "Apply";
+        if (res.ok && res.j.discount) {
+          discount = res.j.discount;
+          discountFor = JSON.stringify(bag);
+          input.value = discount.code;
+          msg.textContent = discount.code + ": " + discount.label + " (−" + naira(discount.amount) + ")";
+        } else {
+          discount = null;
+          msg.textContent = "";
+          $(".error", field).textContent = (res.j && res.j.error) || "That code didn't work.";
+          field.classList.add("has-error");
+        }
+        updateCheckoutTotals();
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = "Apply";
+        $(".error", field).textContent = "We couldn't check that code. Check your internet and try again.";
+        field.classList.add("has-error");
+      });
   }
   function renderDetails() {
     var d = store(DETAILS_KEY) || {};
@@ -614,12 +717,19 @@
               '<p class="error">Choose how you&rsquo;d like it delivered.</p></fieldset>'
           : '<p class="small checkout__note" style="--i:8">We deliver worldwide. We&rsquo;ll confirm the delivery cost with you on WhatsApp after you order.</p>') +
         coField("note", "Note for us", "textarea", "off", "", { i: 9, rows: 2, optional: true }) +
+        '<div class="field coupon" style="--i:10"><label for="co-code">Discount code <span class="field__opt">optional</span></label>' +
+          '<div class="coupon__row"><input id="co-code" name="code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' + esc(currentDiscount() ? discount.code : "") + '">' +
+          '<button type="button" class="coupon__btn" data-apply-code>Apply</button></div>' +
+          '<span class="hint" data-code-msg aria-live="polite">' + (currentDiscount() ? esc(discount.code + ": " + discount.label + " (−" + naira(discount.amount) + ")") : "") + "</span>" +
+          '<p class="error">That code didn&rsquo;t work.</p></div>' +
       "</form>";
     bagFoot.innerHTML =
       '<div class="checkout__sum">' +
         '<div class="drawer__total drawer__total--sm"><span>Subtotal</span><span>' + naira(bagTotals().subtotal) + "</span></div>" +
+        '<div class="drawer__total drawer__total--sm" data-co-discount-row hidden><span data-co-discount-label>Discount</span><span data-co-discount></span></div>' +
         '<div class="drawer__total drawer__total--sm"><span>Delivery</span><span data-co-delivery></span></div>' +
         '<div class="drawer__total"><span>Total</span><strong data-co-total></strong></div>' +
+        '<p class="checkout__fx" data-co-fx hidden></p>' +
       "</div>" +
       '<button class="pill pill--navy pill--block" type="submit" form="checkout-form"><span class="pill__text" data-co-pay></span><span class="pill__icon">' + ICON.lock + "</span></button>" +
       '<p class="checkout__secure">Secured by Paystack &middot; card, bank transfer or USSD</p>';
@@ -648,6 +758,14 @@
   bagBody.addEventListener("input", function (e) {
     var f = e.target.closest && e.target.closest(".field");
     if (f && e.target.value.trim()) f.classList.remove("has-error");
+    if (e.target.id === "co-code" && discount && e.target.value.trim().toUpperCase() !== discount.code) {
+      discount = null;
+      $("[data-code-msg]", bagBody).textContent = "";
+      updateCheckoutTotals();
+    }
+  });
+  bagBody.addEventListener("keydown", function (e) {
+    if (e.target.id === "co-code" && e.key === "Enter") { e.preventDefault(); applyCode(); }
   });
   bagBody.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -681,7 +799,7 @@
     fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ channel: "paystack", items: bag, delivery: details.delivery, customer: Object.assign({ note: val("note") }, details) }),
+      body: JSON.stringify({ channel: "paystack", items: bag, delivery: details.delivery, code: val("code"), customer: Object.assign({ note: val("note") }, details) }),
     })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
@@ -718,6 +836,7 @@
   }
 
   bagBody.addEventListener("click", function (e) {
+    if (e.target.closest("[data-apply-code]")) { applyCode(); return; }
     if (e.target.closest("[data-checkout-back]")) {
       bagStep = "bag";
       renderBag();
@@ -785,10 +904,12 @@
           '<div class="pdialog__info">' +
             '<p class="label" data-pd-label style="--i:0"></p>' +
             '<h2 class="pdialog__title" id="pd-title" data-pd-title style="--i:1"></h2>' +
-            '<p class="pdialog__price" data-pd-price style="--i:2"></p>' +
+            '<p class="pdialog__price" style="--i:2"><span data-pd-price></span><span class="pdialog__fx" data-pd-fx></span></p>' +
             '<p class="small" data-pd-desc style="--i:3"></p>' +
+            '<p class="pdialog__fit" data-pd-fit style="--i:3" hidden></p>' +
             '<dl class="spec" data-pd-spec style="--i:4"></dl>' +
             '<div class="pdialog__actions" data-pd-actions style="--i:5"></div>' +
+            '<div class="pdialog__related" data-pd-related style="--i:6"></div>' +
           "</div>" +
         "</div>" +
       "</dialog>"
@@ -800,6 +921,16 @@
       if (add) { addToBag(add.getAttribute("data-pd-add")); dlg.close(); }
       var th = e.target.closest("[data-pd-thumb]");
       if (th) showImage(th.getAttribute("data-pd-thumb"));
+      var rel = e.target.closest("[data-pd-open]");
+      if (rel) {
+        e.preventDefault();
+        openProduct(rel.getAttribute("data-pd-open"));
+        dlg.scrollTop = 0;
+        var info = $(".pdialog__info", dlg);
+        if (info) info.scrollTop = 0;
+        var t = $("[data-pd-title]", dlg);
+        if (t) { t.setAttribute("tabindex", "-1"); t.focus({ preventScroll: true }); }
+      }
     });
     dlg.addEventListener("close", function () {
       if (/[?&]p=/.test(location.search) && history.replaceState) history.replaceState(null, "", location.pathname + location.hash);
@@ -836,8 +967,12 @@
     $("[data-pd-title]", dlg).innerHTML = richName(p.name);
     var price = $("[data-pd-price]", dlg);
     price.textContent = priceText(p);
-    price.classList.toggle("is-request", p.price == null);
+    price.parentNode.classList.toggle("is-request", p.price == null);
+    $("[data-pd-fx]", dlg).textContent = p.price != null ? fxText(p.price) : "";
     $("[data-pd-desc]", dlg).textContent = p.description;
+    var fit = $("[data-pd-fit]", dlg);
+    fit.hidden = !p.fitNote;
+    fit.innerHTML = p.fitNote ? "<strong>Fit note</strong> " + esc(p.fitNote) : "";
     var rows = [["Colour", p.colour], ["Fabric", p.fabric], ["Fit", p.fit], ["Includes", p.includes], ["Delivery", "Worldwide via DHL"]];
     if (p.status === "sold_out") $("[data-pd-label]", dlg).textContent = ["Sold out", p.fit].filter(Boolean).join(" · ");
     $("[data-pd-spec]", dlg).innerHTML = rows.filter(function (r) { return r[1]; }).map(function (r, i) {
@@ -851,14 +986,38 @@
       actions.innerHTML = '<button class="pill pill--block pill--off" type="button" disabled><span class="pill__text">Sold out</span></button>' +
         '<a class="pill pill--ghost pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! Will " + plainName(p.name) + " be restocked?")) + '"><span class="pill__text">Ask about a restock</span><span class="pill__icon">' + ICON.wa + "</span></a>";
     } else if (p.status === "soon") {
-      actions.innerHTML = '<a class="pill pill--navy pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! Please let me know when " + plainName(p.name) + " drops.")) + '"><span class="pill__text">Tell me when it drops</span><span class="pill__icon">' + ICON.wa + "</span></a>";
+      var waSoon = '<a class="pill ' + (SHOP.db ? "pill--ghost" : "pill--navy") + ' pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! Please let me know when " + plainName(p.name) + " drops.")) + '"><span class="pill__text">' + (SHOP.db ? "Or ask on WhatsApp" : "Tell me when it drops") + '</span><span class="pill__icon">' + ICON.wa + "</span></a>";
+      actions.innerHTML = SHOP.db
+        ? '<form class="early-mini" data-early data-source="piece:' + esc(p.id) + '" novalidate>' +
+            '<p class="early-mini__title">Get early access</p>' +
+            '<p class="small">Be the first to know when ' + esc(plainName(p.name)) + " drops.</p>" +
+            '<div class="wa-form wa-form--light"><label class="sr-only" for="ea-pd">Email or WhatsApp number</label>' +
+              '<input id="ea-pd" name="contact" type="text" placeholder="Email or WhatsApp number" autocomplete="email" required>' +
+              '<button type="submit">Notify me</button></div>' +
+            '<p class="small early-mini__msg" data-early-msg aria-live="polite"></p>' +
+          "</form>" + waSoon
+        : waSoon;
     } else {
       actions.innerHTML =
         '<button class="pill pill--navy pill--block" type="button" data-pd-add="' + esc(p.id) + '"><span class="pill__text">Add to bag</span><span class="pill__icon">' + ICON.plus + "</span></button>" +
         '<a class="pill pill--ghost pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! I'd like to order the " + plainName(p.name) + (p.colour ? " (" + p.colour + ")" : "") + (p.price != null ? " — " + naira(p.price) : "") + ".")) + '"><span class="pill__text">Order this on WhatsApp</span><span class="pill__icon">' + ICON.wa + "</span></a>";
     }
+    // You may also like: same collection first, then the rest
+    var others = PRODUCTS.filter(function (x) { return x.id !== p.id; });
+    var rank = function (x) { return (x.collection && x.collection === p.collection ? 0 : 2) + (x.status === "available" ? 0 : 1); };
+    var picks = others.slice().sort(function (a, b) { return rank(a) - rank(b); }).slice(0, 3);
+    $("[data-pd-related]", dlg).innerHTML = picks.length
+      ? '<p class="label">You may also like</p><div class="related">' + picks.map(function (x) {
+          return '<a class="related__item" href="shop.html?p=' + encodeURIComponent(x.id) + '" data-pd-open="' + esc(x.id) + '">' +
+            '<span class="related__img">' + (x.images && x.images[0] ? '<img src="' + esc(x.images[0]) + '" alt="" loading="lazy">' : "") + "</span>" +
+            '<span class="related__name">' + richName(x.name) + '</span><span class="related__price">' + esc(priceText(x)) + "</span></a>";
+        }).join("") + "</div>"
+      : "";
     showImage(0);
-    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    skel($("[data-pd-related]", dlg));
+    if (!dlg.open) {
+      if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    }
     // shareable link to this piece, without leaving the page
     if (history.replaceState) history.replaceState(null, "", location.pathname + "?p=" + encodeURIComponent(p.id) + location.hash);
   }
@@ -912,6 +1071,7 @@
         '<ul class="order-card__lines">' + rows + "</ul>" +
         '<div class="order-card__sum">' +
           '<div><span>Subtotal</span><span>' + naira(o.subtotal) + "</span></div>" +
+          (o.discount ? "<div><span>Discount &middot; " + esc(o.discount.code) + "</span><span>−" + naira(o.discount.amount) + "</span></div>" : "") +
           (o.delivery ? "<div><span>Delivery &middot; " + esc(o.delivery.name) + "</span><span>" + (o.delivery.fee ? naira(o.delivery.fee) : "Free") + "</span></div>" : "") +
           '<div class="order-card__total"><span>Total</span><strong>' + naira(o.total) + "</strong></div>" +
         "</div></div>";
@@ -976,6 +1136,58 @@
     }
     load();
   }
+
+  /* ======================================================================
+     9c. Early access sign-up (footer, and pieces that are dropping soon)
+     ====================================================================== */
+  doc.addEventListener("submit", function (e) {
+    var form = e.target.closest && e.target.closest("[data-early]");
+    if (!form) return;
+    e.preventDefault();
+    var input = form.elements.contact;
+    var box = form.closest(".footer__early") || form;
+    var msg = $("[data-early-msg]", box);
+    var btn = $('button[type="submit"]', form);
+    var value = String(input.value || "").trim();
+    var looksOk = value.indexOf("@") > 0 ? /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value) : value.replace(/\D/g, "").length >= 8;
+    if (!looksOk) {
+      msg.textContent = "Enter an email address, or a WhatsApp number with its country code.";
+      msg.classList.add("is-error");
+      input.focus();
+      return;
+    }
+    if (!SHOP.db) {
+      // No list yet: send the request on WhatsApp instead
+      window.open(waLink("Hello ADA BEKE! Please add me to your early-access list: " + value), "_blank", "noopener");
+      return;
+    }
+    btn.disabled = true;
+    msg.classList.remove("is-error");
+    msg.textContent = "Adding you…";
+    fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contact: value, source: form.getAttribute("data-source") || "" }),
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        btn.disabled = false;
+        if (res.ok) {
+          form.classList.add("is-done");
+          input.value = "";
+          msg.textContent = res.j.already ? "You're already on the list. We'll be in touch." :
+            res.j.kind === "whatsapp" ? "You're on the list. We'll message you on WhatsApp before the next drop." : "You're on the list. Watch your inbox before the next drop.";
+        } else {
+          msg.textContent = (res.j && res.j.error) || "That didn't work. Please try again.";
+          msg.classList.add("is-error");
+        }
+      })
+      .catch(function () {
+        btn.disabled = false;
+        msg.textContent = "We couldn't connect. Check your internet and try again.";
+        msg.classList.add("is-error");
+      });
+  });
 
   /* ======================================================================
      10. WhatsApp forms (footer + contact page)
@@ -1235,39 +1447,6 @@
     update();
   });
 
-  /* Decorations only move while they're on screen */
-  var decoEls = $$(".decor, .rail__end");
-  if ("IntersectionObserver" in window) {
-    var decoIO = new IntersectionObserver(function (en) {
-      en.forEach(function (x) {
-        x.target.classList.toggle("in-view", x.isIntersecting);
-        if (x.isIntersecting) x.target.classList.add("is-seen");
-      });
-    }, { rootMargin: "80px" });
-    decoEls.forEach(function (el) { decoIO.observe(el); });
-  } else {
-    decoEls.forEach(function (el) { el.classList.add("in-view", "is-seen"); });
-  }
-
-  /* Big outlined words drift sideways as you scroll */
-  var drifters = reduceMotion ? [] : $$("[data-drift]");
-  function onScrollDrift() {
-    var vh = window.innerHeight;
-    drifters.forEach(function (el) {
-      var r = el.parentElement.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > vh) return;
-      var speed = parseFloat(el.getAttribute("data-drift")) || -0.1;
-      el.style.setProperty("--gx", ((r.top + r.height / 2 - vh / 2) * speed).toFixed(1) + "px");
-    });
-  }
-
-  /* Thin aqua line at the top shows how far down the page you are */
-  var progressBar = $(".progress");
-  function onScrollProgress() {
-    if (!progressBar) return;
-    var max = root.scrollHeight - window.innerHeight;
-    progressBar.style.setProperty("--sp", max > 0 ? Math.min(1, window.scrollY / max).toFixed(4) : "0");
-  }
 
   /* Buttons lean towards the mouse */
   if (window.matchMedia("(hover: hover) and (pointer: fine)").matches && !reduceMotion) {
@@ -1340,7 +1519,7 @@
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(function () {
-      onScrollHeader(); onScrollScrub(); onScrollHero(); onScrollParallax(); onScrollDrift(); onScrollProgress();
+      onScrollHeader(); onScrollScrub(); onScrollHero(); onScrollParallax();
       ticking = false;
     });
   }
@@ -1392,13 +1571,22 @@
     var live = window.ADA_SHOP;
     var first = !catalogueUsed;
     if (live && typeof live === "object") {
-      SHOP = { db: !!live.db, paystack: !!live.paystack, delivery: live.delivery || [] };
-      if (Array.isArray(live.products)) PRODUCTS = live.products;
+      SHOP = { db: !!live.db, paystack: !!live.paystack, delivery: live.delivery || [], collections: live.collections || [], fx: live.fx || null };
+      if (Array.isArray(live.products)) {
+        PRODUCTS = live.products;
+        COLLECTIONS = live.collections || [];
+      }
     }
     if (!first && !(live && Array.isArray(live.products))) return;
     catalogueUsed = true;
     root.classList.toggle("pay-online", SHOP.paystack);
+    if (!(live && Array.isArray(live.products))) {
+      // built-in list: only collections that have pieces
+      COLLECTIONS = COLLECTIONS.filter(function (c) { return PRODUCTS.some(function (x) { return x.collection === c.id; }); });
+    }
+    renderCollectionChips();
     renderProducts();
+    renderCollections();
     tidyBag();
     renderBag();
     fillPieceOptions();
@@ -1415,6 +1603,4 @@
   onScrollScrub();
   onScrollHero();
   onScrollParallax();
-  onScrollDrift();
-  onScrollProgress();
 })();

@@ -84,22 +84,10 @@ def megamark():
             + "".join(spans) + "</text></svg></div>")
 
 
-def rings(cls=""):
-    """Concentric rings, after the circle print on the white & brown boubou."""
-    solid = "".join(f'<circle cx="100" cy="100" r="{r}"/>' for r in (14, 38, 62, 86))
-    dashed = "".join(f'<circle cx="100" cy="100" r="{r}"/>' for r in (26, 50, 74, 98))
-    return (f'<svg class="rings {cls}" viewBox="0 0 200 200" aria-hidden="true" focusable="false">'
-            f'<g class="rings__solid">{solid}</g><g class="rings__dash">{dashed}</g>'
-            f'<circle class="rings__core" cx="100" cy="100" r="4"/></svg>')
 
 
-def spark(x, y, size=18, delay=0.0):
-    return (f'<span class="spark" style="--sx:{x};--sy:{y};--ss:{size}px;--sd:{delay}s" '
-            f'aria-hidden="true">{ICON["sparkle"]}</span>')
 
 
-def ghost(text, drift="-0.12", cls=""):
-    return f'<p class="ghost {cls}" data-drift="{drift}">{text}</p>'
 
 
 def skel_cards(n, tag="li", cls="rail__item skel-card"):
@@ -110,8 +98,6 @@ def skel_cards(n, tag="li", cls="rail__item skel-card"):
     return one * n
 
 
-def decor(*items):
-    return '<div class="decor" aria-hidden="true">' + "".join(items) + "</div>"
 
 
 def ld(obj):
@@ -202,7 +188,6 @@ def head(title, desc, page, path, og_image, og_alt, graph=None, robots="index, f
 {preload}</head>
 <body class="page-{page}">
 <a class="skip" href="#main">Skip to content</a>
-<div class="progress" aria-hidden="true"><span></span></div>
 <div class="curtain" aria-hidden="true"><span class="curtain__mark"><span style="--ci:0">A</span><span style="--ci:1">D</span><span style="--ci:2">A</span><span style="--ci:3">&nbsp;</span><span style="--ci:4">B</span><span style="--ci:5">E</span><span style="--ci:6">K</span><span style="--ci:7">E</span></span></div>
 """
 
@@ -226,7 +211,6 @@ def header(page):
   </div>
 </header>
 <div class="menu" id="menu" hidden>
-  {decor(rings("rings--menu"))}
   <nav aria-label="Menu">
     <ul class="menu__links">
       <li><a href="index.html"{cur("home")}>Home</a></li>
@@ -244,9 +228,7 @@ def header(page):
 """
 
 
-FOOTER = f"""<div class="curve curve--navy" aria-hidden="true"></div>
-<footer class="site-footer">
-  {decor(rings("rings--footer"), spark("88%", "18%", 22, 0.4), spark("8%", "62%", 14, 1.4))}
+FOOTER = f"""<footer class="site-footer">
   <div class="wrap">
     <div class="footer__grid">
       <div class="footer__col">
@@ -267,14 +249,14 @@ FOOTER = f"""<div class="curve curve--navy" aria-hidden="true"></div>
           <li><a href="contact.html#faq">Questions</a></li>
         </ul>
       </div>
-      <div class="footer__col footer__order">
-        <h2 class="big" data-split>Order with <em>ADA BEKE</em></h2>
-        <form class="wa-form" data-wa-form="quick" novalidate>
-          <label class="sr-only" for="q-foot">What are you looking for?</label>
-          <input id="q-foot" name="q" type="text" placeholder="What are you looking for?" autocomplete="off" required>
-          <button type="submit">Send on WhatsApp</button>
+      <div class="footer__col footer__order footer__early">
+        <h2 class="big" data-split>Be first to <em>the next drop.</em></h2>
+        <form class="wa-form" data-early data-source="footer" novalidate>
+          <label class="sr-only" for="ea-foot">Email or WhatsApp number</label>
+          <input id="ea-foot" name="contact" type="text" placeholder="Email or WhatsApp number" autocomplete="email" required>
+          <button type="submit">Get early access</button>
         </form>
-        <p class="small">Opens WhatsApp with your message ready to send.</p>
+        <p class="small" data-early-msg aria-live="polite">New pieces reach the list before anyone else. No spam, ever.</p>
       </div>
       <div class="footer__col">
         <h2>Social</h2>
@@ -347,35 +329,7 @@ home = head(
     </div>
   </section>
 
-  <section class="section story" aria-labelledby="story-label">
-    {decor(rings("rings--story"), spark("47%", "9%", 16, 0.2))}
-    <div class="wrap">
-      <div class="grid-3">
-        <p class="label" id="story-label" data-pop="chars">Our story</p>
-        <div>
-          <p class="lede story__lede" data-scrub>At <span class="mark">ADA BEKE</span>, fashion is more than what you wear {ICON["sparkle"]} it&rsquo;s how you feel in it. We make free-size pieces in soft, flowing fabrics, so every woman can feel chic, relaxed and elegant.</p>
-          <figure class="story__float" data-parallax="0.1">
-            <div class="arch" data-reveal="wipe"><img src="assets/img/omalicha-runway.webp" alt="Model walking in the Omalicha set with a navy head wrap" loading="lazy" width="591" height="700"></div>
-            <figcaption class="tag" data-pop="words">Omalicha, in motion</figcaption>
-          </figure>
-        </div>
-        <div>
-          <div class="story__thumb" data-reveal="wipe" style="--d:150ms"><img data-parallax="0.05" src="assets/img/hero-3-black.webp" alt="Model in the sheer black Wifey boubou" loading="lazy" width="1024" height="1280"></div>
-        </div>
-      </div>
-      <div class="story__row">
-        <div class="story__note" data-reveal>
-          <span class="dot">{ICON["arrow"]}</span>
-          <p class="small" data-pop="words">Cut wide and flowing, each free-size piece is made to move with you. Not sure about length? Message us and we&rsquo;ll help.</p>
-        </div>
-        <span aria-hidden="true"></span>
-        <p class="story__big" data-split>Made in Nigeria. Delivered to you, wherever you are in the world.</p>
-      </div>
-    </div>
-  </section>
-
   <section class="section edit" aria-labelledby="edit-title">
-    {decor(spark("94%", "12%", 18, 1.1))}
     <div class="wrap">
       <div class="edit__head">
         <p class="label" data-pop="chars">The edit</p>
@@ -395,53 +349,13 @@ home = head(
     </div>
   </section>
 
-  <section class="section section--mist curvy" aria-labelledby="note-title">
-    {decor(rings("rings--note"), spark("94%", "8%", 16, 0.8))}
-    <div class="wrap" data-slider>
-      <div class="note__head">
-        <p class="label" data-pop="chars">A note from Ada Beke</p>
-        <h2 class="heading" id="note-title" data-split>We&rsquo;re back.<br><em>A new chapter.</em></h2>
-      </div>
-      <div class="note__body">
-        <div class="note__img arch" data-reveal="wipe"><img data-parallax="0.06" src="assets/img/wifey-seated.webp" alt="Model seated in the black Wifey boubou" loading="lazy" width="720" height="900"></div>
-        <div class="note__right">
-          <div class="note__quotes" data-reveal>
-            <div class="note__set is-active">
-              <blockquote class="quote"><p>&ldquo;After a little over a year away, we&rsquo;re finally ready to return to what we love most: bringing fashion, style, and elegance to you.&rdquo;</p><footer><span class="sig">Ada Beke</span></footer></blockquote>
-              <blockquote class="quote"><p>&ldquo;To everyone who continued to support us, check in on us, and patiently await our return &mdash; thank you for standing by us, even in our silence.&rdquo;</p><footer><span class="sig">Ada Beke</span></footer></blockquote>
-            </div>
-            <div class="note__set">
-              <blockquote class="quote"><p>&ldquo;We&rsquo;re back with renewed passion, fresh ideas, and an even stronger commitment to serving you better than ever.&rdquo;</p><footer><span class="sig">Ada Beke</span></footer></blockquote>
-              <blockquote class="quote"><p>&ldquo;This is more than a comeback; it&rsquo;s the beginning of a beautiful new chapter, and we can&rsquo;t wait to share it with you.&rdquo;</p><footer><span class="sig">Ada Beke</span></footer></blockquote>
-            </div>
-          </div>
-          <div class="note__ctrl" data-pop="items">
-            <span class="sr-only" aria-live="polite" data-slider-status></span>
-            <a class="text-link" href="about.html#letter" style="margin-right:auto">Read the full letter</a>
-            <button class="round-btn" type="button" data-prev aria-label="Previous note">{ICON["left"]}</button>
-            <button class="round-btn round-btn--on" type="button" data-next aria-label="Next note">{ICON["arrow"]}</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="banner-title">
+  <section class="section section--tight collections" aria-labelledby="col-title" data-collections-section hidden>
     <div class="wrap">
-      <div class="banner" data-reveal>
-        {decor(rings("rings--banner"), spark("88%", "16%", 20, 0.3), spark("62%", "78%", 12, 1.6))}
-        <div class="banner__text">
-          <h2 class="heading" id="banner-title" data-split>Designed to flow,<br><em>made in Nigeria.</em></h2>
-          <div>
-            <p class="small" data-pop="words">Ready-to-wear, free-size pieces, delivered to you anywhere in the world. Ordering takes a few messages on WhatsApp.</p>
-            <div style="margin-top:22px">{pill("How to order", "contact.html#order", "light")}</div>
-          </div>
-        </div>
-        <div class="banner__media" data-video>
-          <video data-parallax="0.05" src="assets/video/wifey.mp4" poster="assets/img/wifey-standing.webp" muted loop playsinline preload="none" aria-label="Film: model in the black Wifey boubou"></video>
-          {toggle()}
-        </div>
+      <div class="edit__head">
+        <p class="label" data-pop="chars">Collections</p>
+        <h2 class="heading" id="col-title" data-split>Shop by<br><em>collection.</em></h2>
       </div>
+      <div class="col-grid" data-collections></div>
     </div>
   </section>
 </main>
@@ -462,12 +376,11 @@ shop = head(
 <main id="main">
   <section class="page-hero" aria-labelledby="shop-title">
     {LINES}
-    {decor(rings("rings--hero"))}
     <div class="page-hero__inner">
       <p class="crumbs label" data-reveal data-reveal-load><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Shop</span></p>
       <h1 class="display page-hero__title" id="shop-title" data-split="load">The<br><em>collection.</em></h1>
       <div class="page-hero__aside" data-reveal data-reveal-load style="--d:650ms">
-        <p class="label">{ICON["sparkle"]} New chapter &middot; 2026</p>
+        <p class="label">New chapter &middot; 2026</p>
         <p class="hero__desc">Every piece is free size and ready to wear. Add pieces to your bag and check out in a few taps. We deliver worldwide.</p>
       </div>
     </div>
@@ -486,7 +399,6 @@ shop = head(
   </div>
 
   <section class="section shop-grid" aria-label="Pieces">
-    {decor(rings("rings--shop"))}
     <div class="wrap">
       <div class="cards cards--shop" data-products="all">{skel_cards(4, "div", "skel-card")}</div>
     </div>
@@ -495,7 +407,6 @@ shop = head(
   <section class="section--tight" aria-labelledby="help-title" style="padding-top:0">
     <div class="wrap">
       <div class="helper" data-reveal>
-        {decor(rings("rings--helper"))}
         <div class="lottie" data-lottie aria-hidden="true"></div>
         <div style="display:grid;gap:16px;position:relative">
           <h3 id="help-title" data-split>Not sure which piece is you? <em>We&rsquo;ll help you choose.</em></h3>
@@ -530,7 +441,7 @@ about = head(
         {toggle()}
       </div>
       <div class="page-hero__aside" data-reveal data-reveal-load style="--d:800ms">
-        <p class="label">{ICON["sparkle"]} Our story</p>
+        <p class="label">Our story</p>
         <p class="hero__desc">Fashion pieces focused on free size culture. A feel good fashion brand, made in Nigeria.</p>
       </div>
     </div>
@@ -542,18 +453,16 @@ about = head(
   </section>
 
   <section class="section" aria-labelledby="who-label">
-    {decor(rings("rings--who"), spark("40%", "12%", 16, 0.5))}
     <div class="wrap grid-3">
       <p class="label" id="who-label" data-pop="chars">Who we are</p>
-      <p class="lede" data-scrub style="max-width:22ch"><span class="mark">ADA BEKE</span> is a feel good fashion brand {ICON["sparkle"]} built on free size culture. Getting dressed should feel easy: generous shapes, soft fabrics and pieces that flatter without fuss.</p>
+      <p class="lede" data-scrub style="max-width:22ch"><span class="mark">ADA BEKE</span> is a feel good fashion brand, built on free size culture. Getting dressed should feel easy: generous shapes, soft fabrics and pieces that flatter without fuss.</p>
       <div class="who__img">
-        <div class="arch" data-reveal="wipe"><img data-parallax="0.05" src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set in royal navy" loading="lazy"></div>
+        <div class="frame" data-reveal="wipe"><img data-parallax="0.05" src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set in royal navy" loading="lazy"></div>
       </div>
     </div>
   </section>
 
-  <section class="section section--mist curvy" id="letter" aria-labelledby="letter-title">
-    {decor(ghost("new chapter", "-0.1"))}
+  <section class="section section--mist" id="letter" aria-labelledby="letter-title">
     <div class="wrap letter">
       <div class="letter__side">
         <p class="label" data-pop="chars">We&rsquo;re back</p>
@@ -581,7 +490,6 @@ about = head(
   </section>
 
   <section class="section" id="values" aria-labelledby="values-title">
-    {decor(ghost("elegance", "0.12", "ghost--low"))}
     <div class="wrap">
       <div class="edit__head">
         <p class="label" data-pop="chars">What we stand for</p>
@@ -595,7 +503,7 @@ about = head(
         </article>
         <article class="value">
           <h3 class="value__word is-relaxed">relaxed</h3>
-          <div class="value__img arch"><img data-parallax="0.05" src="assets/img/hero-1-white-brown.webp" alt="Model in a white boubou with brown circle prints" loading="lazy"></div>
+          <div class="value__img frame"><img data-parallax="0.05" src="assets/img/hero-1-white-brown.webp" alt="Model in a white boubou with brown circle prints" loading="lazy"></div>
           <p>Wide, easy shapes you can sit, move and breathe in. Free size means no squeezing into a number.</p>
         </article>
         <article class="value">
@@ -607,8 +515,7 @@ about = head(
     </div>
   </section>
 
-  <section class="section--tight section--mist curvy" id="made" aria-label="How we work">
-    {decor(rings("rings--made"))}
+  <section class="section--tight section--mist" id="made" aria-label="How we work">
     <div class="wrap"><div class="facts" data-pop="items">
       <div class="fact"><h3>Free <em>size</em></h3><p>Generous, flowing cuts designed to sit beautifully on a wide range of bodies.</p></div>
       <div class="fact"><h3>Made in <em>Nigeria</em></h3><p>Designed and produced in Nigeria, from our new production space.</p></div>
@@ -619,7 +526,6 @@ about = head(
   <section class="section" aria-labelledby="about-cta">
     <div class="wrap">
       <div class="banner" data-reveal>
-        {decor(rings("rings--banner"), spark("86%", "14%", 20, 0.3))}
         <div class="banner__text">
           <h2 class="heading" id="about-cta" data-split>Find your<br><em>feel good piece.</em></h2>
           <div>
@@ -677,12 +583,11 @@ contact = head(
 <main id="main">
   <section class="page-hero" aria-labelledby="contact-title">
     {LINES}
-    {decor(rings("rings--hero"))}
     <div class="page-hero__inner">
       <p class="crumbs label" data-reveal data-reveal-load><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Contact</span></p>
       <h1 class="display page-hero__title" id="contact-title" data-split="load">Let&rsquo;s get you<br><em>dressed.</em></h1>
       <div class="page-hero__aside" data-reveal data-reveal-load style="--d:700ms">
-        <p class="label">{ICON["sparkle"]} We reply on WhatsApp</p>
+        <p class="label">We reply on WhatsApp</p>
         <p class="hero__desc">Orders, questions about fit, or help choosing a piece: send us a message and we&rsquo;ll take it from there.</p>
         <div>{pill("Message us on WhatsApp", WA, "light", "wa", ' target="_blank" rel="noopener"')}</div>
       </div>
@@ -691,7 +596,6 @@ contact = head(
   </section>
 
   <section class="section" id="order" aria-labelledby="order-title">
-    {decor(spark("92%", "10%", 18, 0.2))}
     <div class="wrap">
       <div class="edit__head">
         <p class="label" data-pop="chars">How to order</p>
@@ -706,8 +610,7 @@ contact = head(
     </div>
   </section>
 
-  <section class="section section--mist curvy" aria-labelledby="write-title">
-    {decor(rings("rings--write"))}
+  <section class="section section--mist" aria-labelledby="write-title">
     <div class="wrap contact">
       <div>
         <h2 class="heading" id="write-title" data-split style="margin-bottom:clamp(28px,3vw,44px)">Write to<br><em>us.</em></h2>
@@ -756,7 +659,6 @@ contact = head(
   <section class="section" id="size" aria-labelledby="size-title">
     <div class="wrap">
       <div class="sizebox">
-        {decor(rings("rings--size"))}
         <div style="position:relative">
           <p class="label" data-pop="chars" style="margin-bottom:18px">Size guide</p>
           <h2 class="heading" id="size-title" data-split>Free size,<br><em>explained.</em></h2>
@@ -779,8 +681,7 @@ contact = head(
     </div>
   </section>
 
-  <section class="section section--mist curvy" id="faq" aria-labelledby="faq-title">
-    {decor(ghost("good to know", "-0.1"))}
+  <section class="section section--mist" id="faq" aria-labelledby="faq-title">
     <div class="wrap grid-3">
       <p class="label" data-pop="chars">Questions</p>
       <div>
@@ -806,7 +707,6 @@ notfound = head(
 <main id="main">
   <section class="page-hero page-hero--404" aria-labelledby="nf-title">
     {LINES}
-    {decor(rings("rings--hero"), rings("rings--hero2"))}
     <div class="page-hero__inner">
       <p class="crumbs label" data-reveal data-reveal-load><span>404</span></p>
       <h1 class="display page-hero__title" id="nf-title" data-split="load">Lost your<br><em>way?</em></h1>
@@ -831,7 +731,6 @@ order = head(
 <main id="main">
   <section class="page-hero page-hero--order" aria-labelledby="order-title">
     {LINES}
-    {decor(rings("rings--hero"), spark("88%", "22%", 22, 0.4))}
     <div class="page-hero__inner">
       <p class="crumbs label" data-reveal data-reveal-load><span data-order-ref>Your order</span></p>
       <h1 class="display page-hero__title" id="order-title" data-order-title data-split="load">One<br><em>moment.</em></h1>
@@ -959,6 +858,8 @@ urls = "".join(
 }, indent=2) + "\n", encoding="utf-8")
 
 (OUT / "vercel.json").write_text(json.dumps({
+    # once a day: keeps a free Supabase project from going to sleep
+    "crons": [{"path": "/api/catalogue?keepalive=1", "schedule": "17 6 * * *"}],
     "headers": [
         {"source": "/assets/css/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
         {"source": "/assets/js/(.*)", "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},

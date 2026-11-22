@@ -9,7 +9,7 @@
   var doc = document;
   var app = doc.getElementById("app");
   var API = "/api/admin";
-  var VIEWS = ["overview", "orders", "products", "settings"];
+  var VIEWS = ["overview", "orders", "products", "marketing", "settings"];
   var TZ = "Africa/Lagos";
 
   var state = {
@@ -18,6 +18,7 @@
     toShip: 0,
     orders: { filter: "all", q: "", list: [], more: false, counts: null },
     products: [],
+    collections: [],
     delivery: [],
     sheet: null, // { kind, id, dirty }
   };
@@ -64,6 +65,8 @@
   var ICON = {
     home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1v-7.5Z"/></svg>',
     orders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 8h14l-1 12.5H6L5 8Z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>',
+    tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3a1 1 0 0 1 0 1.4l-7.3 7.3a1 1 0 0 1-1.4 0L3.5 12.2Z"/><circle cx="8.2" cy="8.2" r="1.5"/></svg>',
+    download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></svg>',
     pieces: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3.5 4 6l1.5 5L8 10v10.5h8V10l2.5 1L20 6l-5-2.5c-.5 1.4-1.6 2.3-3 2.3s-2.5-.9-3-2.3Z"/></svg>',
     settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
     out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 5h4a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-4M10 16l-4-4 4-4M6 12h10"/></svg>',
@@ -162,10 +165,10 @@
     if (s.dbError) {
       title = "The database isn&rsquo;t <em>answering.</em>";
       steps.push(esc(s.dbError));
-      steps.push("In Vercel, open <b>Storage</b> and check the Neon database is connected to this project, then redeploy.");
+      steps.push("Check the Supabase project is running (free projects pause after a week without use: press <b>Restore</b> in Supabase), and that the connection string in Vercel is right. Then redeploy.");
     } else if (!s.db) {
       title = "One-time <em>setup.</em>";
-      steps.push("In Vercel, open the <b>adabeke</b> project, go to <b>Storage</b> and choose <b>Create Database</b>. Pick <b>Neon</b> (Postgres), keep the free plan, and connect it to this project.");
+      steps.push("In Vercel, open the <b>adabeke</b> project, go to <b>Storage</b> and choose <b>Create Database</b>. Pick <b>Supabase</b>, keep the free plan, choose <b>East US (North Virginia)</b>, and connect it to this project. (Already have a Supabase project? Copy its <b>Transaction pooler</b> connection string and add it as <code>DATABASE_URL</code> instead.)");
       if (s.password !== "ok") steps.push("Go to <b>Settings &rarr; Environment Variables</b> and add <code>ADMIN_PASSWORD</code> with a password of at least " + s.minPassword + " characters. This is what you&rsquo;ll sign in with.");
       steps.push("Open <b>Deployments</b>, press <b>&middot;&middot;&middot;</b> on the latest one and choose <b>Redeploy</b>. Then refresh this page.");
     } else {
@@ -230,7 +233,7 @@
         "</header>" +
         '<nav class="tabs" aria-label="Sections">' +
           tab("overview", "Overview", ICON.home) + tab("orders", "Orders", ICON.orders) +
-          tab("products", "Pieces", ICON.pieces) + tab("settings", "Settings", ICON.settings) +
+          tab("products", "Pieces", ICON.pieces) + tab("marketing", "Marketing", ICON.tag) + tab("settings", "Settings", ICON.settings) +
         "</nav>" +
         '<main class="main" id="view" tabindex="-1"></main>' +
       "</div>";
@@ -292,6 +295,7 @@
     if (state.view === "overview") overview(v);
     if (state.view === "orders") orders(v);
     if (state.view === "products") products(v);
+    if (state.view === "marketing") marketing(v);
     if (state.view === "settings") settings(v);
   }
   function viewShell(v, title, sub, action) {
@@ -343,6 +347,7 @@
         "</div>" +
         '<div class="card"><h2 class="card__title">Shop <a href="#products">Manage pieces</a></h2>' +
           '<p>' + s.products_live + " of " + s.products_total + " pieces are available to buy. All-time sales: <b>" + money(s.all_sales) + "</b> from " + s.all_orders + " paid " + (s.all_orders === 1 ? "order" : "orders") + ".</p>" +
+          '<p style="margin-top:8px"><b>' + s.subscribers + "</b> " + (s.subscribers === 1 ? "person is" : "people are") + " on the early-access list" + (s.subscribers_week ? " (" + s.subscribers_week + " new this week)" : "") + '. <a href="#marketing">See the list</a></p>' +
         "</div>";
       $$("[data-go-filter]", body).forEach(function (a) {
         a.addEventListener("click", function () { state.orders.filter = a.getAttribute("data-go-filter"); state.orders.q = ""; });
@@ -497,6 +502,7 @@
           '<p class="line__price">' + (i.price == null ? "On request" : money(i.price * i.qty)) + "</p></div>";
       }).join("") + "</div>" +
         '<div class="sum"><div><span>Subtotal</span><span>' + money(o.subtotal) + "</span></div>" +
+          (o.discount ? "<div><span>Discount (" + esc(o.discountCode) + ")</span><span>−" + money(o.discount) + "</span></div>" : "") +
           (o.deliveryName ? "<div><span>Delivery</span><span>" + money(o.deliveryFee) + "</span></div>" : "") +
           '<div class="sum__total"><span>Total</span><span>' + money(o.total) + (o.onRequest ? " + pieces on request" : "") + "</span></div></div>" +
       "</div>" +
@@ -607,15 +613,47 @@
   function products(v) {
     var body = viewShell(v, "Pieces", "The order here is the order in the shop.", '<a class="btn btn--aqua" href="#products/new">' + ICON.plus + "Add a piece</a>");
     body.innerHTML = '<div class="card"><span class="sk sk--row"></span><span class="sk sk--row"></span><span class="sk sk--row"></span></div>';
-    api("products").then(function (d) {
-      state.products = d.products;
+    Promise.all([api("products"), api("collections")]).then(function (r) {
+      state.products = r[0].products;
+      state.collections = r[1].collections;
       drawProducts(body);
     }, function (e) { failBox(body, e, renderView); });
+  }
+  function collectionName(id) {
+    for (var i = 0; i < state.collections.length; i++) if (state.collections[i].id === id) return state.collections[i].name;
+    return "";
+  }
+  function drawCollections(body) {
+    var cols = state.collections;
+    var box = doc.createElement("div");
+    box.className = "card";
+    box.innerHTML = '<h2 class="card__title">Collections <a href="#products/collection:new">+ Add a collection</a></h2>' +
+      '<p class="field__hint" style="margin-bottom:6px">Collections show as big photo cards on the home page and as filters in the shop. A collection with no pieces stays hidden.</p>' +
+      (cols.length ? '<div class="list">' + cols.map(function (c, i) {
+        return '<div class="prod">' +
+          '<div class="prod__img">' + (c.image ? '<img src="' + esc(imgSrc(c.image)) + '" alt="" loading="lazy">' : esc(c.name.charAt(0))) + "</div>" +
+          '<a class="prod__open" href="#products/collection:' + encodeURIComponent(c.id) + '"><span class="prod__name">' + esc(c.name) + "</span>" +
+            '<span class="prod__sub"><span>' + c.pieces + (c.pieces === 1 ? " piece" : " pieces") + "</span>" + (c.tagline ? "<span>" + esc(c.tagline) + "</span>" : "") + "</span></a>" +
+          '<div class="prod__move"><button class="icon-btn" type="button" data-cmove="-1" data-i="' + i + '" aria-label="Move ' + esc(c.name) + ' up"' + (i === 0 ? " disabled" : "") + ">" + ICON.up + "</button>" +
+            '<button class="icon-btn" type="button" data-cmove="1" data-i="' + i + '" aria-label="Move ' + esc(c.name) + ' down"' + (i === cols.length - 1 ? " disabled" : "") + ">" + ICON.down + "</button></div>" +
+        "</div>";
+      }).join("") + "</div>" : '<div class="empty-state"><strong>No collections yet.</strong><span>Group pieces into a collection, like a new drop.</span></div>');
+    body.appendChild(box);
+    $$("[data-cmove]", box).forEach(function (b) {
+      b.addEventListener("click", function () {
+        var i = Number(b.getAttribute("data-i")), j = i + Number(b.getAttribute("data-cmove"));
+        var t = cols[i]; cols[i] = cols[j]; cols[j] = t;
+        box.remove();
+        drawCollections(body);
+        api("collections-reorder", { body: { ids: cols.map(function (c) { return c.id; }) } }).then(function () { toast("New order saved"); }, function (e) { toast(e.message, true); });
+      });
+    });
   }
   function drawProducts(body) {
     var list = state.products;
     if (!list.length) {
       body.innerHTML = '<div class="card"><div class="empty-state"><strong>No pieces yet.</strong><span>Add your first piece and it appears in the shop.</span><a class="btn" href="#products/new">' + ICON.plus + "Add a piece</a></div></div>";
+      drawCollections(body);
       return;
     }
     body.innerHTML = '<div class="card"><div class="list">' + list.map(function (p, i) {
@@ -623,11 +661,13 @@
       return '<div class="prod">' +
         '<div class="prod__img">' + img + "</div>" +
         '<a class="prod__open" href="#products/' + encodeURIComponent(p.id) + '"><span class="prod__name">' + rich(p.name) + '</span>' +
-          '<span class="prod__sub"><span>' + (p.price == null ? "Price on request" : money(p.price)) + '</span><span class="badge badge--' + p.status + '">' + statusLabel(p.status) + "</span></span></a>" +
+          '<span class="prod__sub"><span>' + (p.price == null ? "Price on request" : money(p.price)) + '</span><span class="badge badge--' + p.status + '">' + statusLabel(p.status) + "</span>" +
+            (p.collection && collectionName(p.collection) ? "<span>" + esc(collectionName(p.collection)) + "</span>" : "") + "</span></a>" +
         '<div class="prod__move"><button class="icon-btn" type="button" data-move="-1" data-i="' + i + '" aria-label="Move ' + esc(plain(p.name)) + ' up"' + (i === 0 ? " disabled" : "") + ">" + ICON.up + "</button>" +
           '<button class="icon-btn" type="button" data-move="1" data-i="' + i + '" aria-label="Move ' + esc(plain(p.name)) + ' down"' + (i === list.length - 1 ? " disabled" : "") + ">" + ICON.down + "</button></div>" +
       "</div>";
     }).join("") + "</div></div>";
+    drawCollections(body);
     $$("[data-move]", body).forEach(function (b) {
       b.addEventListener("click", function () {
         var i = Number(b.getAttribute("data-i")), j = i + Number(b.getAttribute("data-move"));
@@ -652,10 +692,15 @@
 
   /* ---------- piece editor ---------- */
   function blankPiece() {
-    return { id: "", name: "", colour: "", price: null, status: "available", badge: "", includes: "", fabric: "", fit: "Free size", description: "", images: [] };
+    return { id: "", name: "", colour: "", price: null, status: "available", badge: "", includes: "", fabric: "", fit: "Free size", description: "", images: [], collection: "", fitNote: "" };
   }
   function productSheet(sheet, id) {
     var body = $(".sheet__body", sheet);
+    if (id.indexOf("collection:") === 0) return collectionSheet(sheet, id.slice(11));
+    if (!state.collections.length && !state.collectionsTried) {
+      state.collectionsTried = true;
+      return api("collections").then(function (d) { state.collections = d.collections; productSheet(sheet, id); }, function () { productSheet(sheet, id); });
+    }
     function go(p, isNew) { drawEditor(sheet, JSON.parse(JSON.stringify(p)), isNew); }
     if (id === "new") return go(blankPiece(), true);
     var found = state.products.filter(function (p) { return p.id === id; })[0];
@@ -698,6 +743,10 @@
         '<div class="row2">' + f("badge", "Badge", p.badge, "A short tag on the photo: New, Bestseller, Restocked.", ' maxlength="40"') + f("fit", "Fit", p.fit) + "</div>" +
         f("includes", "What&rsquo;s included", p.includes, "For example: Sold with the scarf only.") +
         f("fabric", "Fabric", p.fabric) +
+        f("fitNote", "Fit note", p.fitNote, "Optional. For example: falls to the ankle on someone 5&prime;6&Prime;.", ' maxlength="200"') +
+        '<div class="field"><label for="pe-collection">Collection</label><select id="pe-collection" name="collection"><option value="">None</option>' +
+          state.collections.map(function (c) { return '<option value="' + esc(c.id) + '"' + (p.collection === c.id ? " selected" : "") + ">" + esc(c.name) + "</option>"; }).join("") +
+        '</select><span class="field__hint">Add new collections under Pieces &rarr; Collections.</span></div>' +
         '<div class="field"><label for="pe-description">Description</label><textarea id="pe-description" name="description" rows="4">' + esc(p.description) + "</textarea></div>" +
       "</div>" +
       (!isNew ? '<div class="danger-zone" style="--i:4"><button class="btn btn--danger btn--sm" type="button" data-del>' + ICON.trash + "Delete this piece</button></div>" : "");
@@ -716,7 +765,7 @@
     }
     preview();
     stHint();
-    $$("input, textarea", body).forEach(function (el) { el.addEventListener("input", dirty); });
+    $$("input, textarea, select", body).forEach(function (el) { el.addEventListener("input", dirty); el.addEventListener("change", dirty); });
     $("#pe-name", body).addEventListener("input", preview);
     $("#pe-price", body).addEventListener("blur", function () {
       var n = this.value.replace(/[^\d]/g, "");
@@ -794,6 +843,8 @@
         includes: $("#pe-includes", body).value.trim(),
         fabric: $("#pe-fabric", body).value.trim(),
         description: $("#pe-description", body).value.trim(),
+        fitNote: $("#pe-fitNote", body).value.trim(),
+        collection: $("#pe-collection", body).value,
         images: p.images,
       };
       if (data.price === "") data.price = null;
@@ -868,6 +919,304 @@
     });
   }
 
+  /* ---------- collection editor ---------- */
+  function collectionSheet(sheet, id) {
+    var body = $(".sheet__body", sheet);
+    body.innerHTML = '<span class="sk sk--row"></span><span class="sk sk--row" style="height:200px"></span>';
+    Promise.all([api("collections"), api("products")]).then(function (r) {
+      state.collections = r[0].collections;
+      state.products = r[1].products;
+      var isNew = id === "new";
+      var c = isNew ? { id: "", name: "", tagline: "", image: "" } : state.collections.filter(function (x) { return x.id === id; })[0];
+      if (!c) { body.innerHTML = '<div class="empty-state"><strong>That collection doesn&rsquo;t exist any more.</strong></div>'; return; }
+      drawCollectionEditor(sheet, JSON.parse(JSON.stringify(c)), isNew);
+    }, function (e) { failBox(body, e, function () { collectionSheet(sheet, id); }); });
+  }
+  function drawCollectionEditor(sheet, c, isNew) {
+    var body = $(".sheet__body", sheet);
+    var uploading = false;
+    var picked = {};
+    state.products.forEach(function (p) { if (!isNew && p.collection === c.id) picked[p.id] = true; });
+    $(".sheet__title", sheet).innerHTML = isNew ? "New collection" : esc(c.name) + "<small>adabeke.vercel.app/shop.html?c=" + esc(c.id) + "</small>";
+    var piecePhotos = [];
+    state.products.forEach(function (p) { if (p.images && p.images[0] && piecePhotos.indexOf(p.images[0]) < 0) piecePhotos.push(p.images[0]); });
+    body.innerHTML =
+      '<div class="card stack" style="--i:0">' +
+        '<div class="field"><label for="ce-name">Name</label><input id="ce-name" type="text" maxlength="60" value="' + esc(c.name) + '" placeholder="e.g. The comeback edit"></div>' +
+        '<div class="field"><label for="ce-tag">Short line</label><input id="ce-tag" type="text" maxlength="120" value="' + esc(c.tagline) + '" placeholder="e.g. Soft fabrics for the new season"><span class="field__hint">Shows under the name on the home page.</span></div>' +
+      "</div>" +
+      '<div class="card" style="--i:1"><h2 class="card__title">Cover photo</h2><div class="photos" data-cover></div>' +
+        (piecePhotos.length ? '<p class="field__hint" style="margin:14px 0 8px">Or use a photo of one of your pieces:</p><div class="pick-row" data-pick>' +
+          piecePhotos.map(function (src) { return '<button type="button" class="pick" data-src="' + esc(src) + '" aria-label="Use this photo"><img src="' + esc(imgSrc(src)) + '" alt="" loading="lazy"></button>'; }).join("") + "</div>" : "") +
+      "</div>" +
+      '<div class="card" style="--i:2"><h2 class="card__title">Pieces in this collection</h2><div class="checks">' +
+        state.products.map(function (p) {
+          var elsewhere = p.collection && p.collection !== c.id ? collectionName(p.collection) : "";
+          return '<label class="check"><input type="checkbox" value="' + esc(p.id) + '"' + (picked[p.id] ? " checked" : "") + ">" +
+            '<span class="check__img">' + (p.images && p.images[0] ? '<img src="' + esc(imgSrc(p.images[0])) + '" alt="" loading="lazy">' : "") + "</span>" +
+            '<span class="check__name">' + rich(p.name) + (elsewhere ? '<small>Now in ' + esc(elsewhere) + ". Ticking moves it here.</small>" : "") + "</span></label>";
+        }).join("") +
+      "</div></div>" +
+      (!isNew ? '<div class="danger-zone" style="--i:3"><button class="btn btn--danger btn--sm" type="button" data-del>' + ICON.trash + "Delete this collection</button></div>" : "");
+    var foot = $(".sheet__foot", sheet);
+    foot.hidden = false;
+    foot.innerHTML = '<button class="btn btn--ghost" type="button" data-cancel>Cancel</button><button class="btn" type="button" data-save>' + (isNew ? "Add collection" : "Save changes") + "</button>";
+    function dirty() { state.sheet.dirty = true; }
+    $$("input", body).forEach(function (el) { el.addEventListener("input", dirty); el.addEventListener("change", dirty); });
+    function drawCover() {
+      var box = $("[data-cover]", body);
+      box.innerHTML = (c.image ? '<div class="photo"><img src="' + esc(imgSrc(c.image)) + '" alt="Cover photo"><div class="photo__tools"><span></span><button type="button" data-rm aria-label="Remove cover photo">' + ICON.trash + "</button><span></span></div></div>" : "") +
+        (uploading ? '<div class="photo"><span class="sk"></span></div>' : "") +
+        (!c.image && !uploading ? '<label class="photo photo--add">' + ICON.photo + '<span>Upload a photo</span><input type="file" accept="image/*" data-file aria-label="Upload a cover photo"></label>' : "");
+      var rm = $("[data-rm]", box);
+      if (rm) rm.addEventListener("click", function () { c.image = ""; dirty(); drawCover(); });
+      var file = $("[data-file]", box);
+      if (file) file.addEventListener("change", function () {
+        var fl = file.files && file.files[0];
+        if (!fl) return;
+        uploading = true;
+        drawCover();
+        prepareImage(fl).then(toBase64).then(function (data) { return api("image-upload", { body: { data: data } }); }).then(function (d) {
+          uploading = false; c.image = d.url; dirty(); drawCover();
+        }, function (e) { uploading = false; drawCover(); toast(e.message, true); });
+      });
+      $$("[data-src]", body).forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-src") === c.image)); });
+    }
+    drawCover();
+    $$("[data-src]", body).forEach(function (b) {
+      b.addEventListener("click", function () { c.image = b.getAttribute("data-src"); dirty(); drawCover(); });
+    });
+    $("[data-cancel]", foot).addEventListener("click", function () { requestClose(); });
+    $("[data-save]", foot).addEventListener("click", function () {
+      var btn = this;
+      if (uploading) { toast("Wait for the photo to finish uploading", true); return; }
+      var name = $("#ce-name", body).value.trim();
+      if (!name) { $("#ce-name", body).closest(".field").classList.add("has-error"); $("#ce-name", body).focus(); toast("Give the collection a name", true); return; }
+      var pieces = $$('.checks input:checked', body).map(function (x) { return x.value; });
+      busy(btn, true);
+      api("collection-save", { body: { isNew: isNew, collection: { id: c.id, name: name, tagline: $("#ce-tag", body).value.trim(), image: c.image }, pieces: pieces } }).then(function () {
+        state.sheet.dirty = false;
+        toast(isNew ? "Collection added. It shows in the shop within a minute." : "Saved. The shop updates within a minute.");
+        closeSheetToList();
+        renderView();
+      }, function (e) { busy(btn, false); toast(e.message, true); });
+    });
+    var del = $("[data-del]", body);
+    if (del) del.addEventListener("click", function () {
+      if (!confirm("Delete the " + c.name + " collection? Its pieces stay in the shop, just without a collection.")) return;
+      busy(del, true);
+      api("collection-delete", { body: { id: c.id } }).then(function () {
+        state.sheet.dirty = false;
+        toast("Collection deleted");
+        closeSheetToList();
+        renderView();
+      }, function (e) { busy(del, false); toast(e.message, true); });
+    });
+    if (isNew) setTimeout(function () { $("#ce-name", body).focus(); }, 450);
+  }
+
+  /* ======================================================================
+     Marketing: early access list + discount codes
+     ====================================================================== */
+  var lagosDate = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
+  function codeConditions(d) {
+    var bits = [];
+    if (d.minSubtotal) bits.push("On orders of " + money(d.minSubtotal) + "+");
+    bits.push(d.maxUses ? d.uses + " of " + d.maxUses + " used" : d.uses + (d.uses === 1 ? " use" : " uses"));
+    if (d.expiresAt) bits.push((new Date(d.expiresAt) < new Date() ? "Ended " : "Ends ") + dateFmt.format(new Date(d.expiresAt)));
+    return bits.join(" · ");
+  }
+  function marketing(v) {
+    var body = viewShell(v, "Marketing", "Early access sign-ups and discount codes.");
+    body.innerHTML =
+      '<div class="card" data-codes><span class="sk sk--row"></span><span class="sk sk--row"></span></div>' +
+      '<div class="card" data-subs><span class="sk sk--row"></span><span class="sk sk--row"></span><span class="sk sk--row"></span></div>';
+    drawCodes($("[data-codes]", body));
+    drawSubs($("[data-subs]", body));
+  }
+  function drawCodes(box) {
+    api("discounts").then(function (d) {
+      state.discounts = d.discounts;
+      box.innerHTML = '<h2 class="card__title">Discount codes <a href="#marketing/code:new">+ New code</a></h2>' +
+        (state.status.paystack.on ? "" : '<div class="note" style="margin-bottom:10px">' + ICON.info + "<div>Codes work at the online checkout, so they switch on with Paystack.</div></div>") +
+        (d.discounts.length ? '<div class="list">' + d.discounts.map(function (x) {
+          var ended = x.expiresAt && new Date(x.expiresAt) < new Date();
+          var usedUp = x.maxUses && x.uses >= x.maxUses;
+          var state_ = !x.active ? "Off" : ended ? "Ended" : usedUp ? "Used up" : "Live";
+          return '<a class="row" href="#marketing/code:' + encodeURIComponent(x.code) + '">' +
+            '<div class="row__main"><p class="row__title"><span class="code">' + esc(x.code) + "</span> " + esc(x.label) + '</p><p class="row__sub">' + esc(codeConditions(x)) + (x.note ? " · " + esc(x.note) : "") + "</p></div>" +
+            '<div class="row__right"><span class="badge ' + (state_ === "Live" ? "badge--paid" : "badge--hidden") + '">' + state_ + "</span></div></a>";
+        }).join("") + "</div>"
+          : '<div class="empty-state"><strong>No codes yet.</strong><span>Make one for a launch, a giveaway or your loyal customers.</span><a class="btn btn--sm" href="#marketing/code:new">' + ICON.plus + "New code</a></div>");
+    }, function (e) { failBox(box, e, function () { drawCodes(box); }); });
+  }
+  function sourceLabel(src) {
+    if (!src || src === "footer") return "Website";
+    if (src.indexOf("piece:") === 0) {
+      var id = src.slice(6);
+      var p = state.products.filter(function (x) { return x.id === id; })[0];
+      return "Waiting for " + (p ? plain(p.name) : id);
+    }
+    return src;
+  }
+  function drawSubs(box) {
+    var st = state.subs || (state.subs = { q: "", list: [], more: false, counts: null });
+    function load(append) {
+      var before = append && st.list.length ? st.list[st.list.length - 1].id : "";
+      return Promise.all([api("subscribers", { query: { q: st.q, before: before } }), state.products.length ? Promise.resolve(null) : api("products").catch(function () { return null; })]).then(function (r) {
+        if (r[1]) state.products = r[1].products;
+        st.list = append ? st.list.concat(r[0].subscribers) : r[0].subscribers;
+        st.more = r[0].more;
+        st.counts = r[0].counts;
+        draw();
+      }, function (e) { failBox(box, e, function () { load(append); }); });
+    }
+    function draw() {
+      var c = st.counts;
+      var drop = "Hello! It's ADA BEKE. Our new drop is live: " + location.origin + "/shop.html";
+      box.innerHTML =
+        '<h2 class="card__title">Early access <span class="field__hint" style="text-transform:none;letter-spacing:0">' + c.total + (c.total === 1 ? " person" : " people") + " &middot; " + c.email + " email &middot; " + c.whatsapp + " WhatsApp</span></h2>" +
+        '<p class="field__hint" style="margin-bottom:12px">People who asked to hear about new pieces first, from the website footer or a piece that&rsquo;s dropping soon.</p>' +
+        '<div class="contact-actions" style="margin:0 0 14px">' +
+          '<a class="btn btn--sm" href="/api/admin?a=subscribers-csv" download>' + ICON.download + "Download the list</a>" +
+          (c.email ? '<button class="btn btn--ghost btn--sm" type="button" data-copy-emails>' + ICON.copy + "Copy all emails</button>" : "") +
+        "</div>" +
+        '<label class="search"><span class="sr">Search the list</span>' + ICON.search + '<input class="input" type="search" placeholder="Search email or number" value="' + esc(st.q) + '" data-sq></label>' +
+        (st.list.length ? '<div class="list">' + st.list.map(function (x) {
+          var isWa = x.kind === "whatsapp";
+          return '<div class="row sub-row"><div class="row__main"><p class="row__title">' + esc(x.contact) + '</p><p class="row__sub">' + esc(sourceLabel(x.source)) + " &middot; " + esc(when(x.createdAt)) + "</p></div>" +
+            '<div class="row__right sub-row__actions">' +
+              (isWa ? '<a class="icon-btn" target="_blank" rel="noopener" href="' + esc(waLink(x.contact, drop)) + '" aria-label="WhatsApp ' + esc(x.contact) + '">' + ICON.wa + "</a>"
+                : '<a class="icon-btn" href="mailto:' + esc(x.contact) + "?subject=" + encodeURIComponent("New at ADA BEKE") + '" aria-label="Email ' + esc(x.contact) + '">' + ICON.mail + "</a>") +
+              '<button class="icon-btn" type="button" data-rm-sub="' + x.id + '" aria-label="Remove ' + esc(x.contact) + '">' + ICON.close + "</button>" +
+            "</div></div>";
+        }).join("") + "</div>" + (st.more ? '<div class="more"><button class="btn btn--ghost btn--sm" type="button" data-more>Show more</button></div>' : "")
+          : '<div class="empty-state"><strong>' + (st.q ? "Nobody matches that." : "No sign-ups yet.") + "</strong><span>" + (st.q ? "Try part of an email or number." : "The sign-up box is at the bottom of every page.") + "</span></div>");
+      var timer;
+      var sq = $("[data-sq]", box);
+      sq.addEventListener("input", function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () { st.q = sq.value.trim(); load(false).then(function () { var n = $("[data-sq]", box); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }); }, 300);
+      });
+      var more = $("[data-more]", box);
+      if (more) more.addEventListener("click", function () { busy(more, true); load(true); });
+      $$("[data-rm-sub]", box).forEach(function (b) {
+        b.addEventListener("click", function () {
+          var row = st.list.filter(function (x) { return String(x.id) === b.getAttribute("data-rm-sub"); })[0];
+          if (!confirm("Remove " + (row ? row.contact : "this person") + " from the list?")) return;
+          api("subscriber-delete", { body: { id: Number(b.getAttribute("data-rm-sub")) } }).then(function () { toast("Removed"); load(false); }, function (e) { toast(e.message, true); });
+        });
+      });
+      var ce = $("[data-copy-emails]", box);
+      if (ce) ce.addEventListener("click", function () {
+        busy(ce, true);
+        fetch("/api/admin?a=subscribers-csv", { credentials: "same-origin" }).then(function (r) { return r.text(); }).then(function (t) {
+          var emails = t.replace(/^﻿/, "").split(/\r?\n/).slice(1).map(function (l) { return l.split(",")[0].replace(/^"|"$/g, ""); }).filter(function (x) { return x.indexOf("@") > 0; });
+          busy(ce, false);
+          return navigator.clipboard.writeText(emails.join(", ")).then(function () { toast(emails.length + " emails copied"); });
+        }).catch(function () { busy(ce, false); toast("Couldn't copy. Use Download the list instead.", true); });
+      });
+    }
+    load(false);
+  }
+
+  /* ---------- discount code editor ---------- */
+  function codeSheet(sheet, code) {
+    var body = $(".sheet__body", sheet);
+    var isNew = code === "new";
+    function go(d) {
+      d = d || { code: "", kind: "percent", value: "", minSubtotal: 0, maxUses: null, expiresAt: null, active: true, note: "" };
+      $(".sheet__title", sheet).innerHTML = isNew ? "New discount code" : esc(d.code) + "<small>" + esc(codeConditions(d)) + "</small>";
+      var endDate = d.expiresAt ? lagosDate.format(new Date(d.expiresAt)) : "";
+      body.innerHTML =
+        '<div class="card stack" style="--i:0">' +
+          '<div class="field"><label for="dc-code">Code</label><input id="dc-code" type="text" maxlength="30" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase;letter-spacing:.06em" value="' + esc(d.code) + '"' + (isNew ? "" : " disabled") + ' placeholder="e.g. WELCOME10"><span class="field__hint">' + (isNew ? "Letters and numbers. Customers type this at checkout." : "Codes can&rsquo;t be renamed. Make a new one instead.") + "</span></div>" +
+          '<div class="field"><span class="field__label">Discount</span><div class="seg" role="radiogroup" aria-label="Discount type">' +
+            '<button type="button" role="radio" data-kind="percent" aria-pressed="' + (d.kind === "percent") + '" aria-checked="' + (d.kind === "percent") + '">Percent off</button>' +
+            '<button type="button" role="radio" data-kind="amount" aria-pressed="' + (d.kind === "amount") + '" aria-checked="' + (d.kind === "amount") + '">Naira off</button></div></div>' +
+          '<div class="field"><label for="dc-value" data-value-label></label><div data-value-wrap><input id="dc-value" type="text" inputmode="numeric" value="' + esc(d.value === "" ? "" : Number(d.value).toLocaleString("en-NG")) + '"></div></div>' +
+        "</div>" +
+        '<div class="card stack" style="--i:1"><h2 class="card__title" style="margin-bottom:0">Limits <span class="field__hint" style="text-transform:none;letter-spacing:0">All optional</span></h2>' +
+          '<div class="row2">' +
+            '<div class="field"><label for="dc-min">Minimum order</label><div class="money"><input id="dc-min" type="text" inputmode="numeric" value="' + (d.minSubtotal ? Number(d.minSubtotal).toLocaleString("en-NG") : "") + '" placeholder="None"></div></div>' +
+            '<div class="field"><label for="dc-max">Number of uses</label><input id="dc-max" type="text" inputmode="numeric" value="' + (d.maxUses || "") + '" placeholder="Unlimited"></div>' +
+          "</div>" +
+          '<div class="field"><label for="dc-end">Last day</label><input id="dc-end" type="date" value="' + esc(endDate) + '"><span class="field__hint">The code stops working at midnight that day (Lagos time).</span></div>' +
+          '<div class="field"><label for="dc-note">Note for you</label><input id="dc-note" type="text" maxlength="120" value="' + esc(d.note) + '" placeholder="e.g. Instagram giveaway"></div>' +
+        "</div>" +
+        '<div class="card" style="--i:2"><label class="check check--switch"><input type="checkbox" id="dc-active"' + (d.active ? " checked" : "") + '><span class="check__name">Code is on<small>Turn it off to pause it without deleting it.</small></span></label></div>' +
+        (!isNew ? '<div class="danger-zone" style="--i:3"><button class="btn btn--danger btn--sm" type="button" data-del>' + ICON.trash + "Delete this code</button></div>" : "");
+      var kind = d.kind;
+      function drawValue() {
+        $("[data-value-label]", body).textContent = kind === "percent" ? "Percentage off" : "Amount off";
+        var wrap = $("[data-value-wrap]", body);
+        wrap.className = kind === "percent" ? "pct" : "money";
+        $("#dc-value", body).placeholder = kind === "percent" ? "10" : "5,000";
+      }
+      drawValue();
+      function dirty() { state.sheet.dirty = true; }
+      $$("input", body).forEach(function (el) { el.addEventListener("input", dirty); el.addEventListener("change", dirty); });
+      $$("[data-kind]", body).forEach(function (b) {
+        b.addEventListener("click", function () {
+          kind = b.getAttribute("data-kind");
+          $$("[data-kind]", body).forEach(function (x) { var on = x === b; x.setAttribute("aria-pressed", String(on)); x.setAttribute("aria-checked", String(on)); });
+          drawValue();
+          dirty();
+        });
+      });
+      var foot = $(".sheet__foot", sheet);
+      foot.hidden = false;
+      foot.innerHTML = (isNew ? '<button class="btn btn--ghost" type="button" data-cancel>Cancel</button>' : '<button class="btn btn--ghost" type="button" data-copy-code>' + ICON.copy + "Copy code</button>") +
+        '<button class="btn" type="button" data-save>' + (isNew ? "Create code" : "Save changes") + "</button>";
+      var cancel = $("[data-cancel]", foot);
+      if (cancel) cancel.addEventListener("click", function () { requestClose(); });
+      var copy = $("[data-copy-code]", foot);
+      if (copy) copy.addEventListener("click", function () {
+        (navigator.clipboard ? navigator.clipboard.writeText(d.code) : Promise.reject()).then(function () { toast("Code copied"); }, function () { toast(d.code, false); });
+      });
+      $("[data-save]", foot).addEventListener("click", function () {
+        var btn = this;
+        var digits = function (sel) { return $(sel, body).value.replace(/[^\d]/g, ""); };
+        var data = {
+          code: $("#dc-code", body).value, kind: kind, value: digits("#dc-value"), minSubtotal: digits("#dc-min"),
+          maxUses: digits("#dc-max"), expiresAt: $("#dc-end", body).value, active: $("#dc-active", body).checked, note: $("#dc-note", body).value.trim(),
+        };
+        $$(".field", body).forEach(function (x) { x.classList.remove("has-error"); });
+        busy(btn, true);
+        api("discount-save", { body: { isNew: isNew, discount: data } }).then(function (r) {
+          state.sheet.dirty = false;
+          toast(isNew ? "Code " + r.discount.code + " is ready" : "Saved");
+          closeSheetToList();
+          renderView();
+        }, function (e) {
+          busy(btn, false);
+          var map = { code: "#dc-code", value: "#dc-value", expiresAt: "#dc-end" };
+          ((e.data && e.data.fields) || []).forEach(function (k) { if (map[k]) $(map[k], body).closest(".field").classList.add("has-error"); });
+          toast(e.message, true);
+        });
+      });
+      var del = $("[data-del]", body);
+      if (del) del.addEventListener("click", function () {
+        if (!confirm("Delete the code " + d.code + "? Orders that used it keep their discount.")) return;
+        busy(del, true);
+        api("discount-delete", { body: { code: d.code } }).then(function () {
+          state.sheet.dirty = false;
+          toast("Code deleted");
+          closeSheetToList();
+          renderView();
+        }, function (e) { busy(del, false); toast(e.message, true); });
+      });
+      if (isNew) setTimeout(function () { $("#dc-code", body).focus(); }, 450);
+    }
+    if (isNew) return go(null);
+    body.innerHTML = '<span class="sk sk--row"></span><span class="sk sk--row" style="height:200px"></span>';
+    api("discounts").then(function (r) {
+      var d = r.discounts.filter(function (x) { return x.code === code; })[0];
+      if (d) go(d);
+      else body.innerHTML = '<div class="empty-state"><strong>That code doesn&rsquo;t exist any more.</strong></div>';
+    }, function (e) { failBox(body, e, function () { codeSheet(sheet, code); }); });
+  }
+
   /* ======================================================================
      Settings
      ====================================================================== */
@@ -894,6 +1243,18 @@
         '<p class="field__hint">Shown at checkout for customers to choose. Leave the list empty to agree delivery on WhatsApp after each order.</p>' +
         '<div data-zones></div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn--ghost btn--sm" type="button" data-add-zone>' + ICON.plus + 'Add an option</button><button class="btn btn--sm" type="button" data-save-zones disabled>Save delivery options</button></div>' +
+      "</div>" +
+      '<div class="card stack" data-fx-card><h2 class="card__title" style="margin-bottom:0">Prices abroad</h2>' +
+        '<p class="field__hint">Shows an approximate price in US dollars and British pounds next to the naira price, for customers outside Nigeria. Everyone still pays in naira; their bank converts it.</p>' +
+        '<div class="seg" role="radiogroup" aria-label="Prices abroad">' +
+          '<button type="button" role="radio" data-fxmode="auto">Today&rsquo;s rate</button><button type="button" role="radio" data-fxmode="manual">My own rates</button><button type="button" role="radio" data-fxmode="off">Off</button></div>' +
+        '<p class="field__hint" data-fx-hint></p>' +
+        '<div class="row2" data-fx-manual hidden>' +
+          '<div class="field"><label for="fx-usd">Naira per $1</label><div class="money"><input id="fx-usd" type="text" inputmode="numeric" data-fx-usd></div></div>' +
+          '<div class="field"><label for="fx-gbp">Naira per £1</label><div class="money"><input id="fx-gbp" type="text" inputmode="numeric" data-fx-gbp></div></div>' +
+        "</div>" +
+        '<p data-fx-example></p>' +
+        '<div><button class="btn btn--sm" type="button" data-save-fx disabled>Save</button></div>' +
       "</div>" +
       '<div class="card stack"><h2 class="card__title" style="margin-bottom:0">Online payment (Paystack)</h2>' +
         "<div>" + payState + "</div>" + payHelp +
@@ -929,7 +1290,50 @@
       $$("[data-zr]", zonesBox).forEach(function (el) { el.addEventListener("click", function () { zones.splice(+el.getAttribute("data-zr"), 1); saveBtn.disabled = false; drawZones(); }); });
     }
     zonesBox.innerHTML = '<span class="sk sk--row" style="height:48px"></span>';
-    api("settings").then(function (d) { zones = d.delivery; drawZones(); }, function (e) { failBox(zonesBox, e, function () { settings(v); }); });
+    api("settings").then(function (d) { zones = d.delivery; drawZones(); drawFx(d); }, function (e) { failBox(zonesBox, e, function () { settings(v); }); });
+
+    var fxCard = $("[data-fx-card]", body), fxSave = $("[data-save-fx]", body);
+    var fxState = null, market = null;
+    function drawFx(d) {
+      if (d) { fxState = d.fx; market = d.market; }
+      if (!fxState) return;
+      $$("[data-fxmode]", fxCard).forEach(function (b) {
+        var on = b.getAttribute("data-fxmode") === fxState.mode;
+        b.setAttribute("aria-pressed", String(on));
+        b.setAttribute("aria-checked", String(on));
+      });
+      $("[data-fx-manual]", fxCard).hidden = fxState.mode !== "manual";
+      var usd = $("[data-fx-usd]", fxCard), gbp = $("[data-fx-gbp]", fxCard);
+      if (document.activeElement !== usd) usd.value = fxState.usd ? Number(fxState.usd).toLocaleString("en-NG") : "";
+      if (document.activeElement !== gbp) gbp.value = fxState.gbp ? Number(fxState.gbp).toLocaleString("en-NG") : "";
+      var hint = $("[data-fx-hint]", fxCard);
+      hint.textContent = fxState.mode === "auto"
+        ? (market ? "Today: $1 = " + money(market.usd) + " and £1 = " + money(market.gbp) + (market.date ? " (market rate, " + market.date + ")" : "") + ". Checked a few times a day." : "Today’s rate couldn’t be fetched just now. It will try again shortly.")
+        : fxState.mode === "manual" ? "Type how many naira make a dollar and a pound. Update them when rates move." : "Only naira prices are shown.";
+      var r = fxState.mode === "auto" ? market : fxState.mode === "manual" && fxState.usd && fxState.gbp ? fxState : null;
+      var ex = $("[data-fx-example]", fxCard);
+      ex.textContent = r ? "Example: " + money(45000) + " shows as ≈ $" + Math.round(45000 / r.usd) + " · £" + Math.round(45000 / r.gbp) + "." : "";
+    }
+    $$("[data-fxmode]", fxCard).forEach(function (b) {
+      b.addEventListener("click", function () { fxState.mode = b.getAttribute("data-fxmode"); fxSave.disabled = false; drawFx(); });
+    });
+    $$("[data-fx-usd], [data-fx-gbp]", fxCard).forEach(function (el) {
+      el.addEventListener("input", function () {
+        fxState[el.hasAttribute("data-fx-usd") ? "usd" : "gbp"] = Number(el.value.replace(/[^\d]/g, "")) || null;
+        fxSave.disabled = false;
+        drawFx();
+      });
+    });
+    fxSave.addEventListener("click", function () {
+      if (fxState.mode === "manual" && !(fxState.usd && fxState.gbp)) { toast("Enter both rates", true); return; }
+      busy(fxSave, true);
+      api("settings-save", { body: { fx: fxState } }).then(function (d) {
+        busy(fxSave, false);
+        fxSave.disabled = true;
+        drawFx(d);
+        toast("Saved. The shop updates within a minute.");
+      }, function (e) { busy(fxSave, false); toast(e.message, true); });
+    });
     $("[data-add-zone]", body).addEventListener("click", function () {
       zones.push({ name: "", fee: 0 });
       drawZones();
@@ -954,7 +1358,7 @@
      ====================================================================== */
   var lastFocus = null;
   function openSheet(view, sub) {
-    if (view !== "orders" && view !== "products") return;
+    if (view !== "orders" && view !== "products" && view !== "marketing") return;
     closeSheet(true);
     lastFocus = doc.activeElement;
     state.sheet = { kind: view, id: sub, hash: view + "/" + sub, dirty: false, fromList: state.cameFromList };
@@ -975,6 +1379,7 @@
       setTimeout(function () { $("#sheet-title").focus(); }, 60);
     });
     if (view === "orders") orderSheet(sheet, sub);
+    else if (view === "marketing") codeSheet(sheet, sub.replace(/^code:/, ""));
     else productSheet(sheet, sub);
   }
   function requestClose() {
@@ -1000,7 +1405,7 @@
   }
   // Opening a sheet from a list: closing it later goes "back" instead of adding history
   doc.addEventListener("click", function (e) {
-    var a = e.target.closest && e.target.closest('a[href^="#orders/"], a[href^="#products/"]');
+    var a = e.target.closest && e.target.closest('a[href^="#orders/"], a[href^="#products/"], a[href^="#marketing/"]');
     if (a) state.cameFromList = true;
   });
   doc.addEventListener("keydown", function (e) {

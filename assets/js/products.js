@@ -11,6 +11,8 @@
    name      shown in the shop. Wrap a word in *stars* to set it in italics.
    price     a number in naira (45000), or null to show "Price on request"
    status    "available", "soon", "sold_out" or "hidden"
+   collection the id of one of the collections below, or "" for none
+   fitNote   an optional note on fit or length, e.g. "Falls to the ankle on 5'6\""
    images    paths to photos (first one is the main photo). Leave the list
              empty [] and the card shows a coloured placeholder instead.
    ========================================================================== */
@@ -22,6 +24,7 @@ root.ADA_PRODUCTS = [
     colour: "Royal navy shimmer chiffon",
     price: 45000,
     status: "available",
+    collection: "sets",
     badge: "Bestseller",
     includes: "Sold with the scarf only",
     fabric: "Flowy shimmer chiffon",
@@ -36,6 +39,7 @@ root.ADA_PRODUCTS = [
     colour: "Black",
     price: 50000,
     status: "available",
+    collection: "boubous",
     badge: "New",
     includes: "Sold with the co-ord set",
     fabric: "Sheer dotted chiffon",
@@ -50,6 +54,7 @@ root.ADA_PRODUCTS = [
     colour: "Rust & cobalt leaf print",
     price: 50000,
     status: "available",
+    collection: "sets",
     badge: "Restocked",
     includes: "Abira hoodie boubou & pants set",
     fabric: null, // add the fabric name when known
@@ -64,6 +69,7 @@ root.ADA_PRODUCTS = [
     colour: "Dropping soon",
     price: null,
     status: "soon",
+    collection: "",
     badge: "Dropping soon",
     includes: "Details coming soon",
     fabric: "To be revealed",
@@ -72,6 +78,12 @@ root.ADA_PRODUCTS = [
       "Something soft for our beautiful, stylish ladies is on the way. Message us on WhatsApp to hear the moment it drops.",
     images: ["assets/img/bags-bag.webp", "assets/img/bags-glass.webp"],
   },
+];
+
+// Collections group pieces on the home page and in the shop filters.
+root.ADA_COLLECTIONS = [
+  { id: "sets", name: "Sets", tagline: "Boubou and trouser sets, ready to wear", image: "assets/img/omalicha-runway.webp" },
+  { id: "boubous", name: "Boubous", tagline: "Wide, flowing and free size", image: "assets/img/wifey-gaze.webp" },
 ];
 
 root.ADA_CONTACT = {

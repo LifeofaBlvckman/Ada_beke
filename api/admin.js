@@ -10,6 +10,7 @@ const { hasDb, ensure, q, tx } = require("../lib/db");
 const shop = require("../lib/shop");
 const auth = require("../lib/auth");
 const paystack = require("../lib/paystack");
+const fx = require("../lib/fx");
 
 const IMG_RE = /^(\/api\/img\?id=[a-f0-9]{32}|assets\/img\/[\w.\-\/]+\.(webp|jpe?g|png|avif))$/;
 const plain = (s) => String(s || "").replace(/\*/g, "");
@@ -62,7 +63,13 @@ async function overview() {
     from orders`);
   const p = await q(`select count(*) filter (where status = 'available')::int as live, count(*)::int as total from products`);
   const recent = await q("select * from orders order by created_at desc limit 6");
-  return { stats: Object.assign({}, s.rows[0], { products_live: p.rows[0].live, products_total: p.rows[0].total }), recent: recent.rows.map(orderRow) };
+  const subs = await q("select count(*)::int as n, count(*) filter (where created_at > now() - interval '7 days')::int as week from subscribers");
+  return {
+    stats: Object.assign({}, s.rows[0], {
+      products_live: p.rows[0].live, products_total: p.rows[0].total, subscribers: subs.rows[0].n, subscribers_week: subs.rows[0].week,
+    }),
+    recent: recent.rows.map(orderRow),
+  };
 }
 
 function orderRow(o) {
@@ -115,6 +122,8 @@ function orderFull(o) {
     deliveryFee: Number(o.delivery_fee),
     items: o.items || [],
     subtotal: Number(o.subtotal),
+    discountCode: o.discount_code || "",
+    discount: Number(o.discount || 0),
     currency: o.currency,
     paidAt: o.paid_at,
     paystack: o.paystack,
@@ -199,24 +208,31 @@ function cleanProduct(p) {
     fit: shop.cleanText(p.fit, 60),
     description: shop.cleanText(p.description, 2000),
     images,
+    collection: shop.cleanText(p.collection, 60),
+    fit_note: shop.cleanText(p.fitNote, 200),
   };
 }
 
 async function tidyImages() {
-  await q(`delete from images i where i.created_at < now() - interval '1 day' and not exists (
-             select 1 from products p, jsonb_array_elements_text(p.images) u where u = '/api/img?id=' || i.id)`);
+  await q(`delete from images i where i.created_at < now() - interval '1 day'
+             and not exists (select 1 from products p, jsonb_array_elements_text(p.images) u where u = '/api/img?id=' || i.id)
+             and not exists (select 1 from collections c where c.image = '/api/img?id=' || i.id)`);
 }
 
 async function saveProduct(b) {
   const p = cleanProduct(b.product || {});
-  const vals = [p.name, p.colour, p.price, p.status, p.badge, p.includes, p.fabric, p.fit, p.description, JSON.stringify(p.images)];
+  if (p.collection) {
+    const c = await q("select 1 from collections where id = $1", [p.collection]);
+    if (!c.rowCount) p.collection = "";
+  }
+  const vals = [p.name, p.colour, p.price, p.status, p.badge, p.includes, p.fabric, p.fit, p.description, JSON.stringify(p.images), p.collection, p.fit_note];
   let row;
   if (b.isNew) {
     const id = slugify(b.product && b.product.id) || slugify(p.name);
     if (!id) throw new HttpError(400, "Give the piece a name with some letters in it.", { fields: ["name"] });
     const r = await q(
-      `insert into products (id, name, colour, price, status, badge, includes, fabric, fit, description, images, position)
-       values ($11,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb, (select coalesce(max(position), -1) + 1 from products))
+      `insert into products (id, name, colour, price, status, badge, includes, fabric, fit, description, images, collection, fit_note, position)
+       values ($13,$1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12, (select coalesce(max(position), -1) + 1 from products))
        on conflict (id) do nothing returning *`,
       vals.concat([id])
     );
@@ -225,7 +241,7 @@ async function saveProduct(b) {
   } else {
     const r = await q(
       `update products set name=$1, colour=$2, price=$3, status=$4, badge=$5, includes=$6, fabric=$7, fit=$8,
-              description=$9, images=$10::jsonb, updated_at=now() where id=$11 returning *`,
+              description=$9, images=$10::jsonb, collection=$11, fit_note=$12, updated_at=now() where id=$13 returning *`,
       vals.concat([String((b.product && b.product.id) || "")])
     );
     if (!r.rowCount) throw new HttpError(404, "That piece doesn't exist any more.");
@@ -241,6 +257,151 @@ async function reorder(b) {
     for (let i = 0; i < ids.length; i++) await c.query("update products set position = $1 where id = $2", [i, ids[i]]);
   });
   return { ok: true };
+}
+
+/* ---------- collections ---------- */
+async function collections() {
+  const r = await q(`select c.*, (select count(*)::int from products p where p.collection = c.id) as pieces
+                     from collections c order by position, created_at`);
+  return { collections: r.rows.map((row) => Object.assign(shop.toCollection(row), { pieces: row.pieces })) };
+}
+async function saveCollection(b) {
+  const c = b.collection || {};
+  const name = shop.cleanText(c.name, 60);
+  if (!name) throw new HttpError(400, "Give the collection a name.", { fields: ["name"] });
+  const image = IMG_RE.test(String(c.image || "")) ? String(c.image) : "";
+  const tagline = shop.cleanText(c.tagline, 120);
+  let row;
+  if (b.isNew) {
+    const id = slugify(name);
+    if (!id) throw new HttpError(400, "Give the collection a name with some letters in it.", { fields: ["name"] });
+    const r = await q(
+      `insert into collections (id, name, tagline, image, position)
+       values ($1,$2,$3,$4,(select coalesce(max(position), -1) + 1 from collections)) on conflict (id) do nothing returning *`,
+      [id, name, tagline, image]
+    );
+    if (!r.rowCount) throw new HttpError(409, "There's already a collection called that.", { fields: ["name"] });
+    row = r.rows[0];
+  } else {
+    const r = await q("update collections set name=$2, tagline=$3, image=$4, updated_at=now() where id=$1 returning *", [String(c.id || ""), name, tagline, image]);
+    if (!r.rowCount) throw new HttpError(404, "That collection doesn't exist any more.");
+    row = r.rows[0];
+  }
+  if (Array.isArray(b.pieces)) {
+    const ids = b.pieces.map(String).slice(0, 500);
+    await tx(async (cl) => {
+      await cl.query("update products set collection = '' where collection = $1 and not (id = any($2::text[]))", [row.id, ids]);
+      await cl.query("update products set collection = $1 where id = any($2::text[])", [row.id, ids]);
+    });
+  }
+  tidyImages().catch(() => {});
+  return { collection: shop.toCollection(row) };
+}
+
+/* ---------- early access ---------- */
+async function subscribers(p) {
+  const args = [];
+  const where = ["true"];
+  const term = String(p.get("q") || "").trim().slice(0, 80);
+  if (term) {
+    args.push("%" + term.replace(/[\\%_]/g, "\\$&") + "%");
+    where.push(`(contact ilike $${args.length} or source ilike $${args.length})`);
+  }
+  const before = Number(p.get("before"));
+  if (before > 0) {
+    args.push(before);
+    where.push(`id < $${args.length}`);
+  }
+  const r = await q(`select * from subscribers where ${where.join(" and ")} order by id desc limit 101`, args);
+  const t = await q(`select count(*)::int as total, count(*) filter (where kind = 'email')::int as email,
+                       count(*) filter (where kind = 'whatsapp')::int as whatsapp from subscribers`);
+  return {
+    subscribers: r.rows.slice(0, 100).map((x) => ({ id: Number(x.id), contact: x.contact, kind: x.kind, source: x.source, createdAt: x.created_at })),
+    more: r.rowCount > 100,
+    counts: t.rows[0],
+  };
+}
+async function subscribersCsv(res) {
+  const r = await q("select contact, kind, source, created_at from subscribers order by id");
+  const cell = (v) => {
+    v = String(v == null ? "" : v);
+    if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; // stop spreadsheets treating it as a formula
+    return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+  };
+  // WhatsApp numbers are spaced ("234 803 123 4567") so spreadsheets keep them as text
+  const spaced = (d) => [d.slice(0, 3), d.slice(3, 6), d.slice(6, 9), d.slice(9)].filter(Boolean).join(" ");
+  const lines = ["email,whatsapp,whatsapp link,signed up from,date"].concat(
+    r.rows.map((x) => {
+      const digits = x.kind === "whatsapp" ? x.contact.replace(/\D/g, "") : "";
+      return [
+        x.kind === "email" ? cell(x.contact) : "",
+        digits ? spaced(digits) : "",
+        digits ? "https://wa.me/" + digits : "",
+        cell(x.source),
+        new Date(x.created_at).toISOString().slice(0, 10),
+      ].join(",");
+    })
+  );
+  send(res, 200, "﻿" + lines.join("\r\n") + "\r\n", {
+    "Content-Type": "text/csv; charset=utf-8",
+    "Content-Disposition": 'attachment; filename="adabeke-early-access.csv"',
+  });
+}
+
+/* ---------- discount codes ---------- */
+function discountRow(d) {
+  return {
+    code: d.code, kind: d.kind, value: d.value, label: shop.discountLabel(d), minSubtotal: d.min_subtotal,
+    maxUses: d.max_uses, uses: d.uses, expiresAt: d.expires_at, active: d.active, note: d.note, createdAt: d.created_at,
+  };
+}
+async function discounts() {
+  const r = await q("select * from discounts order by active desc, created_at desc");
+  return { discounts: r.rows.map(discountRow) };
+}
+async function saveDiscount(b) {
+  const d = b.discount || {};
+  const code = shop.normCode(d.code);
+  if (code.length < 3) throw new HttpError(400, "Codes need at least 3 letters or numbers.", { fields: ["code"] });
+  const kind = d.kind === "amount" ? "amount" : "percent";
+  const value = Math.round(Number(String(d.value == null ? "" : d.value).replace(/[^\d.]/g, "")));
+  if (!(value > 0) || (kind === "percent" && value > 90) || value > 100000000) {
+    throw new HttpError(400, kind === "percent" ? "Choose a percentage between 1 and 90." : "Enter how much to take off.", { fields: ["value"] });
+  }
+  const num = (v) => {
+    const n = Math.round(Number(String(v == null ? "" : v).replace(/[^\d.]/g, "")));
+    return n > 0 ? n : null;
+  };
+  const minSubtotal = num(d.minSubtotal) || 0;
+  const maxUses = num(d.maxUses);
+  let expiresAt = null;
+  if (d.expiresAt) {
+    // a date like 2026-12-31 means "until the end of that day in Lagos"
+    const t = new Date(String(d.expiresAt).slice(0, 10) + "T23:59:59+01:00");
+    if (isNaN(t.getTime())) throw new HttpError(400, "That end date doesn't look right.", { fields: ["expiresAt"] });
+    expiresAt = t.toISOString();
+  }
+  const active = d.active !== false;
+  const note = shop.cleanText(d.note, 120);
+  const r = b.isNew
+    ? await q(
+        `insert into discounts (code, kind, value, min_subtotal, max_uses, expires_at, active, note)
+         values ($1,$2,$3,$4,$5,$6,$7,$8) on conflict (code) do nothing returning *`,
+        [code, kind, value, minSubtotal, maxUses, expiresAt, active, note]
+      )
+    : await q(
+        `update discounts set kind=$2, value=$3, min_subtotal=$4, max_uses=$5, expires_at=$6, active=$7, note=$8
+         where code=$1 returning *`,
+        [code, kind, value, minSubtotal, maxUses, expiresAt, active, note]
+      );
+  if (!r.rowCount) throw new HttpError(b.isNew ? 409 : 404, b.isNew ? "That code already exists." : "That code doesn't exist any more.", { fields: ["code"] });
+  return { discount: discountRow(r.rows[0]) };
+}
+
+async function settingsData() {
+  const fxSettings = fx.cleanSettings(await shop.getSetting("fx", null));
+  const market = await fx.marketRates().catch(() => null);
+  return { delivery: await shop.getDelivery(), fx: fxSettings, market: market ? { usd: market.usd, gbp: market.gbp, date: market.date } : null };
 }
 
 function sniff(buf) {
@@ -274,7 +435,11 @@ module.exports = handler(async (req, res) => {
     if (a === "orders") return send(res, 200, await orders(p));
     if (a === "order") return send(res, 200, { order: orderFull(await getOrder(p.get("id"))) });
     if (a === "products") return send(res, 200, await products());
-    if (a === "settings") return send(res, 200, { delivery: await shop.getDelivery() });
+    if (a === "settings") return send(res, 200, await settingsData());
+    if (a === "collections") return send(res, 200, await collections());
+    if (a === "subscribers") return send(res, 200, await subscribers(p));
+    if (a === "subscribers-csv") return subscribersCsv(res);
+    if (a === "discounts") return send(res, 200, await discounts());
     throw new HttpError(404, "Unknown action.");
   }
 
@@ -323,9 +488,35 @@ module.exports = handler(async (req, res) => {
   if (a === "products-reorder") return send(res, 200, await reorder(b));
   if (a === "image-upload") return send(res, 200, await uploadImage(b));
   if (a === "settings-save") {
-    const delivery = shop.cleanDelivery(b.delivery);
-    await shop.setSetting("delivery", delivery);
-    return send(res, 200, { delivery });
+    if (b.delivery !== undefined) await shop.setSetting("delivery", shop.cleanDelivery(b.delivery));
+    if (b.fx !== undefined) await shop.setSetting("fx", fx.cleanSettings(b.fx));
+    return send(res, 200, await settingsData());
+  }
+  if (a === "collection-save") return send(res, 200, await saveCollection(b));
+  if (a === "collection-delete") {
+    const id = String(b.id || "");
+    await tx(async (c) => {
+      await c.query("update products set collection = '' where collection = $1", [id]);
+      await c.query("delete from collections where id = $1", [id]);
+    });
+    tidyImages().catch(() => {});
+    return send(res, 200, { ok: true });
+  }
+  if (a === "collections-reorder") {
+    const ids = (Array.isArray(b.ids) ? b.ids : []).map(String).slice(0, 200);
+    await tx(async (c) => {
+      for (let i = 0; i < ids.length; i++) await c.query("update collections set position = $1 where id = $2", [i, ids[i]]);
+    });
+    return send(res, 200, { ok: true });
+  }
+  if (a === "subscriber-delete") {
+    await q("delete from subscribers where id = $1", [Number(b.id) || 0]);
+    return send(res, 200, { ok: true });
+  }
+  if (a === "discount-save") return send(res, 200, await saveDiscount(b));
+  if (a === "discount-delete") {
+    await q("delete from discounts where code = $1", [shop.normCode(b.code)]);
+    return send(res, 200, { ok: true });
   }
   throw new HttpError(404, "Unknown action.");
 });

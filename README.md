@@ -4,7 +4,7 @@
 
 | Page | File | What's on it |
 | --- | --- | --- |
-| Home | `index.html` | Full-screen photo slideshow with the headline on top, the brand story, a swipeable "Handpicked for you" slider, a note from Ada Beke, and a "made in Nigeria" banner |
+| Home | `index.html` | Full-screen photo slideshow with the headline on top, a swipeable "Handpicked for you" slider, and "Shop by collection" cards. The early-access sign-up is in the footer |
 | Shop | `shop.html` | All pieces with filters, a product details panel, and the bag |
 | About | `about.html` | Brand story, the full "We're back" letter, Chic / relaxed / Elegance |
 | Contact | `contact.html` | How to order, a WhatsApp contact form, the free-size guide and questions |
@@ -35,15 +35,26 @@ Go to **https://adabeke.vercel.app/admin** on a phone or laptop.
 | --- | --- |
 | Overview | Sales this month (compared with last month), paid orders, orders to pack and ship, unpaid orders to follow up, and the latest orders |
 | Orders | Search by name, phone, email or reference; filter by To ship, Unpaid, Shipped, Delivered or Cancelled. Open an order to move it along (New, Confirmed, Shipped, Delivered, or Cancel), see the customer's details and address, WhatsApp, call or email them with a ready-written message, keep a private note (e.g. a tracking number), mark WhatsApp orders as paid, or ask Paystack whether an online payment went through |
-| Pieces | Add, edit, reorder or delete pieces. Upload photos straight from your phone (they're shrunk automatically), set the price, and choose **Available**, **Dropping soon**, **Sold out** or **Hidden**. The shop updates within a minute |
-| Settings | Delivery options and fees shown at checkout, Paystack status, and the webhook address to give Paystack |
+| Pieces | Add, edit, reorder or delete pieces. Upload photos straight from your phone (they're shrunk automatically), set the price, a fit note and a collection, and choose **Available**, **Dropping soon**, **Sold out** or **Hidden**. Below the pieces: **Collections**, each with a name, a short line, a cover photo and its pieces. The shop updates within a minute |
+| Marketing | **Discount codes**: percent or naira off, with an optional minimum order, number of uses and last day; switch them off without deleting. **Early access**: everyone who signed up, with a search, WhatsApp/email buttons, "Copy all emails" and a spreadsheet download |
+| Settings | Delivery options and fees shown at checkout, **prices abroad** (today's rate, your own rates, or off), Paystack status, and the webhook address to give Paystack |
 
-### One-time setup (about 5 minutes, all in Vercel)
+### One-time setup (about 5 minutes)
 
-1. **Database:** open the `adabeke` project in Vercel → **Storage** → **Create Database** → **Neon** (Postgres), free plan. Choose the region **Washington, D.C. (iad1)** so it sits next to the site's functions, and connect it to the project. This adds `DATABASE_URL` for you.
-2. **Admin password:** **Settings → Environment Variables** → add `ADMIN_PASSWORD` (at least 8 characters).
-3. **Redeploy:** **Deployments** → `···` on the latest one → **Redeploy**.
-4. Open `/admin` and sign in. The first visit creates the tables and copies in the current pieces from `assets/js/products.js`.
+The database is **Supabase** (Postgres). Either way below works:
+
+- **Easiest, from Vercel:** open the `adabeke` project → **Storage** → **Create Database** → **Supabase**, free plan, region **East US (North Virginia)** so it sits next to the site's functions, and connect it to the project. This adds `POSTGRES_URL` for you.
+- **With a Supabase project you already have:** in Supabase press **Connect**, copy the **Transaction pooler** connection string (port `6543`) and put your database password in it. In Vercel → **Settings → Environment Variables**, add it as `DATABASE_URL`.
+
+Then:
+
+1. **Admin password:** in Vercel → **Settings → Environment Variables**, add `ADMIN_PASSWORD` (at least 8 characters).
+2. **Redeploy:** **Deployments** → `···` on the latest one → **Redeploy**.
+3. Open `/admin` and sign in. The first visit creates the tables and copies in the current pieces and collections from `assets/js/products.js`.
+
+**Supabase notes**
+- The tables live in Supabase's `public` schema with **row level security on and no rules**, so Supabase's own public data API can't read or change them. Only the website (which owns the tables) can. You can still browse them in Supabase's Table Editor.
+- Free Supabase projects go to sleep after a week without activity. `vercel.json` has a daily job (6:17 UTC) that opens `/api/catalogue?keepalive=1`, which touches the database and keeps it awake.
 
 ### Switching on Paystack
 
@@ -55,7 +66,7 @@ Go to **https://adabeke.vercel.app/admin** on a phone or laptop.
 
 ### How ordering works
 
-- **With Paystack on:** the bag's **Checkout** asks for name, email, phone, address and a delivery option, then sends the customer to Paystack to pay by card, bank transfer or USSD. Prices and delivery fees always come from the database, never from the browser. When the payment succeeds, Paystack tells the site (the webhook), the order is marked **Paid**, the customer lands on a "Thank you" page and gets Paystack's email receipt, and the order shows in the admin under **To ship**. Customers can still choose "Or order on WhatsApp".
+- **With Paystack on:** the bag's **Checkout** asks for name, email, phone, address, a delivery option and (optionally) a discount code, then sends the customer to Paystack to pay by card, bank transfer or USSD. Customers abroad also see their total in dollars and pounds. Prices and delivery fees always come from the database, never from the browser. When the payment succeeds, Paystack tells the site (the webhook), the order is marked **Paid**, the customer lands on a "Thank you" page and gets Paystack's email receipt, and the order shows in the admin under **To ship**. Customers can still choose "Or order on WhatsApp".
 - **Before Paystack (or for pieces priced on request):** "Checkout on WhatsApp" opens WhatsApp (+234 809 371 2578) with the order written out. Once the database is connected, the message includes a reference like `AB-7KQ2M9XP` and the order appears in the admin, so you can match the chat to it, fill in the customer's details and mark it paid.
 - The bag is saved in the visitor's browser, and the checkout form remembers their details for next time.
 
@@ -63,29 +74,39 @@ Go to **https://adabeke.vercel.app/admin** on a phone or laptop.
 
 | Name | Needed | What it is |
 | --- | --- | --- |
-| `DATABASE_URL` | yes | Added by the Neon integration (`POSTGRES_URL` also works) |
+| `DATABASE_URL` or `POSTGRES_URL` | yes | The Supabase connection string (the Vercel integration adds `POSTGRES_URL`) |
 | `ADMIN_PASSWORD` | yes | The admin sign-in password. Changing it signs everyone out |
 | `PAYSTACK_SECRET_KEY` | for online payment | `sk_test_…` while testing, `sk_live_…` for real payments |
 | `SITE_URL` | no | Only if the site moves to its own domain, e.g. `https://adabeke.com` |
 
 ### Without a database
 
-Nothing breaks. The shop shows the built-in pieces from `assets/js/products.js` and checks out on WhatsApp, and `/admin` shows the setup steps. If the database is ever unreachable, the shop falls back to that same list after 2.5 seconds.
+Nothing breaks. The shop shows the built-in pieces and collections from `assets/js/products.js` and checks out on WhatsApp; "Get early access" opens WhatsApp instead of saving to the list; prices abroad and discount codes stay off; and `/admin` shows the setup steps. If the database is ever unreachable, the shop falls back to that same list after 2.5 seconds.
 
 ### Files
 
 | File | What it does |
 | --- | --- |
 | `api/catalogue.js` | The live list of pieces, delivery options and whether Paystack is on, cached for 20 seconds at Vercel's edge |
-| `api/checkout.js` | Creates orders and starts Paystack payments |
+| `api/checkout.js` | Creates orders, checks discount codes and starts Paystack payments |
+| `api/subscribe.js` | Early-access sign-ups (email or WhatsApp number) |
 | `api/order.js` | The "Thank you" page's order details; double-checks with Paystack |
 | `api/paystack-webhook.js` | Paystack's signed "payment succeeded" message |
 | `api/img.js` | Photos uploaded in the admin |
 | `api/admin.js` | Everything the dashboard does (sign-in, orders, pieces, settings) |
-| `lib/` | Database tables, Paystack, sign-in and shared rules |
+| `lib/` | Database tables, Paystack, sign-in, exchange rates (`fx.js`) and shared rules |
 | `assets/admin/` | The dashboard's look and behaviour |
 
-**Security:** the admin cookie is HttpOnly, SameSite=Strict and expires after 14 days; sign-in is limited to 8 tries per 15 minutes; changes need a header other websites can't send; webhook messages must carry Paystack's signature, and every payment is re-checked with Paystack (amount and currency included) before an order is marked paid.
+**Security:** the admin cookie is HttpOnly, SameSite=Strict and expires after 14 days; sign-in is limited to 8 tries per 15 minutes; changes need a header other websites can't send; webhook messages must carry Paystack's signature, and every payment is re-checked with Paystack (amount and currency included) before an order is marked paid; discount codes are checked on the server, never trusted from the browser.
+
+### Shop features
+
+- **Collections:** big photo cards on the home page ("Shop by collection") and filter buttons in the shop. A link like `shop.html?c=sets` opens the shop filtered. The site starts with two, **Sets** (Omalicha, Abira) and **Boubous** (Wifey); rename them, change the cover photos or add new ones in the admin. A collection with no pieces stays hidden.
+- **Early access:** "Be first to the next drop" in the footer of every page, plus "Get early access" on any piece that's dropping soon. People enter an email address or a WhatsApp number (a Nigerian number like 0803… is turned into +234…). Repeat sign-ups are recognised.
+- **You may also like:** each piece's details panel suggests three others, from the same collection first.
+- **Discount codes:** typed at the online checkout. Each use is counted only once the order is paid.
+- **Fit note:** an optional line on each piece, shown in a soft box in its details, for example how long it falls.
+- **Prices abroad:** "≈ $29 · £23" next to the naira price in each piece's details and under the checkout total. By default it uses the day's market rate (from the free [currency-api](https://github.com/fawazahmed0/exchange-api), checked a few times a day); you can type your own rates or switch it off. Customers always pay in naira.
 
 ## Adding or editing pieces
 
@@ -127,20 +148,12 @@ Portrait photos (4:5) look best, and the second photo shows when the shopper hov
 
 If the site moves to its own domain, change `SITE` at the top of `tools/build_pages.py` and rebuild.
 
-## Designs
+## Motion
 
-The decorations come from the brand itself:
-- **Rings:** the circle print on the white & brown boubou, slowly turning.
-- **Arch frames:** the arch behind the Omalicha mannequin.
-- **Wavy section edges:** the curved white bench in the studio photos.
-- **Aqua sparkles:** they twinkle.
-- **Outlined words:** large outlined words drift behind some sections.
-
-Other details:
+The extra decorations (rings, sparkles, outlined words, arch frames, wavy section edges and the scroll line) have been removed for a cleaner look. What's left:
 - Photos are revealed by an aqua panel sliding off them.
 - Text pops in one piece after another.
 - Buttons lean towards the mouse.
-- A thin aqua line at the top shows how far down the page you are.
 
 All movement stops for visitors with "reduce motion" on.
 
@@ -163,9 +176,10 @@ The site runs on Vercel (https://adabeke.vercel.app), which deploys every push t
 
 ## Still to add
 
-- Connect the database and add `ADMIN_PASSWORD` (see "One-time setup" above)
+- Connect Supabase and add `ADMIN_PASSWORD` (see "One-time setup" above)
 - Paystack keys, test first, then live
 - Delivery options and fees, in the admin's Settings
+- Fit notes for each piece, and the collections' names and cover photos you'd like
 
 - Photos for the other pieces on Instagram (silver boubou, ivory set, gingham set, tee & gingham), with names and prices
 - The size chart values, if you want them on the Contact page instead of linking to the Instagram highlight

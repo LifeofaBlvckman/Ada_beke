@@ -28,6 +28,7 @@ module.exports = handler(async (req, res) => {
     items: (o.items || []).map((i) => ({ name: i.name, colour: i.colour, qty: i.qty, price: i.price, image: i.image })),
     subtotal: o.subtotal,
     delivery: o.delivery_name ? { name: o.delivery_name, fee: o.delivery_fee } : null,
+    discount: o.discount ? { code: o.discount_code, amount: o.discount } : null,
     total: o.total,
     createdAt: o.created_at,
   });
