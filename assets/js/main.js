@@ -1330,11 +1330,16 @@
   var slideBox = $("[data-slides]");
   if (slideBox) (function () {
     var slides = $$(".slide", slideBox);
+    var cuts = $$(".cut", slideBox);   // laptops: the models in front of the words
     var SLIDE_MS = 5500;
     var wide = window.matchMedia("(min-aspect-ratio: 5/4) and (min-width: 900px)");
     var idx = 0, timer = null, onScreen = true;
 
     function load(i) {
+      $$("source[data-srcset]", cuts[i] || slides[i]).forEach(function (so) {
+        so.srcset = so.getAttribute("data-srcset");
+        so.removeAttribute("data-srcset");
+      });
       $$("source[data-srcset]", slides[i]).forEach(function (so) {
         so.srcset = so.getAttribute("data-srcset");
         so.removeAttribute("data-srcset");
@@ -1350,6 +1355,10 @@
     // White words on darker photos, navy on bright studio photos
     function setTone() {
       var s = slides[idx];
+      slideBox.style.setProperty("--hero-ink", s.style.getPropertyValue("--ink"));
+      slideBox.style.setProperty("--hero-dot", s.style.getPropertyValue("--dot"));
+      slideBox.style.setProperty("--hero-front", s.style.getPropertyValue("--front"));
+      slideBox.style.setProperty("--hero-front-glow", s.style.getPropertyValue("--front-glow"));
       var text = wide.matches ? s.getAttribute("data-tone-desk") : "dark";
       var head = wide.matches ? text : s.getAttribute("data-head-phone");
       slideBox.setAttribute("data-tone", text);
@@ -1370,6 +1379,7 @@
         s.classList.toggle("is-active", k === idx);
         s.setAttribute("aria-hidden", String(k !== idx));
       });
+      cuts.forEach(function (c, k) { c.classList.toggle("is-active", k === idx); });
       setTone();
       schedule();
     }

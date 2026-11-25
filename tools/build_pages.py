@@ -144,9 +144,9 @@ def crumbs_ld(name, path):
 # --------------------------------------------------------------------------
 def head(title, desc, page, path, og_image, og_alt, graph=None, robots="index, follow, max-image-preview:large"):
     url = SITE + path
-    first = SLIDES[0][0]
-    preload = (f'<link rel="preload" as="image" href="assets/img/shoot/{first}-wide-1600.webp" '
-               f'imagesrcset="{wide_set(first)}" imagesizes="100vw" media="{WIDE_MQ}" fetchpriority="high">\n'
+    first, first_w = SLIDES[0][0], SLIDES[0][7]
+    preload = (f'<link rel="preload" as="image" href="assets/img/shoot/{first}-cut.webp" '
+               f'imagesrcset="{cut_set(first, first_w)}" imagesizes="{cut_sizes(first_w)}" media="{WIDE_MQ}" fetchpriority="high">\n'
                f'<link rel="preload" as="image" href="assets/img/shoot/{first}.webp" '
                f'imagesrcset="{shoot_set("shoot/" + first)}" imagesizes="{HERO_SIZES}" '
                f'media="not all and {WIDE_MQ}" fetchpriority="high">\n'
@@ -292,24 +292,41 @@ LINES = '<div class="hero__lines" aria-hidden="true"><span></span><span></span><
 
 # Photos from the shoot live in assets/img/shoot/ in two sizes: name.webp (1600 x 2000)
 # and name-800.webp (800 x 1000); the browser picks the one the screen needs.
-# Slideshow photos also have a wide crop for laptops: name-wide.webp (2400 x 1500)
-# and name-wide-1600.webp (1600 x 1000). Tones: "dark" = white words, "light" = navy.
+#
+# Home slideshow. Phones show the whole photo. Laptops show the model cut out of
+# her photo (name-cut.webp, 2000 tall, and name-cut-1000.webp) standing on a brand
+# colour, in front of the headline, so the words pass behind her.
+#   tone   "dark" = light words (navy backdrop), "light" = navy words
+#   phone  colour of the menu over the top of the photo on phones
+#   x      where the model stands, as a share of the page column's width (0.6 = 60%)
 SLIDES = [
-    # photo           alt text                                                                  laptop  phone header
-    ("circles-open", "Model with arms outstretched in a white boubou with large orange circle prints", "dark", "dark"),
-    ("wifey-gaze", "Model in the sheer black Wifey boubou", "light", "light"),
-    ("check-vine", "Model in a navy, red and orange checked boubou among hanging plants", "dark", "dark"),
-    ("duo-doors", "Two models at arched black doors, in the circle-print and checked boubous", "light", "light"),
-    ("abira-duo", "Two models in the rust and cobalt Abira hoodie set", "dark", "light"),
-    ("gold-pleats", "Model in a sheer black shirt and gold pleated wide-leg trousers", "light", "light"),
+    # photo, alt text, tone, phone, backdrop, words, accent (full stop + arrow), cut-out width (of 2000 tall), x,
+    # colour of "your style." (it crosses her clothes) and the shade that keeps it readable
+    ("circles-side", "Model in a white boubou with large orange circle prints, hand in pocket",
+     "dark", "dark", "#0f2a4a", "#58dadc", "#ffffff", 644, "0.585",
+     "#58dadc", "0 2px 22px rgba(9, 27, 50, 0.7), 0 1px 4px rgba(9, 27, 50, 0.45)"),
+    ("abira-front", "Model in the rust and cobalt Abira hoodie set, hood up",
+     "light", "light", "#eaf8f8", "#0f2a4a", "#3fc4c7", 796, "0.615",
+     "#0f2a4a", "0 0 9px rgba(234, 248, 248, 0.9), 0 0 2px rgba(234, 248, 248, 0.9)"),
+    ("wifey-gaze", "Model in the sheer black Wifey boubou",
+     "light", "light", "#58dadc", "#0f2a4a", "#ffffff", 674, "0.585",
+     "#ffffff", "0 2px 16px rgba(15, 42, 74, 0.28)"),
 ]
 WIDE_MQ = "(min-aspect-ratio: 5/4) and (min-width: 900px)"
 # Phones and tall screens: the portrait photo fills the height
 HERO_SIZES = "(max-aspect-ratio: 4/5) 80vh, 100vw"
+# A 1x1 see-through pixel: lets a <picture> show nothing on screens that don't need it
+BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+CUT_HEIGHT = 104  # cut-out height on laptops, % of the slideshow height
 
 
-def wide_set(n):
-    return f"assets/img/shoot/{n}-wide-1600.webp 1600w, assets/img/shoot/{n}-wide.webp 2400w"
+def cut_set(n, w):
+    """w = width of the full cut-out; the -1000 copy is half its size."""
+    return f"assets/img/shoot/{n}-cut-1000.webp {w // 2}w, assets/img/shoot/{n}-cut.webp {w}w"
+
+
+def cut_sizes(w):
+    return f"{round(CUT_HEIGHT * w / 2000)}vh"
 
 
 def shoot_set(n):
@@ -323,21 +340,35 @@ def shoot_img(n, alt, sizes, attrs=""):
 
 
 def slides_html():
-    """Each slide: a wide crop on laptops, the portrait photo everywhere else.
+    """Phones: each slide is the portrait photo. Laptops: each slide is a brand colour
+    (the photo is swapped for a see-through pixel, so it isn't downloaded there).
     Only the first loads with the page; the slideshow loads the rest as it goes."""
     figs = []
-    for k, (n, alt, desk, head_tone) in enumerate(SLIDES):
+    for k, (n, alt, tone, phone, stage, ink, dot, w, x, front, glow) in enumerate(SLIDES):
         lazy = k > 0
         pre = "data-" if lazy else ""
         extra = "" if lazy else ' fetchpriority="high"'
         hidden = ' aria-hidden="true"' if lazy else ""
         figs.append(
-            f'      <figure class="slide{"" if lazy else " is-active"}" data-tone-desk="{desk}" '
-            f'data-head-phone="{head_tone}" aria-roledescription="slide" aria-label="{k + 1} of {len(SLIDES)}"{hidden}>'
-            f'<picture><source media="{WIDE_MQ}" {pre}srcset="{wide_set(n)}" sizes="100vw">'
+            f'      <figure class="slide{"" if lazy else " is-active"}" data-tone-desk="{tone}" data-head-phone="{phone}" '
+            f'style="--stage:{stage};--ink:{ink};--dot:{dot};--cut-x:{x};--front:{front};--front-glow:{glow}" '
+            f'aria-roledescription="slide" aria-label="{k + 1} of {len(SLIDES)}"{hidden}>'
+            f'<picture><source media="{WIDE_MQ}" srcset="{BLANK}">'
             f'<img class="slide__img" {pre}src="assets/img/shoot/{n}.webp" {pre}srcset="{shoot_set("shoot/" + n)}" '
             f'sizes="{HERO_SIZES}" alt="{alt}" width="1600" height="2000"{extra}></picture></figure>')
     return "\n".join(figs)
+
+
+def cuts_html():
+    """Laptops only: the models, cut out, standing in front of the headline."""
+    out = []
+    for k, (n, alt, tone, phone, stage, ink, dot, w, x, front, glow) in enumerate(SLIDES):
+        pre = "data-" if k > 0 else ""
+        out.append(
+            f'      <picture class="cut{"" if k else " is-active"}" style="--cut-x:{x}">'
+            f'<source media="{WIDE_MQ}" {pre}srcset="{cut_set(n, w)}" sizes="{cut_sizes(w)}">'
+            f'<img src="{BLANK}" alt="" width="{w}" height="2000"></picture>')
+    return "\n".join(out)
 
 
 VALUE_SIZES = "(min-width: 900px) 30vw, 100vw"
@@ -359,7 +390,11 @@ home = head(
     </div>
     <div class="hero__veil" aria-hidden="true"><span class="veil veil--bottom"></span><span class="veil veil--side-dark"></span><span class="veil veil--side-light"></span><span class="veil veil--top-dark"></span><span class="veil veil--top-light"></span></div>
     <div class="hero__inner">
-      <h1 class="hero__title" id="hero-title" data-chars="load" aria-label="Feel good fashion for every body."><span class="ln" aria-hidden="true">Feel good</span><span class="ln ln--in" aria-hidden="true">fashion for</span><span class="ln" aria-hidden="true">every body<span class="dot">.</span></span></h1>
+      <h1 class="hero__title" id="hero-title" data-chars="load" aria-label="Discover your style."><span class="ln ln--back" aria-hidden="true">Discover</span><span class="ln ln--front" aria-hidden="true">your style<span class="dot">.</span></span></h1>
+      <div class="hero__cuts" aria-hidden="true">
+{cuts_html()}
+      </div>
+      <p class="hero__note" data-reveal data-reveal-load style="--d:1100ms">Free-size boubous and sets in soft, flowing fabrics. Made in Nigeria.</p>
       <div class="hero__cta" data-reveal data-reveal-load style="--d:900ms">{pill("Shop the collection", "shop.html", "film")}</div>
     </div>
   </section>
