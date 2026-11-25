@@ -170,11 +170,11 @@ All movement stops for visitors with "reduce motion" on.
 
 ## Home slideshow
 
-Six photos, set in the `SLIDES` list in the page builder: the circle-print boubou, the checked boubou, the Abira pair and Wifey from the shoot, plus the royal blue set (`hero-2-blue`) and the ash halter dress (`hero-4-ash`), which are older, softer copies. Each has a tiny `-blur` copy used for the soft background on wide screens. To add a shoot photo, list it as `shoot/name` and make its `-blur` copy (200×250). Each slide is marked `light` or `dark` so the words switch between navy and white to stay readable. Photos change every 5.5 seconds, visitors can swipe on a phone, and the slideshow pauses when it's off screen.
+Six photos from the shoot, set in the `SLIDES` list in the page builder: the circle-print boubou, Wifey, the checked boubou, the circle-print and checked boubous together, the Abira pair, and the black shirt with gold trousers. Phones show the portrait photo filling the screen. Laptops and big screens show a wide crop of the same photo filling the whole screen, with the headline over the photo in the lower left and a soft shade behind it. The wide crops (`name-wide.webp`, 2400×1500, and `name-wide-1600.webp`) are framed so faces sit clear of the menu. To add a slide, add its portrait photo in the two shoot sizes plus a 16:10 crop of the original in these two wide sizes, then list it in `SLIDES`. Each slide is marked `light` or `dark` so the words switch between navy and white to stay readable. Photos change every 5.5 seconds, visitors can swipe on a phone, and the slideshow pauses when it's off screen.
 
 ## Speed
 
-The home page downloads about 1 MB on a phone, most of it the sharp slideshow photos: the first one (about 330 KB) is preloaded, and the rest load one at a time in the background. The About page's film is about 4 MB and streams as it plays. The aqua curtain never waits for fonts, and moving between pages takes well under a second.
+The home page downloads about 1 MB on a phone, most of it the sharp slideshow photos: the first one (about 330 KB on a phone, 190 to 310 KB on a laptop) is preloaded, and the rest load one at a time in the background. The About page's film is about 4 MB and streams as it plays. The aqua curtain never waits for fonts, and moving between pages takes well under a second.
 
 ## Putting it online
 
@@ -188,6 +188,6 @@ The site runs on Vercel (https://adabeke.vercel.app), which deploys every push t
 - Fit notes for each piece, and the collections' names and cover photos you'd like
 
 - Names, prices and details for the circle-print boubou, the checked boubou and the black shirt with gold trousers (their photos are ready, see "Photos from the shoot")
-- The original, full-quality photos of the royal blue set and the ash halter dress, and the full-quality export of the campaign film (the copy we have is 464 pixels wide)
+- The original, full-quality photos of the royal blue set and the ash halter dress (they left the slideshow because the copies we had were too soft to fill a laptop screen), and the full-quality export of the campaign film (the copy we have is 464 pixels wide)
 - Photos for the other pieces on Instagram (silver boubou, ivory set, gingham set, tee & gingham), with names and prices
 - The size chart values, if you want them on the Contact page instead of linking to the Instagram highlight

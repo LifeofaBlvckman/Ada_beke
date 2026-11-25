@@ -145,9 +145,11 @@ def crumbs_ld(name, path):
 def head(title, desc, page, path, og_image, og_alt, graph=None, robots="index, follow, max-image-preview:large"):
     url = SITE + path
     first = SLIDES[0][0]
-    preload = (f'<link rel="preload" as="image" href="assets/img/{first}.webp" '
-               f'imagesrcset="assets/img/{first}-800.webp 800w, assets/img/{first}.webp 1600w" '
-               f'imagesizes="{HERO_SIZES}" fetchpriority="high">\n'
+    preload = (f'<link rel="preload" as="image" href="assets/img/shoot/{first}-wide-1600.webp" '
+               f'imagesrcset="{wide_set(first)}" imagesizes="100vw" media="{WIDE_MQ}" fetchpriority="high">\n'
+               f'<link rel="preload" as="image" href="assets/img/shoot/{first}.webp" '
+               f'imagesrcset="{shoot_set("shoot/" + first)}" imagesizes="{HERO_SIZES}" '
+               f'media="not all and {WIDE_MQ}" fetchpriority="high">\n'
                if page == "home" else "")
     data = ld({"@context": "https://schema.org", "@graph": graph}) if graph else ""
     return f"""<!doctype html>
@@ -290,16 +292,24 @@ LINES = '<div class="hero__lines" aria-hidden="true"><span></span><span></span><
 
 # Photos from the shoot live in assets/img/shoot/ in two sizes: name.webp (1600 x 2000)
 # and name-800.webp (800 x 1000); the browser picks the one the screen needs.
+# Slideshow photos also have a wide crop for laptops: name-wide.webp (2400 x 1500)
+# and name-wide-1600.webp (1600 x 1000). Tones: "dark" = white words, "light" = navy.
 SLIDES = [
-    ("shoot/circles-open", "Model with arms outstretched in a white boubou with large orange circle prints", "dark", "dark"),
-    ("shoot/check-vine", "Model in a navy, red and orange checked boubou among hanging plants", "dark", "dark"),
-    ("shoot/abira-duo", "Two models in the rust and cobalt Abira hoodie set", "dark", "light"),
-    ("hero-2-blue", "Model leaning on a wall in a royal blue pinstripe crop top and wide trousers", "light", "light"),
-    ("shoot/wifey-gaze", "Model in the sheer black Wifey boubou", "light", "light"),
-    ("hero-4-ash", "Model in an ash halter maxi dress with red trim", "light", "light"),
+    # photo           alt text                                                                  laptop  phone header
+    ("circles-open", "Model with arms outstretched in a white boubou with large orange circle prints", "dark", "dark"),
+    ("wifey-gaze", "Model in the sheer black Wifey boubou", "light", "light"),
+    ("check-vine", "Model in a navy, red and orange checked boubou among hanging plants", "dark", "dark"),
+    ("duo-doors", "Two models at arched black doors, in the circle-print and checked boubous", "light", "light"),
+    ("abira-duo", "Two models in the rust and cobalt Abira hoodie set", "dark", "light"),
+    ("gold-pleats", "Model in a sheer black shirt and gold pleated wide-leg trousers", "light", "light"),
 ]
-# Rendered width of a hero photo: tall phones fill the height, wide screens show it on the right
-HERO_SIZES = "(max-aspect-ratio: 4/5) 80vh, (min-aspect-ratio: 5/4) and (min-width: 900px) 62vw, 100vw"
+WIDE_MQ = "(min-aspect-ratio: 5/4) and (min-width: 900px)"
+# Phones and tall screens: the portrait photo fills the height
+HERO_SIZES = "(max-aspect-ratio: 4/5) 80vh, 100vw"
+
+
+def wide_set(n):
+    return f"assets/img/shoot/{n}-wide-1600.webp 1600w, assets/img/shoot/{n}-wide.webp 2400w"
 
 
 def shoot_set(n):
@@ -313,20 +323,20 @@ def shoot_img(n, alt, sizes, attrs=""):
 
 
 def slides_html():
+    """Each slide: a wide crop on laptops, the portrait photo everywhere else.
+    Only the first loads with the page; the slideshow loads the rest as it goes."""
     figs = []
     for k, (n, alt, desk, head_tone) in enumerate(SLIDES):
         lazy = k > 0
-        src = "data-src" if lazy else "src"
+        pre = "data-" if lazy else ""
         extra = "" if lazy else ' fetchpriority="high"'
         hidden = ' aria-hidden="true"' if lazy else ""
-        shoot = n.startswith("shoot/")
-        w, h = (1600, 2000) if shoot else (1024, 1280)
-        sset = (f' {"data-srcset" if lazy else "srcset"}="{shoot_set(n)}" sizes="{HERO_SIZES}"' if shoot else "")
         figs.append(
             f'      <figure class="slide{"" if lazy else " is-active"}" data-tone-desk="{desk}" '
             f'data-head-phone="{head_tone}" aria-roledescription="slide" aria-label="{k + 1} of {len(SLIDES)}"{hidden}>'
-            f'<img class="slide__bg" {src}="assets/img/{n}-blur.webp" alt="" aria-hidden="true">'
-            f'<img class="slide__img" {src}="assets/img/{n}.webp"{sset} alt="{alt}" width="{w}" height="{h}"{extra}></figure>')
+            f'<picture><source media="{WIDE_MQ}" {pre}srcset="{wide_set(n)}" sizes="100vw">'
+            f'<img class="slide__img" {pre}src="assets/img/shoot/{n}.webp" {pre}srcset="{shoot_set("shoot/" + n)}" '
+            f'sizes="{HERO_SIZES}" alt="{alt}" width="1600" height="2000"{extra}></picture></figure>')
     return "\n".join(figs)
 
 
@@ -845,7 +855,7 @@ def img_tags(paths):
 
 
 PAGES = [
-    ("/", "1.0", [f"assets/img/{n}.webp" for n, *_ in SLIDES]),
+    ("/", "1.0", [f"assets/img/shoot/{n}.webp" for n, *_ in SLIDES]),
     ("/shop.html", "0.9", ["assets/img/omalicha-mannequin.webp", "assets/img/shoot/wifey-seated.webp",
                            "assets/img/shoot/abira-front.webp", "assets/img/shoot/abira-set.webp"]),
     ("/about.html", "0.6", ["assets/img/shoot/gold-pleats.webp", "assets/img/shoot/circles-side.webp",

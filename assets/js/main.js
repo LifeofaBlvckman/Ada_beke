@@ -1335,6 +1335,10 @@
     var idx = 0, timer = null, onScreen = true;
 
     function load(i) {
+      $$("source[data-srcset]", slides[i]).forEach(function (so) {
+        so.srcset = so.getAttribute("data-srcset");
+        so.removeAttribute("data-srcset");
+      });
       $$("img[data-src]", slides[i]).forEach(function (im) {
         var set = im.getAttribute("data-srcset");
         if (set) { im.srcset = set; im.removeAttribute("data-srcset"); }
