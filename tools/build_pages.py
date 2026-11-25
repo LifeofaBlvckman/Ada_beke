@@ -144,12 +144,9 @@ def crumbs_ld(name, path):
 # --------------------------------------------------------------------------
 def head(title, desc, page, path, og_image, og_alt, graph=None, robots="index, follow, max-image-preview:large"):
     url = SITE + path
-    first, first_w = SLIDES[0][0], SLIDES[0][7]
+    first, first_w = SLIDES[0][0], SLIDES[0][6]
     preload = (f'<link rel="preload" as="image" href="assets/img/shoot/{first}-cut.webp" '
-               f'imagesrcset="{cut_set(first, first_w)}" imagesizes="{cut_sizes(first_w)}" media="{WIDE_MQ}" fetchpriority="high">\n'
-               f'<link rel="preload" as="image" href="assets/img/shoot/{first}.webp" '
-               f'imagesrcset="{shoot_set("shoot/" + first)}" imagesizes="{HERO_SIZES}" '
-               f'media="not all and {WIDE_MQ}" fetchpriority="high">\n'
+               f'imagesrcset="{cut_set(first, first_w)}" imagesizes="{cut_sizes(first_w)}" fetchpriority="high">\n'
                if page == "home" else "")
     data = ld({"@context": "https://schema.org", "@graph": graph}) if graph else ""
     return f"""<!doctype html>
@@ -293,31 +290,27 @@ LINES = '<div class="hero__lines" aria-hidden="true"><span></span><span></span><
 # Photos from the shoot live in assets/img/shoot/ in two sizes: name.webp (1600 x 2000)
 # and name-800.webp (800 x 1000); the browser picks the one the screen needs.
 #
-# Home slideshow. Phones show the whole photo. Laptops show the model cut out of
-# her photo (name-cut.webp, 2000 tall, and name-cut-1000.webp) standing on a brand
-# colour, in front of the headline, so the words pass behind her.
-#   tone   "dark" = light words (navy backdrop), "light" = navy words
-#   phone  colour of the menu over the top of the photo on phones
-#   x      where the model stands, as a share of the page column's width (0.6 = 60%)
+# Home slideshow. Each slide shows the model cut out of her photo (name-cut.webp,
+# 2000 tall, and name-cut-1000.webp) standing on a brand colour, with "Discover"
+# behind her and "your style." in front, on phones and laptops alike.
+#   tone     "dark" = light words and menu (navy backdrop), "light" = navy words
+#   x / xp   where she stands across the screen on laptops / phones (0.6 = 60%)
+#   front    colour of "your style." (it crosses her clothes) and the shade that keeps it readable
 SLIDES = [
-    # photo, alt text, tone, phone, backdrop, words, accent (full stop + arrow), cut-out width (of 2000 tall), x,
-    # colour of "your style." (it crosses her clothes) and the shade that keeps it readable
+    # photo, alt text, tone, backdrop, words, accent (full stop + arrow), cut-out width (of 2000 tall), x, xp, front, shade
     ("circles-side", "Model in a white boubou with large orange circle prints, hand in pocket",
-     "dark", "dark", "#0f2a4a", "#58dadc", "#ffffff", 644, "0.585",
-     "#58dadc", "0 2px 22px rgba(9, 27, 50, 0.7), 0 1px 4px rgba(9, 27, 50, 0.45)"),
+     "dark", "#0f2a4a", "#58dadc", "#ffffff", 644, "0.585", "0.66",
+     "#58dadc", "0 0 1px rgba(9, 27, 50, 0.95), 0 0 3px rgba(9, 27, 50, 0.85), 0 2px 20px rgba(9, 27, 50, 0.6)"),
     ("abira-front", "Model in the rust and cobalt Abira hoodie set, hood up",
-     "light", "light", "#eaf8f8", "#0f2a4a", "#3fc4c7", 796, "0.615",
-     "#0f2a4a", "0 0 9px rgba(234, 248, 248, 0.9), 0 0 2px rgba(234, 248, 248, 0.9)"),
+     "light", "#eaf8f8", "#0f2a4a", "#3fc4c7", 796, "0.615", "0.62",
+     "#0f2a4a", "0 0 1px rgba(234, 248, 248, 1), 0 0 3px rgba(234, 248, 248, 1), 0 0 12px rgba(234, 248, 248, 0.85)"),
     ("wifey-gaze", "Model in the sheer black Wifey boubou",
-     "light", "light", "#58dadc", "#0f2a4a", "#ffffff", 674, "0.585",
+     "light", "#58dadc", "#0f2a4a", "#ffffff", 674, "0.585", "0.64",
      "#ffffff", "0 2px 16px rgba(15, 42, 74, 0.28)"),
 ]
 WIDE_MQ = "(min-aspect-ratio: 5/4) and (min-width: 900px)"
-# Phones and tall screens: the portrait photo fills the height
-HERO_SIZES = "(max-aspect-ratio: 4/5) 80vh, 100vw"
-# A 1x1 see-through pixel: lets a <picture> show nothing on screens that don't need it
-BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-CUT_HEIGHT = 104  # cut-out height on laptops, % of the slideshow height
+CUT_HEIGHT = 104        # cut-out height on laptops, % of the slideshow height
+CUT_HEIGHT_PHONE = 86   # and on phones
 
 
 def cut_set(n, w):
@@ -326,7 +319,7 @@ def cut_set(n, w):
 
 
 def cut_sizes(w):
-    return f"{round(CUT_HEIGHT * w / 2000)}vh"
+    return f"{WIDE_MQ} {round(CUT_HEIGHT * w / 2000)}vh, {round(CUT_HEIGHT_PHONE * w / 2000)}vh"
 
 
 def shoot_set(n):
@@ -340,34 +333,29 @@ def shoot_img(n, alt, sizes, attrs=""):
 
 
 def slides_html():
-    """Phones: each slide is the portrait photo. Laptops: each slide is a brand colour
-    (the photo is swapped for a see-through pixel, so it isn't downloaded there).
-    Only the first loads with the page; the slideshow loads the rest as it goes."""
+    """Each slide is a brand colour; the model stands on it in the layer above the words."""
     figs = []
-    for k, (n, alt, tone, phone, stage, ink, dot, w, x, front, glow) in enumerate(SLIDES):
+    for k, (n, alt, tone, stage, ink, dot, w, x, xp, front, glow) in enumerate(SLIDES):
         lazy = k > 0
-        pre = "data-" if lazy else ""
-        extra = "" if lazy else ' fetchpriority="high"'
-        hidden = ' aria-hidden="true"' if lazy else ""
         figs.append(
-            f'      <figure class="slide{"" if lazy else " is-active"}" data-tone-desk="{tone}" data-head-phone="{phone}" '
-            f'style="--stage:{stage};--ink:{ink};--dot:{dot};--cut-x:{x};--front:{front};--front-glow:{glow}" '
-            f'aria-roledescription="slide" aria-label="{k + 1} of {len(SLIDES)}"{hidden}>'
-            f'<picture><source media="{WIDE_MQ}" srcset="{BLANK}">'
-            f'<img class="slide__img" {pre}src="assets/img/shoot/{n}.webp" {pre}srcset="{shoot_set("shoot/" + n)}" '
-            f'sizes="{HERO_SIZES}" alt="{alt}" width="1600" height="2000"{extra}></picture></figure>')
+            f'      <figure class="slide{"" if lazy else " is-active"}" data-tone="{tone}" '
+            f'style="--stage:{stage};--ink:{ink};--dot:{dot};--cut-x:{x};--cut-xp:{xp};--front:{front};--front-glow:{glow}" '
+            f'aria-roledescription="slide" aria-label="{k + 1} of {len(SLIDES)}"{" aria-hidden=\"true\"" if lazy else ""}>'
+            f'<span class="sr-only">{alt}</span></figure>')
     return "\n".join(figs)
 
 
 def cuts_html():
-    """Laptops only: the models, cut out, standing in front of the headline."""
+    """The models, cut out, standing in front of "Discover". Only the first loads with
+    the page; the slideshow loads the next one as it goes."""
     out = []
-    for k, (n, alt, tone, phone, stage, ink, dot, w, x, front, glow) in enumerate(SLIDES):
-        pre = "data-" if k > 0 else ""
+    for k, (n, alt, tone, stage, ink, dot, w, x, xp, front, glow) in enumerate(SLIDES):
+        pre = "data-" if k else ""
+        extra = "" if k else ' fetchpriority="high"'
         out.append(
-            f'      <picture class="cut{"" if k else " is-active"}" style="--cut-x:{x}">'
-            f'<source media="{WIDE_MQ}" {pre}srcset="{cut_set(n, w)}" sizes="{cut_sizes(w)}">'
-            f'<img src="{BLANK}" alt="" width="{w}" height="2000"></picture>')
+            f'      <img class="cut{"" if k else " is-active"}" style="--cut-x:{x};--cut-xp:{xp}" '
+            f'{pre}src="assets/img/shoot/{n}-cut.webp" {pre}srcset="{cut_set(n, w)}" sizes="{cut_sizes(w)}" '
+            f'alt="" width="{w}" height="2000"{extra}>')
     return "\n".join(out)
 
 
@@ -388,7 +376,6 @@ home = head(
     <div class="hero__slides">
 {slides_html()}
     </div>
-    <div class="hero__veil" aria-hidden="true"><span class="veil veil--bottom"></span><span class="veil veil--side-dark"></span><span class="veil veil--side-light"></span><span class="veil veil--top-dark"></span><span class="veil veil--top-light"></span></div>
     <div class="hero__inner">
       <h1 class="hero__title" id="hero-title" data-chars="load" aria-label="Discover your style."><span class="ln ln--back" aria-hidden="true">Discover</span><span class="ln ln--front" aria-hidden="true">your style<span class="dot">.</span></span></h1>
       <div class="hero__cuts" aria-hidden="true">

@@ -469,47 +469,28 @@ ul, ol { padding: 0; list-style: none; }
   overflow: hidden;
   min-height: 100svh;
   color: var(--white);
-  background: #6b4a3a;
+  background: var(--navy);
 }
 .hero :focus-visible { outline-color: currentColor; }
 
-/* Photos */
+/* Backdrops: each slide is a brand colour with a soft light where the model stands */
 .hero__slides {
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  scale: calc(1 + var(--hero-p, 0) * 0.06);
 }
 .slide {
+  --glow-x: calc(var(--cut-xp) * 100%);
   position: absolute;
   inset: 0;
   margin: 0;
   opacity: 0;
   transition: opacity 1.2s var(--ease-in-out);
+  background-color: var(--stage);
+  background-image: radial-gradient(ellipse 60% 52% at var(--glow-x) 58%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 100%);
 }
 .slide.is-active { opacity: 1; z-index: 1; }
-.slide__img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 22%;
-  transform: scale(1.07);
-  transform-origin: 50% 30%;
-  transition: transform 7s linear;
-}
-.slide.is-active .slide__img { transform: scale(1); }
-
-/* Shades that keep the words readable on every photo */
-.hero__veil { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
-.veil { position: absolute; inset: 0; opacity: 0; transition: opacity 1s var(--ease-in-out); }
-.veil--bottom { opacity: 1; background: linear-gradient(0deg, rgba(9, 27, 50, 0.82) 0%, rgba(9, 27, 50, 0.5) 30%, rgba(9, 27, 50, 0) 58%); }
-.veil--top-dark { background: linear-gradient(180deg, rgba(9, 27, 50, 0.5) 0%, rgba(9, 27, 50, 0) 150px); }
-.veil--top-light { background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 150px); }
-.hero[data-head="dark"] .veil--top-dark,
-.hero[data-head="light"] .veil--top-light { opacity: 1; }
 
 .hero__inner {
   position: relative;
@@ -524,7 +505,6 @@ ul, ol { padding: 0; list-style: none; }
   margin-inline: auto;
   padding: calc(var(--header-h) + 28px) var(--gutter) clamp(28px, 6vh, 64px);
   transform: translate3d(0, calc(var(--hero-p, 0) * -14vh), 0);
-  opacity: calc(1 - var(--hero-p, 0) * 1.25);
 }
 .hero__title {
   font-family: var(--font-serif);
@@ -546,29 +526,40 @@ ul, ol { padding: 0; list-style: none; }
 .pill--film .pill__icon { background: var(--aqua); color: var(--navy); }
 .hero[data-tone="light"] .pill--film .pill__text { background: var(--navy); color: var(--white); }
 
-/* Models cut out of their photos, and the short note: laptops only (see below) */
-.hero__cuts,
+/* Layers, back to front: the colour, "Discover", the model, "your style.", then the
+   note and button. The model is placed within the page column, so she meets the
+   words the same way on any screen. Phones first, laptops below. */
+.hero__inner { display: block; }
+.hero__title { position: absolute; inset: 0; margin: 0; pointer-events: none; font-size: min(23vw, 13svh); color: var(--hero-ink, var(--white)); text-shadow: none; }
+.hero__title .ln { position: absolute; }
+.hero__title .ln--back { z-index: 1; left: var(--gutter); top: calc(var(--header-h) + 5svh); }
+.hero__title .ln--front { z-index: 3; right: var(--gutter); bottom: 31svh; font-size: 0.86em; color: var(--hero-front, inherit); text-shadow: var(--hero-front-glow, none); }
+.hero__title .dot { color: var(--hero-dot, var(--aqua)); }
+.hero__cuts { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+.cut {
+  /* her head tucks just under the bottom of "Discover", whatever the phone's height */
+  --cut-top: calc(var(--header-h) + 5svh + min(23vw, 13svh) * 0.42);
+  position: absolute;
+  top: var(--cut-top);
+  left: calc(var(--cut-xp) * 100%);
+  width: auto;
+  height: calc(106% - var(--cut-top));
+  max-width: none;
+  opacity: 0;
+  transform: translate(-50%, 2.5%);
+  transition: opacity 1.1s var(--ease-in-out), transform 1.6s var(--ease-out);
+}
+.cut.is-active { opacity: 1; transform: translate(-50%, 0); }
 .hero__note { display: none; }
+.hero__cta { position: absolute; z-index: 4; left: var(--gutter); bottom: max(22px, 3.5svh); }
+.hero .pill--film .pill__icon { background: var(--hero-dot, var(--aqua)); }
 
-/* Wide screens: each slide is a brand colour with the model standing on it,
-   in front of the headline, so the words pass behind her */
 @media (min-aspect-ratio: 5/4) and (min-width: 900px) {
-  .slide {
-    background-color: var(--stage);
-    background-image: radial-gradient(ellipse 46% 72% at calc(var(--cut-x) * 100%) 58%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 100%);
-  }
-  .slide__img { display: none; }
-  .hero__veil { display: none; }
-  /* Layers, back to front: "Discover", the model, "your style.", the note and button.
-     The model sits inside the page column, so she meets the words the same way on any screen. */
-  .hero__inner { display: block; opacity: 1; } /* words and model lift away together, she never turns see-through */
-  .hero__title { position: absolute; inset: 0; margin: 0; pointer-events: none; }
-  .hero__title .ln { position: absolute; }
-  .hero__title .ln--back { z-index: 1; left: var(--gutter); top: calc(var(--header-h) + 9vh); }
-  .hero__title .ln--front { z-index: 3; right: var(--gutter); bottom: 25vh; font-size: 0.86em; }
-  /* each slide picks a colour and a soft shade that keep these words readable over her clothes */
-  .hero .hero__title .ln--front { color: var(--hero-front, inherit); text-shadow: var(--hero-front-glow, none); }
-  .hero__cuts { display: block; position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+  .slide { --glow-x: calc(var(--cut-x) * 100%); background-image: radial-gradient(ellipse 46% 72% at var(--glow-x) 58%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 100%); }
+  .hero__title { font-size: clamp(88px, calc(min(100vw, var(--maxw)) * 0.135), 200px); line-height: 0.9; }
+  .hero__title .ln--back { top: calc(var(--header-h) + 9vh); }
+  .hero__title .ln--front { bottom: 25vh; }
+  .cut { top: 12%; left: calc(var(--cut-x) * 100%); height: 104%; }
   .hero__note {
     display: block;
     position: absolute;
@@ -582,23 +573,7 @@ ul, ol { padding: 0; list-style: none; }
     text-align: right;
     color: var(--hero-ink, var(--white));
   }
-  .hero__cta { position: absolute; z-index: 4; left: var(--gutter); bottom: 9vh; }
-  .cut {
-    position: absolute;
-    top: 12%;
-    left: calc(var(--cut-x) * 100%);
-    height: 104%;
-    opacity: 0;
-    transform: translate(-50%, 2.5%);
-    transition: opacity 1.1s var(--ease-in-out), transform 1.6s var(--ease-out);
-  }
-  .cut img { display: block; width: auto; height: 100%; }
-  .cut.is-active { opacity: 1; transform: translate(-50%, 0); }
-  .hero { color: var(--hero-ink, var(--white)); }
-  .hero__title, .hero[data-tone="light"] .hero__title { color: var(--hero-ink, var(--white)); text-shadow: none; }
-  .hero__title .dot { color: var(--hero-dot, var(--aqua)); }
-  .hero .pill--film .pill__icon { background: var(--hero-dot, var(--aqua)); }
-  .hero__title { font-size: clamp(88px, calc(min(100vw, var(--maxw)) * 0.135), 200px); line-height: 0.9; }
+  .hero__cta { bottom: 9vh; }
 }
 
 /* Header sits on the photos until the page scrolls: white on dark photos */

@@ -76,7 +76,7 @@
      0. Skeleton loading: photos shimmer until they arrive, then settle in
      ====================================================================== */
   function watchImg(img) {
-    if (img.__skel || !img.getAttribute("src")) return; // slides get a src later
+    if (img.__skel || !img.getAttribute("src") || img.classList.contains("cut")) return; // cut-outs: no grey box behind them
     img.__skel = true;
     if (img.complete && img.naturalWidth) return;      // already here: no placeholder
     img.classList.add("skel");
@@ -1330,40 +1330,29 @@
   var slideBox = $("[data-slides]");
   if (slideBox) (function () {
     var slides = $$(".slide", slideBox);
-    var cuts = $$(".cut", slideBox);   // laptops: the models in front of the words
+    var cuts = $$(".cut", slideBox);   // the models, in front of the words
     var SLIDE_MS = 5500;
-    var wide = window.matchMedia("(min-aspect-ratio: 5/4) and (min-width: 900px)");
     var idx = 0, timer = null, onScreen = true;
 
     function load(i) {
-      $$("source[data-srcset]", cuts[i] || slides[i]).forEach(function (so) {
-        so.srcset = so.getAttribute("data-srcset");
-        so.removeAttribute("data-srcset");
-      });
-      $$("source[data-srcset]", slides[i]).forEach(function (so) {
-        so.srcset = so.getAttribute("data-srcset");
-        so.removeAttribute("data-srcset");
-      });
-      $$("img[data-src]", slides[i]).forEach(function (im) {
-        var set = im.getAttribute("data-srcset");
-        if (set) { im.srcset = set; im.removeAttribute("data-srcset"); }
-        im.src = im.getAttribute("data-src");
-        im.removeAttribute("data-src");
-        watchImg(im);
-      });
+      var im = cuts[i];
+      if (!im || !im.hasAttribute("data-src")) return;
+      im.srcset = im.getAttribute("data-srcset");
+      im.removeAttribute("data-srcset");
+      im.src = im.getAttribute("data-src");
+      im.removeAttribute("data-src");
     }
-    // White words on darker photos, navy on bright studio photos
+    // Each slide sets its colours; light words and menu on navy, navy on the light colours
     function setTone() {
       var s = slides[idx];
       slideBox.style.setProperty("--hero-ink", s.style.getPropertyValue("--ink"));
       slideBox.style.setProperty("--hero-dot", s.style.getPropertyValue("--dot"));
       slideBox.style.setProperty("--hero-front", s.style.getPropertyValue("--front"));
       slideBox.style.setProperty("--hero-front-glow", s.style.getPropertyValue("--front-glow"));
-      var text = wide.matches ? s.getAttribute("data-tone-desk") : "dark";
-      var head = wide.matches ? text : s.getAttribute("data-head-phone");
-      slideBox.setAttribute("data-tone", text);
-      slideBox.setAttribute("data-head", head);
-      root.setAttribute("data-hero", head);
+      var tone = s.getAttribute("data-tone");
+      slideBox.setAttribute("data-tone", tone);
+      slideBox.setAttribute("data-head", tone);
+      root.setAttribute("data-hero", tone);
     }
     function schedule() {
       clearTimeout(timer);
@@ -1402,7 +1391,6 @@
       }, { threshold: 0.25 }).observe(slideBox);
     }
     doc.addEventListener("visibilitychange", function () { if (doc.hidden) schedule(); else show(idx); });
-    if (wide.addEventListener) wide.addEventListener("change", setTone); else if (wide.addListener) wide.addListener(setTone);
     window.addEventListener("load", function () { load(1); });
 
     setTone();
