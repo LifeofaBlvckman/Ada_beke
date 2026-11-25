@@ -28,6 +28,19 @@
   // "*Omalicha* set" -> "<em>Omalicha</em> set"
   function richName(name) { return esc(name).replace(/\*(.+?)\*/g, "<em>$1</em>"); }
   function plainName(name) { return String(name).replace(/\*/g, ""); }
+  // Shoot photos come in two sizes: name.webp (1600 wide) and name-800.webp.
+  // small() picks the light one for thumbnails; sized() lets the browser choose.
+  var SHOOT = /^(\/?assets\/img\/shoot\/[\w-]+)\.webp$/;
+  function shootBase(src) {
+    var m = SHOOT.exec(src || "");
+    return m && !/-(800|blur)$/.test(m[1]) ? m[1] : null;
+  }
+  function small(src) { var b = shootBase(src); return b ? b + "-800.webp" : src; }
+  function sized(src, sizes) {
+    var b = shootBase(src);
+    return 'src="' + esc(src) + '"' + (b ? ' srcset="' + esc(b + "-800.webp 800w, " + src + " 1600w") + '" sizes="' + sizes + '"' : "");
+  }
+  var CARD_SIZES = "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw";
   function naira(n) { return "₦" + Number(n).toLocaleString("en-NG"); }
   // Approximate price abroad, e.g. "≈ $29 · £23" (customers always pay in naira)
   function fxText(n) {
@@ -343,8 +356,8 @@
     if (!p.images || !p.images.length) {
       return '<div class="ph" aria-hidden="true"><span class="ph__name">' + esc(p.placeholder || plainName(p.name)) + '</span><span class="ph__note">Photo coming soon</span></div>';
     }
-    var html = '<img src="' + esc(p.images[0]) + '" alt="' + esc([plainName(p.name), p.colour].filter(Boolean).join(", ")) + '" loading="' + (eager ? "eager" : "lazy") + '" decoding="async" width="720" height="900">';
-    if (p.images[1]) html += '<img class="alt" src="' + esc(p.images[1]) + '" alt="" loading="lazy" decoding="async" width="720" height="900">';
+    var html = '<img ' + sized(p.images[0], CARD_SIZES) + ' alt="' + esc([plainName(p.name), p.colour].filter(Boolean).join(", ")) + '" loading="' + (eager ? "eager" : "lazy") + '" decoding="async" width="720" height="900">';
+    if (p.images[1]) html += '<img class="alt" ' + sized(p.images[1], CARD_SIZES) + ' alt="" loading="lazy" decoding="async" width="720" height="900">';
     return html;
   }
   function subLine(p) { return [p.colour, p.fit].filter(Boolean).map(esc).join(" &middot; "); }
@@ -431,7 +444,7 @@
     box.innerHTML = COLLECTIONS.map(function (c, i) {
       var count = PRODUCTS.filter(function (p) { return p.collection === c.id; }).length;
       return '<a class="col-card" href="shop.html?c=' + encodeURIComponent(c.id) + '" data-reveal style="--d:' + i * 120 + 'ms">' +
-        '<div class="col-card__media">' + (c.image ? '<img src="' + esc(c.image) + '" alt="" loading="lazy" decoding="async">' : "") + "</div>" +
+        '<div class="col-card__media">' + (c.image ? '<img ' + sized(c.image, "(min-width: 640px) 50vw, 100vw") + ' alt="" loading="lazy" decoding="async">' : "") + "</div>" +
         '<div class="col-card__text"><p class="col-card__count">' + count + (count === 1 ? " piece" : " pieces") + "</p>" +
           '<h3 class="col-card__name">' + esc(c.name) + "</h3>" +
           (c.tagline ? '<p class="col-card__tag">' + esc(c.tagline) + "</p>" : "") +
@@ -539,7 +552,7 @@
       var p = byId(l.id);
       if (!p) return ""; // not in the list yet (the live list is still loading)
       var img = p.images && p.images[0]
-        ? '<img src="' + esc(p.images[0]) + '" alt="" loading="lazy">'
+        ? '<img src="' + esc(small(p.images[0])) + '" alt="" loading="lazy">'
         : '<div class="ph"><span class="ph__name">' + esc(p.placeholder || plainName(p.name)) + "</span></div>";
       return (
         '<div class="line-item" data-line="' + esc(p.id) + '" style="--i:' + k + '">' +
@@ -953,7 +966,7 @@
     shown = i;
     var p = current;
     $("[data-pd-main]", dlg).innerHTML = p.images.length
-      ? '<img src="' + esc(p.images[i]) + '" alt="' + esc([plainName(p.name), p.colour, "photo " + (i + 1)].filter(Boolean).join(", ")) + '">'
+      ? '<img ' + sized(p.images[i], "(min-width: 900px) 50vw, 100vw") + ' alt="' + esc([plainName(p.name), p.colour, "photo " + (i + 1)].filter(Boolean).join(", ")) + '">'
       : '<div class="ph"><span class="ph__name">' + esc(p.placeholder || plainName(p.name)) + '</span><span class="ph__note">Photo coming soon</span></div>';
     $$("[data-pd-thumb]", dlg).forEach(function (b) { b.setAttribute("aria-current", String(Number(b.getAttribute("data-pd-thumb")) === i)); });
     skel(dlg);
@@ -979,7 +992,7 @@
       return '<div style="--i:' + i + '"><dt>' + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd></div>";
     }).join("");
     $("[data-pd-thumbs]", dlg).innerHTML = p.images.length > 1 ? p.images.map(function (src, i) {
-      return '<button type="button" data-pd-thumb="' + i + '" aria-label="Show photo ' + (i + 1) + '"><img src="' + esc(src) + '" alt=""></button>';
+      return '<button type="button" data-pd-thumb="' + i + '" aria-label="Show photo ' + (i + 1) + '"><img src="' + esc(small(src)) + '" alt=""></button>';
     }).join("") : "";
     var actions = $("[data-pd-actions]", dlg);
     if (p.status === "sold_out") {
@@ -1009,7 +1022,7 @@
     $("[data-pd-related]", dlg).innerHTML = picks.length
       ? '<p class="label">You may also like</p><div class="related">' + picks.map(function (x) {
           return '<a class="related__item" href="shop.html?p=' + encodeURIComponent(x.id) + '" data-pd-open="' + esc(x.id) + '">' +
-            '<span class="related__img">' + (x.images && x.images[0] ? '<img src="' + esc(x.images[0]) + '" alt="" loading="lazy">' : "") + "</span>" +
+            '<span class="related__img">' + (x.images && x.images[0] ? '<img src="' + esc(small(x.images[0])) + '" alt="" loading="lazy">' : "") + "</span>" +
             '<span class="related__name">' + richName(x.name) + '</span><span class="related__price">' + esc(priceText(x)) + "</span></a>";
         }).join("") + "</div>"
       : "";
@@ -1062,7 +1075,7 @@
     function summary(o) {
       var rows = o.items.map(function (i, k) {
         return '<li class="order-line" style="--i:' + k + '">' +
-          '<div class="order-line__img">' + (i.image ? '<img src="' + esc(i.image) + '" alt="" loading="lazy">' : "") + "</div>" +
+          '<div class="order-line__img">' + (i.image ? '<img src="' + esc(small(i.image)) + '" alt="" loading="lazy">' : "") + "</div>" +
           '<div><p class="order-line__name">' + esc(i.name) + '</p><p class="order-line__sub">' + esc([i.colour, "× " + i.qty].filter(Boolean).join(" · ")) + "</p></div>" +
           '<p class="order-line__price">' + (i.price == null ? "On request" : naira(i.price * i.qty)) + "</p></li>";
       }).join("");
@@ -1323,6 +1336,8 @@
 
     function load(i) {
       $$("img[data-src]", slides[i]).forEach(function (im) {
+        var set = im.getAttribute("data-srcset");
+        if (set) { im.srcset = set; im.removeAttribute("data-srcset"); }
         im.src = im.getAttribute("data-src");
         im.removeAttribute("data-src");
         watchImg(im);

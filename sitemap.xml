@@ -3,34 +3,38 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://adabeke.vercel.app/</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <image:image><image:loc>https://adabeke.vercel.app/assets/img/hero-1-white-brown.webp</image:loc></image:image>
+    <image:image><image:loc>https://adabeke.vercel.app/assets/img/shoot/circles-open.webp</image:loc></image:image>
+    <image:image><image:loc>https://adabeke.vercel.app/assets/img/shoot/check-vine.webp</image:loc></image:image>
+    <image:image><image:loc>https://adabeke.vercel.app/assets/img/shoot/abira-duo.webp</image:loc></image:image>
     <image:image><image:loc>https://adabeke.vercel.app/assets/img/hero-2-blue.webp</image:loc></image:image>
-    <image:image><image:loc>https://adabeke.vercel.app/assets/img/hero-3-black.webp</image:loc></image:image>
+    <image:image><image:loc>https://adabeke.vercel.app/assets/img/shoot/wifey-gaze.webp</image:loc></image:image>
     <image:image><image:loc>https://adabeke.vercel.app/assets/img/hero-4-ash.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://adabeke.vercel.app/shop.html</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image><image:loc>https://adabeke.vercel.app/assets/img/omalicha-mannequin.webp</image:loc></image:image>
-    <image:image><image:loc>https://adabeke.vercel.app/assets/img/wifey-seated.webp</image:loc></image:image>
-    <image:image><image:loc>https://adabeke.vercel.app/assets/img/abira-front.webp</image:loc></image:image>
-    <image:image><image:loc>https://adabeke.vercel.app/assets/img/abira-set.webp</image:loc></image:image>
+    <image:image><image:loc>https://adabeke.vercel.app/assets/img/shoot/wifey-seated.webp</image:loc></image:image>
+    <image:image><image:loc>https://adabeke.vercel.app/assets/img/shoot/abira-front.webp</image:loc></image:image>
+    <image:image><image:loc>https://adabeke.vercel.app/assets/img/shoot/abira-set.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://adabeke.vercel.app/about.html</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-    <image:image><image:loc>https://adabeke.vercel.app/assets/img/omalicha-runway.webp</image:loc></image:image>
+    <image:image><image:loc>https://adabeke.vercel.app/assets/img/shoot/gold-pleats.webp</image:loc></image:image>
+    <image:image><image:loc>https://adabeke.vercel.app/assets/img/shoot/circles-side.webp</image:loc></image:image>
+    <image:image><image:loc>https://adabeke.vercel.app/assets/img/shoot/wifey-standing.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://adabeke.vercel.app/contact.html</loc>
-    <lastmod>2026-11-22</lastmod>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

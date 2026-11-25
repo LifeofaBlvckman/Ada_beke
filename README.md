@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | Home | `index.html` | Full-screen photo slideshow with the headline on top, a swipeable "Handpicked for you" slider, and "Shop by collection" cards. The early-access sign-up is in the footer |
 | Shop | `shop.html` | All pieces with filters, a product details panel, and the bag |
-| About | `about.html` | Brand story, the full "We're back" letter, Chic / relaxed / Elegance |
+| About | `about.html` | The campaign film, brand story, the full "We're back" letter, Chic / relaxed / Elegance |
 | Contact | `contact.html` | How to order, a WhatsApp contact form, the free-size guide and questions |
 | Your order | `order.html` | Where Paystack sends customers after paying: "Thank you" with their order, or "Payment not completed" |
 | Admin | `admin/` | The dashboard: sales, orders, pieces, delivery fees (password protected, hidden from search engines) |
@@ -130,6 +130,12 @@ Once the database is connected, use **Pieces** in the admin. Before that, edit *
 
 Portrait photos (4:5) look best, and the second photo shows when the shopper hovers. A piece with no photos shows a coloured "Photo coming soon" card.
 
+### Photos from the shoot
+
+The photographer's pictures live in `assets/img/shoot/`, each in two sizes: `name.webp` (1600×2000, for big screens and sharp phone screens) and `name-800.webp` (800×1000). Phones, laptops and thumbnails each get the size they need automatically, as long as a piece's photo path points at the big one (`assets/img/shoot/name.webp`).
+
+These are ready but not in the shop yet, because the pieces need a name and price: the white boubou with orange circles (`circles-open`, `circles-side`, `circles-lean`, `circles-back`), the navy, red and orange checked boubou (`check-vine`, `check-doors`), both together (`duo-doors`), and the black shirt with gold pleated trousers (`gold-pleats`).
+
 ## Design
 
 - **Colours:** brand aqua `#58DADC` (taken from the ADA BEKE bags and end card), navy `#0F2A4A` (from the Omalicha fabric), and a pale aqua mist `#EAF8F8`, plus the rust of the boubou circle print `#C9602F` as an accent.
@@ -164,11 +170,11 @@ All movement stops for visitors with "reduce motion" on.
 
 ## Home slideshow
 
-The opening photos live in `assets/img/hero-1-white-brown.webp` … `hero-4-ash.webp`, each with a tiny `-blur` copy used for the soft background on wide screens. To change a photo, replace both files (portrait 4:5, about 1024×1280) and keep the names, or edit the `slides` list in the page builder. Each slide is marked `light` or `dark` so the words switch between navy and white to stay readable. Photos change every 5.5 seconds, visitors can swipe on a phone, and the slideshow pauses when it's off screen.
+Six photos, set in the `SLIDES` list in the page builder: the circle-print boubou, the checked boubou, the Abira pair and Wifey from the shoot, plus the royal blue set (`hero-2-blue`) and the ash halter dress (`hero-4-ash`), which are older, softer copies. Each has a tiny `-blur` copy used for the soft background on wide screens. To add a shoot photo, list it as `shoot/name` and make its `-blur` copy (200×250). Each slide is marked `light` or `dark` so the words switch between navy and white to stay readable. Photos change every 5.5 seconds, visitors can swipe on a phone, and the slideshow pauses when it's off screen.
 
 ## Speed
 
-The home page downloads about 500 KB on a phone: the first photo is preloaded, and the others load in the background. The aqua curtain never waits for fonts, and moving between pages takes well under a second.
+The home page downloads about 1 MB on a phone, most of it the sharp slideshow photos: the first one (about 330 KB) is preloaded, and the rest load one at a time in the background. The About page's film is about 4 MB and streams as it plays. The aqua curtain never waits for fonts, and moving between pages takes well under a second.
 
 ## Putting it online
 
@@ -181,5 +187,7 @@ The site runs on Vercel (https://adabeke.vercel.app), which deploys every push t
 - Delivery options and fees, in the admin's Settings
 - Fit notes for each piece, and the collections' names and cover photos you'd like
 
+- Names, prices and details for the circle-print boubou, the checked boubou and the black shirt with gold trousers (their photos are ready, see "Photos from the shoot")
+- The original, full-quality photos of the royal blue set and the ash halter dress, and the full-quality export of the campaign film (the copy we have is 464 pixels wide)
 - Photos for the other pieces on Instagram (silver boubou, ivory set, gingham set, tee & gingham), with names and prices
 - The size chart values, if you want them on the Contact page instead of linking to the Instagram highlight

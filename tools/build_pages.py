@@ -144,7 +144,10 @@ def crumbs_ld(name, path):
 # --------------------------------------------------------------------------
 def head(title, desc, page, path, og_image, og_alt, graph=None, robots="index, follow, max-image-preview:large"):
     url = SITE + path
-    preload = ('<link rel="preload" as="image" href="assets/img/hero-1-white-brown.webp" fetchpriority="high">\n'
+    first = SLIDES[0][0]
+    preload = (f'<link rel="preload" as="image" href="assets/img/{first}.webp" '
+               f'imagesrcset="assets/img/{first}-800.webp 800w, assets/img/{first}.webp 1600w" '
+               f'imagesizes="{HERO_SIZES}" fetchpriority="high">\n'
                if page == "home" else "")
     data = ld({"@context": "https://schema.org", "@graph": graph}) if graph else ""
     return f"""<!doctype html>
@@ -285,27 +288,49 @@ SCRIPTS = f"""<script src="assets/js/products.js?v={V_PRODUCTS}"></script>
 
 LINES = '<div class="hero__lines" aria-hidden="true"><span></span><span></span><span></span></div>'
 
+# Photos from the shoot live in assets/img/shoot/ in two sizes: name.webp (1600 x 2000)
+# and name-800.webp (800 x 1000); the browser picks the one the screen needs.
 SLIDES = [
-    ("hero-1-white-brown", "Model with arms outstretched in a white boubou with large brown circle prints", "dark", "dark"),
+    ("shoot/circles-open", "Model with arms outstretched in a white boubou with large orange circle prints", "dark", "dark"),
+    ("shoot/check-vine", "Model in a navy, red and orange checked boubou among hanging plants", "dark", "dark"),
+    ("shoot/abira-duo", "Two models in the rust and cobalt Abira hoodie set", "dark", "light"),
     ("hero-2-blue", "Model leaning on a wall in a royal blue pinstripe crop top and wide trousers", "light", "light"),
-    ("hero-3-black", "Model in the sheer black Wifey boubou", "light", "light"),
+    ("shoot/wifey-gaze", "Model in the sheer black Wifey boubou", "light", "light"),
     ("hero-4-ash", "Model in an ash halter maxi dress with red trim", "light", "light"),
 ]
+# Rendered width of a hero photo: tall phones fill the height, wide screens show it on the right
+HERO_SIZES = "(max-aspect-ratio: 4/5) 80vh, (min-aspect-ratio: 5/4) and (min-width: 900px) 62vw, 100vw"
+
+
+def shoot_set(n):
+    return f"assets/img/{n}-800.webp 800w, assets/img/{n}.webp 1600w"
+
+
+def shoot_img(n, alt, sizes, attrs=""):
+    """<img> for a shoot photo, sized by the browser."""
+    return (f'<img{attrs} src="assets/img/shoot/{n}.webp" srcset="{shoot_set("shoot/" + n)}" '
+            f'sizes="{sizes}" alt="{alt}" loading="lazy" decoding="async" width="1600" height="2000">')
 
 
 def slides_html():
     figs = []
     for k, (n, alt, desk, head_tone) in enumerate(SLIDES):
-        src = "src" if k == 0 else "data-src"
-        extra = ' fetchpriority="high"' if k == 0 else ""
-        hidden = "" if k == 0 else ' aria-hidden="true"'
+        lazy = k > 0
+        src = "data-src" if lazy else "src"
+        extra = "" if lazy else ' fetchpriority="high"'
+        hidden = ' aria-hidden="true"' if lazy else ""
+        shoot = n.startswith("shoot/")
+        w, h = (1600, 2000) if shoot else (1024, 1280)
+        sset = (f' {"data-srcset" if lazy else "srcset"}="{shoot_set(n)}" sizes="{HERO_SIZES}"' if shoot else "")
         figs.append(
-            f'      <figure class="slide{" is-active" if k == 0 else ""}" data-tone-desk="{desk}" '
+            f'      <figure class="slide{"" if lazy else " is-active"}" data-tone-desk="{desk}" '
             f'data-head-phone="{head_tone}" aria-roledescription="slide" aria-label="{k + 1} of {len(SLIDES)}"{hidden}>'
             f'<img class="slide__bg" {src}="assets/img/{n}-blur.webp" alt="" aria-hidden="true">'
-            f'<img class="slide__img" {src}="assets/img/{n}.webp" alt="{alt}" width="1024" height="1280"{extra}></figure>')
+            f'<img class="slide__img" {src}="assets/img/{n}.webp"{sset} alt="{alt}" width="{w}" height="{h}"{extra}></figure>')
     return "\n".join(figs)
 
+
+VALUE_SIZES = "(min-width: 900px) 30vw, 100vw"
 
 # --------------------------------------------------------------------------
 # HOME
@@ -313,7 +338,7 @@ def slides_html():
 home = head(
     "ADA BEKE — Free-size fashion, made in Nigeria",
     "ADA BEKE is a feel good fashion brand: free-size boubous and sets in soft, flowing fabrics. Made in Nigeria, delivered worldwide via DHL.",
-    "home", "/", "og-home.jpg", "ADA BEKE: model in a white boubou with large brown circle prints",
+    "home", "/", "og-home.jpg", "ADA BEKE: model in a white boubou with large orange circle prints",
     graph=[ORG, {"@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": "ADA BEKE",
                  "inLanguage": "en", "publisher": {"@id": ORG_ID}}],
 ) + header("home") + f"""
@@ -437,7 +462,7 @@ about = head(
     <div class="page-hero__inner">
       <h1 class="display page-hero__title" id="about-title" data-split="load">Chic,<br><em>relaxed,</em><br>Elegance.</h1>
       <div class="page-hero__media" data-video data-reveal="clip" data-reveal-load style="--d:150ms">
-        <video src="assets/video/wifey.mp4" poster="assets/img/wifey-seated.webp" autoplay muted loop playsinline preload="auto" aria-label="Film: model in the black Wifey boubou"></video>
+        <video src="assets/video/campaign.mp4" poster="assets/img/campaign-poster.webp" autoplay muted loop playsinline preload="auto" aria-label="Film: models in the new ADA BEKE pieces"></video>
         {toggle()}
       </div>
       <div class="page-hero__aside" data-reveal data-reveal-load style="--d:800ms">
@@ -498,17 +523,17 @@ about = head(
       <div class="values" data-pop="items">
         <article class="value">
           <h3 class="value__word">CHIC</h3>
-          <div class="value__img"><img data-parallax="0.05" src="assets/img/hero-2-blue.webp" alt="Model in a royal blue pinstripe crop top and wide trousers" loading="lazy"></div>
+          <div class="value__img">{shoot_img("gold-pleats", "Model in a sheer black shirt and gold pleated wide-leg trousers", VALUE_SIZES, ' data-parallax="0.05"')}</div>
           <p>Clean lines, rich colour and fabric that catches the light. Pieces that look considered without trying too hard.</p>
         </article>
         <article class="value">
           <h3 class="value__word is-relaxed">relaxed</h3>
-          <div class="value__img frame"><img data-parallax="0.05" src="assets/img/hero-1-white-brown.webp" alt="Model in a white boubou with brown circle prints" loading="lazy"></div>
+          <div class="value__img frame">{shoot_img("circles-side", "Model in a white boubou with orange circle prints, hand in pocket", VALUE_SIZES, ' data-parallax="0.05"')}</div>
           <p>Wide, easy shapes you can sit, move and breathe in. Free size means no squeezing into a number.</p>
         </article>
         <article class="value">
           <h3 class="value__word">ELEGANCE</h3>
-          <div class="value__img"><img data-parallax="0.05" src="assets/img/hero-3-black.webp" alt="Model standing in the Wifey boubou" loading="lazy"></div>
+          <div class="value__img">{shoot_img("wifey-standing", "Model in the sheer black Wifey boubou, hand raised", VALUE_SIZES, ' data-parallax="0.05"')}</div>
           <p>Flowing chiffon and graceful drape that carry you from a quiet day to a special evening.</p>
         </article>
       </div>
@@ -820,11 +845,11 @@ def img_tags(paths):
 
 
 PAGES = [
-    ("/", "1.0", ["assets/img/hero-1-white-brown.webp", "assets/img/hero-2-blue.webp",
-                  "assets/img/hero-3-black.webp", "assets/img/hero-4-ash.webp"]),
-    ("/shop.html", "0.9", ["assets/img/omalicha-mannequin.webp", "assets/img/wifey-seated.webp",
-                           "assets/img/abira-front.webp", "assets/img/abira-set.webp"]),
-    ("/about.html", "0.6", ["assets/img/omalicha-runway.webp"]),
+    ("/", "1.0", [f"assets/img/{n}.webp" for n, *_ in SLIDES]),
+    ("/shop.html", "0.9", ["assets/img/omalicha-mannequin.webp", "assets/img/shoot/wifey-seated.webp",
+                           "assets/img/shoot/abira-front.webp", "assets/img/shoot/abira-set.webp"]),
+    ("/about.html", "0.6", ["assets/img/shoot/gold-pleats.webp", "assets/img/shoot/circles-side.webp",
+                            "assets/img/shoot/wifey-standing.webp"]),
     ("/contact.html", "0.6", []),
 ]
 urls = "".join(

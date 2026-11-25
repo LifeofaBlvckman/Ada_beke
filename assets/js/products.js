@@ -15,6 +15,8 @@
    fitNote   an optional note on fit or length, e.g. "Falls to the ankle on 5'6\""
    images    paths to photos (first one is the main photo). Leave the list
              empty [] and the card shows a coloured placeholder instead.
+             Photos in assets/img/shoot/ also have a light -800 copy that
+             phones and thumbnails use automatically.
    ========================================================================== */
 (function (root) {
 root.ADA_PRODUCTS = [
@@ -46,7 +48,7 @@ root.ADA_PRODUCTS = [
     fit: "Free size",
     description:
       "A sheer, softly dotted black boubou with wide, floating sleeves. Sold with its co-ord set.",
-    images: ["assets/img/wifey-seated.webp", "assets/img/hero-3-black.webp", "assets/img/wifey-standing.webp"],
+    images: ["assets/img/shoot/wifey-seated.webp", "assets/img/shoot/wifey-gaze.webp", "assets/img/shoot/wifey-standing.webp"],
   },
   {
     id: "abira",
@@ -61,7 +63,13 @@ root.ADA_PRODUCTS = [
     fit: "Free size",
     description:
       "For that woman who loves to show up in relaxed elegance. The Abira hoodie boubou with matching pants, available for immediate delivery.",
-    images: ["assets/img/abira-front.webp", "assets/img/abira-set.webp", "assets/img/abira-back.webp"],
+    images: [
+      "assets/img/shoot/abira-front.webp",
+      "assets/img/shoot/abira-set.webp",
+      "assets/img/shoot/abira-pose.webp",
+      "assets/img/shoot/abira-turn.webp",
+      "assets/img/shoot/abira-back.webp",
+    ],
   },
   {
     id: "something-soft",
@@ -82,8 +90,8 @@ root.ADA_PRODUCTS = [
 
 // Collections group pieces on the home page and in the shop filters.
 root.ADA_COLLECTIONS = [
-  { id: "sets", name: "Sets", tagline: "Boubou and trouser sets, ready to wear", image: "assets/img/omalicha-runway.webp" },
-  { id: "boubous", name: "Boubous", tagline: "Wide, flowing and free size", image: "assets/img/wifey-gaze.webp" },
+  { id: "sets", name: "Sets", tagline: "Boubou and trouser sets, ready to wear", image: "assets/img/shoot/abira-duo.webp" },
+  { id: "boubous", name: "Boubous", tagline: "Wide, flowing and free size", image: "assets/img/shoot/wifey-gaze.webp" },
 ];
 
 root.ADA_CONTACT = {

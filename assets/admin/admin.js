@@ -40,7 +40,13 @@
     if (n >= 1e4) return "₦" + (n / 1e3).toFixed(1).replace(/\.0$/, "") + "K";
     return money(n);
   }
-  function imgSrc(p) { return !p ? "" : /^(https?:|\/)/.test(p) ? p : "/" + p; }
+  function imgSrc(p) {
+    if (!p) return "";
+    // shoot photos have a light 800px copy; the admin only shows small previews
+    var m = /^(\/?assets\/img\/shoot\/[\w-]+)\.webp$/.exec(p);
+    if (m && !/-(800|blur)$/.test(m[1])) p = m[1] + "-800.webp";
+    return /^(https?:|\/)/.test(p) ? p : "/" + p;
+  }
   var dayFmt = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
   var timeFmt = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit" });
   var dateFmt = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, day: "numeric", month: "short" });
