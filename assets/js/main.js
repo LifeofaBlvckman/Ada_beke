@@ -76,7 +76,7 @@
      0. Skeleton loading: photos shimmer until they arrive, then settle in
      ====================================================================== */
   function watchImg(img) {
-    if (img.__skel || !img.getAttribute("src") || img.classList.contains("cut")) return; // cut-outs: no grey box behind them
+    if (img.__skel || !img.getAttribute("src") || img.closest(".collage")) return; // the collage photos float instead
     img.__skel = true;
     if (img.complete && img.naturalWidth) return;      // already here: no placeholder
     img.classList.add("skel");
@@ -178,6 +178,8 @@
     var v = $("video", wrap);
     var btn = $(".media-toggle", wrap);
     if (!v) return;
+    // laptops play the landscape version of the film, so show its own first frame
+    if (v.getAttribute("data-poster-wide") && window.matchMedia("(min-width: 900px)").matches) v.poster = v.getAttribute("data-poster-wide");
     v.muted = true;
     var userPaused = reduceMotion;
     function sync() { if (btn) { btn.classList.toggle("is-paused", v.paused); btn.setAttribute("aria-label", v.paused ? "Play video" : "Pause video"); } }
@@ -225,9 +227,9 @@
   }
   function renderProducts() {
     $$("[data-products]").forEach(function (box) {
-      if (box.getAttribute("data-products") === "home") {
-        // Home: the first four pieces; "Shop all" leads to the rest
-        box.innerHTML = PRODUCTS.slice(0, 4).map(function (p, i) { return cardHTML(p, i, 70); }).join("");
+      if (box.getAttribute("data-products") === "rail") {
+        // Home: every piece in a row that scrolls sideways (arrows at the sides)
+        box.innerHTML = PRODUCTS.map(function (p, i) { return '<div class="rail__item">' + cardHTML(p, i, 70) + "</div>"; }).join("");
       } else {
         box.innerHTML = PRODUCTS.length
           ? PRODUCTS.map(function (p, i) { return cardHTML(p, i); }).join("")
@@ -1157,13 +1159,12 @@
     else if (root.classList.contains("menu-open")) { setMenu(false); menuBtn && menuBtn.focus(); }
   });
 
-  /* Home photos: phones show one at a time (they change on their own, or swipe,
-     or tap a dot); laptops show all three side by side. */
+  /* Home photos: one at a time on every screen; they change on their own, or
+     swipe on a phone, or tap a dot. */
   var slideBox = $("[data-slides]");
   if (slideBox) (function () {
     var slides = $$(".slide", slideBox);
     var dots = $$("[data-dot]");
-    var wide = window.matchMedia("(min-width: 900px)");
     var SLIDE_MS = 5000;
     var idx = 0, timer = null, onScreen = true;
 
@@ -1178,7 +1179,7 @@
     }
     function schedule() {
       clearTimeout(timer);
-      if (reduceMotion || wide.matches || !onScreen || doc.hidden) return;
+      if (reduceMotion || !onScreen || doc.hidden) return;
       timer = setTimeout(function () { show(idx + 1); }, SLIDE_MS);
     }
     function show(i) {
@@ -1189,16 +1190,12 @@
       dots.forEach(function (d, k) { d.setAttribute("aria-current", String(k === idx)); });
       schedule();
     }
-    function sync() {
-      if (wide.matches) slides.forEach(function (s, k) { load(k); }); // all three side by side
-      schedule();
-    }
     dots.forEach(function (d, k) { d.addEventListener("click", function () { show(k); }); });
 
     var sx = null, sy = null;
     slideBox.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
     slideBox.addEventListener("touchend", function (e) {
-      if (sx === null || wide.matches) return;
+      if (sx === null) return;
       var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
       if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) show(idx + (dx < 0 ? 1 : -1));
       sx = null;
@@ -1212,10 +1209,28 @@
       }, { threshold: 0.25 }).observe(slideBox);
     }
     doc.addEventListener("visibilitychange", schedule);
-    if (wide.addEventListener) wide.addEventListener("change", sync); else if (wide.addListener) wide.addListener(sync);
     window.addEventListener("load", function () { load(1); });
-    sync();
+    schedule();
   })();
+
+  /* Rows that scroll sideways (pieces, looks): arrows move one card; at the end
+     they go back to the start, as Moye's sliders do */
+  $$("[data-rail]").forEach(function (rail) {
+    var wrap = rail.parentElement;
+    function step() {
+      var it = $(".rail__item", rail);
+      return it ? it.getBoundingClientRect().width + 6 : rail.clientWidth;
+    }
+    function go(dir) {
+      var max = rail.scrollWidth - rail.clientWidth;
+      var to = rail.scrollLeft + dir * step();
+      if (dir > 0 && rail.scrollLeft >= max - 4) to = 0;
+      else if (dir < 0 && rail.scrollLeft <= 4) to = max;
+      rail.scrollTo({ left: to, behavior: reduceMotion ? "auto" : "smooth" });
+    }
+    $$("[data-rail-prev]", wrap).forEach(function (b) { b.addEventListener("click", function () { go(-1); }); });
+    $$("[data-rail-next]", wrap).forEach(function (b) { b.addEventListener("click", function () { go(1); }); });
+  });
 
   /* Search engines: the shop's pieces as structured data, from products.js */
   function productLd() {

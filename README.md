@@ -4,7 +4,7 @@
 
 | Page | File | What's on it |
 | --- | --- | --- |
-| Home | `index.html` | Three shoot photos with their own backgrounds (one at a time on phones, side by side on laptops), "Discover your style" with four pieces, the two collections as big photo tiles, a wide lookbook photo, a dark story card with the campaign film, and links to Instagram, Threads and WhatsApp beside a photo collage |
+| Home | `index.html` | Laid out section by section after moyeafrica.com: the three shoot photos changing one at a time (a wide banner on laptops), a sideways row of pieces with arrows, the two collections with their names on the photos, a big photo, a row of looks with names on them, a photo banner with a button, the campaign film filling a dark card with words on it, links to Instagram, Threads and WhatsApp beside slowly floating photos, and a gallery of shoot photos |
 | Shop | `shop.html` | All pieces with filters, a product details panel, and the bag |
 | About | `about.html` | A big photo with "About ADA BEKE" (as Moye's About page), a photo beside the cream "Our story" panel, a quote from Ada, the full "We're back" letter beside a photo, Chic / relaxed / Elegance |
 | Contact | `contact.html` | How to order, a WhatsApp contact form, the free-size guide and questions |
@@ -166,7 +166,7 @@ Three photos from the shoot, set in the `HERO_PHOTOS` list in the page builder: 
 
 ## Speed
 
-The home page downloads about 1 MB, most of it the sharp photos. Phones preload the first photo and fetch the others one at a time; laptops load all three. The campaign film in the home page's story card (about 4 MB) only starts loading when it scrolls into view.
+The home page downloads about 1 MB, most of it the sharp photos. Phones preload the first photo and fetch the others one at a time; laptops load all three. The campaign film in the home page's dark card only starts loading when it scrolls into view: phones get the portrait film (about 4 MB), laptops a landscape version (`campaign-wide.mp4`, about 6 MB) where the film plays sharp in the middle and a blurred copy of itself fills the rest of the card, because the original is portrait and only 464 pixels wide.
 
 ## Putting it online
 

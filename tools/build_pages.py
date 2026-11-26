@@ -315,6 +315,21 @@ def slides_html():
     return "\n".join(figs)
 
 
+LOOKS = [
+    ("abira", "Abira hoodie set", "assets/img/shoot/abira-pose-800.webp"),
+    ("wifey", "Wifey boubou", "assets/img/shoot/wifey-standing-800.webp"),
+    ("omalicha", "Omalicha set", "assets/img/omalicha-mannequin.webp"),
+    ("something-soft", "Something soft", "assets/img/bags-bag.webp"),
+]
+
+
+def looks_html():
+    return "\n".join(
+        f'          <a class="look rail__item" href="shop.html?p={pid}" data-product="{pid}">'
+        f'<img src="{src}" alt="" loading="lazy" decoding="async"><span class="look__name">{name}</span></a>'
+        for pid, name, src in LOOKS)
+
+
 def dots_html():
     return "".join(
         f'<button type="button" data-dot aria-label="Show photo {k + 1}" aria-current="{str(k == 0).lower()}"></button>'
@@ -342,12 +357,16 @@ home = head(
     <div class="hero__dots" role="group" aria-label="Photos">{dots_html()}</div>
   </section>
 
-  <section class="section home-pieces" aria-labelledby="edit-title">
-    <div class="wrap">
-      <h2 class="sec-title" id="edit-title">Discover your style</h2>
-      <div class="cards cards--home" data-products="home">{skel_cards(4, "div", "skel-card")}</div>
-      <p class="more"><a class="u-link" href="shop.html">Shop all</a></p>
+  <section class="section rail-sec" aria-labelledby="edit-title">
+    <h2 class="sec-title" id="edit-title">Discover your style</h2>
+    <div class="rail-wrap">
+      <div class="rail" data-rail tabindex="0" aria-label="Pieces. Swipe or use the arrows to see more.">
+        <div class="rail__track" data-products="rail">{skel_cards(4, "div", "skel-card rail__item")}</div>
+      </div>
+      <button class="rail__arrow rail__arrow--prev" type="button" data-rail-prev aria-label="Previous">{ICON["left"]}</button>
+      <button class="rail__arrow rail__arrow--next" type="button" data-rail-next aria-label="Next">{ICON["arrow"]}</button>
     </div>
+    <p class="more"><a class="u-link" href="shop.html">Shop all</a></p>
   </section>
 
   <section class="collections" aria-labelledby="col-title" data-collections-section hidden>
@@ -355,56 +374,91 @@ home = head(
     <div class="col-grid" data-collections></div>
   </section>
 
-  <section class="section lookbook" aria-label="Lookbook">
-    <div class="wrap">
-      <picture>
-        <source media="(min-width: 700px)" srcset="assets/img/shoot/duo-doors-wide-1600.webp 1600w, assets/img/shoot/duo-doors-wide.webp 2400w" sizes="min(100vw, 1440px)">
-        <img src="assets/img/shoot/duo-doors.webp" srcset="{shoot_set("shoot/duo-doors")}" sizes="100vw" alt="Two models at arched black doors, in the circle-print and checked boubous" loading="lazy" decoding="async" width="1600" height="2000">
-      </picture>
-      <p class="more"><a class="u-link" href="shop.html">View all pieces</a></p>
+  <section class="section feature" aria-label="Lookbook">
+    <picture>
+      <source media="(min-width: 700px)" srcset="assets/img/shoot/duo-doors-wide-1600.webp 1600w, assets/img/shoot/duo-doors-wide.webp 2400w" sizes="min(100vw, 1210px)">
+      <img src="assets/img/shoot/duo-doors.webp" srcset="{shoot_set("shoot/duo-doors")}" sizes="100vw" alt="Two models at arched black doors, in the circle-print and checked boubous" loading="lazy" decoding="async" width="1600" height="2000">
+    </picture>
+  </section>
+
+  <section class="rail-sec" aria-labelledby="looks-title">
+    <h2 class="sr-only" id="looks-title">Shop the looks</h2>
+    <div class="rail-wrap">
+      <div class="rail" data-rail tabindex="0" aria-label="Looks. Swipe or use the arrows to see more.">
+        <div class="rail__track">
+{looks_html()}
+        </div>
+      </div>
+      <button class="rail__arrow rail__arrow--prev" type="button" data-rail-prev aria-label="Previous">{ICON["left"]}</button>
+      <button class="rail__arrow rail__arrow--next" type="button" data-rail-next aria-label="Next">{ICON["arrow"]}</button>
+    </div>
+    <p class="more more--stack"><a class="u-link" href="shop.html">View all products</a></p>
+  </section>
+
+  <section class="section banner-sec" aria-labelledby="banner-title">
+    <div class="photo-banner">
+      <img src="assets/img/shoot/check-vine-wide-1600.webp" srcset="assets/img/shoot/check-vine-wide-1600.webp 1600w, assets/img/shoot/check-vine-wide.webp 2400w" sizes="100vw" alt="Model in a navy, red and orange checked boubou among hanging plants" loading="lazy" decoding="async" width="2400" height="1350">
+      <div class="photo-banner__text">
+        <h2 class="photo-banner__title" id="banner-title">The new chapter</h2>
+        {pill("Shop the collection", "shop.html", "light")}
+      </div>
     </div>
   </section>
 
-  <section class="section story-sec" aria-labelledby="story-title">
-    <div class="wrap">
-      <div class="story-card" data-reveal>
-        <div class="story-card__media" data-video>
-          <video src="assets/video/campaign.mp4" poster="assets/img/campaign-poster.webp" muted loop playsinline preload="none" aria-label="Film: models in the new ADA BEKE pieces"></video>
-          {toggle()}
-        </div>
-        <div class="story-card__body">
-        <div class="story-card__text">
-          <h2 class="story-card__title" id="story-title">Chic, relaxed, elegance.</h2>
-          <p>ADA BEKE is a feel good fashion brand built on free size culture. Generous shapes, soft fabrics and pieces that flatter without fuss, made in Nigeria.</p>
-          {pill("About ADA BEKE", "about.html", "light")}
-        </div>
-        <ul class="story-card__list" aria-label="What we stand for">
-          <li>Free size.</li>
-          <li>Made in Nigeria.</li>
-          <li>Delivered worldwide.</li>
-        </ul>
-        </div>
+  <section class="film-sec" aria-labelledby="story-title">
+    <div class="film-card" data-video>
+      <video class="film-card__video" poster="assets/img/campaign-poster.webp" data-poster-wide="assets/img/campaign-poster-wide.webp" muted loop playsinline preload="none" aria-label="Film: models in the new ADA BEKE pieces">
+        <source src="assets/video/campaign-wide.mp4" type="video/mp4" media="(min-width: 900px)">
+        <source src="assets/video/campaign.mp4" type="video/mp4">
+      </video>
+      <div class="film-card__shade" aria-hidden="true"></div>
+      <div class="film-card__text">
+        <h2 class="film-card__title" id="story-title">Chic, relaxed, elegance.</h2>
+        <p>ADA BEKE began with a simple idea: getting dressed should feel easy. Generous, free-size shapes in soft, flowing fabrics, designed and made in Nigeria for every body, and delivered to you wherever you are.</p>
+        {pill("About ADA BEKE", "about.html", "light")}
       </div>
+      <ul class="film-card__list" aria-label="What we stand for">
+        <li>Free size.</li>
+        <li>Made in Nigeria.</li>
+        <li>Delivered worldwide.</li>
+      </ul>
     </div>
   </section>
 
   <section class="section social-sec" aria-labelledby="social-title">
     <div class="wrap social">
       <div class="social__text">
-        <h2 class="social__title" id="social-title">Feel good, look good, in ADA BEKE.</h2>
+        <h2 class="social__title" id="social-title">&hellip;Feel good, look good, in ADA BEKE.</h2>
         <p>Follow us for new drops, styling ideas and the stories behind every piece.</p>
         <div class="social__links">
-          {pill("@byadabeke on Instagram", IG, "", "ig", ' target="_blank" rel="noopener"')}
+          {pill("byadabeke", IG, "", "ig", ' target="_blank" rel="noopener"')}
           {pill("Threads", TH, "", "threads", ' target="_blank" rel="noopener"')}
-          {pill("Chat on WhatsApp", WA, "", "wa", ' target="_blank" rel="noopener"')}
+          {pill("WhatsApp", WA, "", "wa", ' target="_blank" rel="noopener"')}
         </div>
-        <p class="small">Tag @byadabeke on Instagram for a chance to be featured.</p>
+        <p class="small">Tag @byadabeke on Instagram for a chance to be featured on our page. By tagging us, you let us share your photo on our website and social media.</p>
       </div>
-      <div class="collage" aria-hidden="true">
-        <img src="assets/img/shoot/circles-lean-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
-        <img src="assets/img/shoot/check-doors-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
-        <img src="assets/img/shoot/gold-pleats-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
-        <img src="assets/img/shoot/abira-pose-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+      <div class="collage-wrap" aria-hidden="true">
+        <div class="collage">
+          <img class="img1" src="assets/img/shoot/circles-lean-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img2" src="assets/img/shoot/check-doors-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img3" src="assets/img/shoot/gold-pleats-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img4" src="assets/img/shoot/abira-turn-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img5" src="assets/img/shoot/circles-open-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section gallery-sec" aria-labelledby="gallery-title">
+    <div class="wrap">
+      <p class="gallery-head"><span class="gallery-head__mark" aria-hidden="true">ADA BEKE</span> <span id="gallery-title">&hellip;from the shoot to your wardrobe</span></p>
+      <div class="gallery">
+        <img class="g-tall" src="assets/img/shoot/circles-back-800.webp" alt="Model from behind in the circle-print boubou" loading="lazy" decoding="async" width="800" height="1000">
+        <img class="g-wide" src="assets/img/shoot/abira-set-800.webp" alt="Model in the Abira hoodie set" loading="lazy" decoding="async" width="800" height="1000">
+        <img class="g-wide" src="assets/img/shoot/wifey-seated-800.webp" alt="Model reclining in the Wifey boubou" loading="lazy" decoding="async" width="800" height="1000">
+        <img class="g-tall" src="assets/img/shoot/abira-back-800.webp" alt="The Abira hoodie set from behind" loading="lazy" decoding="async" width="800" height="1000">
+        <img class="g-square" src="assets/img/shoot/check-vine-800.webp" alt="Model in the checked boubou among hanging plants" loading="lazy" decoding="async" width="800" height="1000">
+        <img class="g-tall" src="assets/img/shoot/circles-side-800.webp" alt="Model in the circle-print boubou, hand in pocket" loading="lazy" decoding="async" width="800" height="1000">
       </div>
     </div>
   </section>

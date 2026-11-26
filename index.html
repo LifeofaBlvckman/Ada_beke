@@ -35,7 +35,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Montserrat:wght@300..600&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=8fc7fdd2ea">
+<link rel="stylesheet" href="assets/css/style.css?v=375cb4f712">
 <link rel="preload" as="image" href="assets/img/shoot/circles-side.webp" imagesrcset="assets/img/shoot/circles-side-800.webp 800w, assets/img/shoot/circles-side.webp 1600w" imagesizes="(min-width: 900px) 34vw, 100vw" fetchpriority="high">
 </head>
 <body class="page-home">
@@ -87,12 +87,16 @@
     <div class="hero__dots" role="group" aria-label="Photos"><button type="button" data-dot aria-label="Show photo 1" aria-current="true"></button><button type="button" data-dot aria-label="Show photo 2" aria-current="false"></button><button type="button" data-dot aria-label="Show photo 3" aria-current="false"></button></div>
   </section>
 
-  <section class="section home-pieces" aria-labelledby="edit-title">
-    <div class="wrap">
-      <h2 class="sec-title" id="edit-title">Discover your style</h2>
-      <div class="cards cards--home" data-products="home"><div class="skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div><div class="skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div><div class="skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div><div class="skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div></div>
-      <p class="more"><a class="u-link" href="shop.html">Shop all</a></p>
+  <section class="section rail-sec" aria-labelledby="edit-title">
+    <h2 class="sec-title" id="edit-title">Discover your style</h2>
+    <div class="rail-wrap">
+      <div class="rail" data-rail tabindex="0" aria-label="Pieces. Swipe or use the arrows to see more.">
+        <div class="rail__track" data-products="rail"><div class="skel-card rail__item" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div><div class="skel-card rail__item" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div><div class="skel-card rail__item" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div><div class="skel-card rail__item" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div></div>
+      </div>
+      <button class="rail__arrow rail__arrow--prev" type="button" data-rail-prev aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <button class="rail__arrow rail__arrow--next" type="button" data-rail-next aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
     </div>
+    <p class="more"><a class="u-link" href="shop.html">Shop all</a></p>
   </section>
 
   <section class="collections" aria-labelledby="col-title" data-collections-section hidden>
@@ -100,56 +104,94 @@
     <div class="col-grid" data-collections></div>
   </section>
 
-  <section class="section lookbook" aria-label="Lookbook">
-    <div class="wrap">
-      <picture>
-        <source media="(min-width: 700px)" srcset="assets/img/shoot/duo-doors-wide-1600.webp 1600w, assets/img/shoot/duo-doors-wide.webp 2400w" sizes="min(100vw, 1440px)">
-        <img src="assets/img/shoot/duo-doors.webp" srcset="assets/img/shoot/duo-doors-800.webp 800w, assets/img/shoot/duo-doors.webp 1600w" sizes="100vw" alt="Two models at arched black doors, in the circle-print and checked boubous" loading="lazy" decoding="async" width="1600" height="2000">
-      </picture>
-      <p class="more"><a class="u-link" href="shop.html">View all pieces</a></p>
+  <section class="section feature" aria-label="Lookbook">
+    <picture>
+      <source media="(min-width: 700px)" srcset="assets/img/shoot/duo-doors-wide-1600.webp 1600w, assets/img/shoot/duo-doors-wide.webp 2400w" sizes="min(100vw, 1210px)">
+      <img src="assets/img/shoot/duo-doors.webp" srcset="assets/img/shoot/duo-doors-800.webp 800w, assets/img/shoot/duo-doors.webp 1600w" sizes="100vw" alt="Two models at arched black doors, in the circle-print and checked boubous" loading="lazy" decoding="async" width="1600" height="2000">
+    </picture>
+  </section>
+
+  <section class="rail-sec" aria-labelledby="looks-title">
+    <h2 class="sr-only" id="looks-title">Shop the looks</h2>
+    <div class="rail-wrap">
+      <div class="rail" data-rail tabindex="0" aria-label="Looks. Swipe or use the arrows to see more.">
+        <div class="rail__track">
+          <a class="look rail__item" href="shop.html?p=abira" data-product="abira"><img src="assets/img/shoot/abira-pose-800.webp" alt="" loading="lazy" decoding="async"><span class="look__name">Abira hoodie set</span></a>
+          <a class="look rail__item" href="shop.html?p=wifey" data-product="wifey"><img src="assets/img/shoot/wifey-standing-800.webp" alt="" loading="lazy" decoding="async"><span class="look__name">Wifey boubou</span></a>
+          <a class="look rail__item" href="shop.html?p=omalicha" data-product="omalicha"><img src="assets/img/omalicha-mannequin.webp" alt="" loading="lazy" decoding="async"><span class="look__name">Omalicha set</span></a>
+          <a class="look rail__item" href="shop.html?p=something-soft" data-product="something-soft"><img src="assets/img/bags-bag.webp" alt="" loading="lazy" decoding="async"><span class="look__name">Something soft</span></a>
+        </div>
+      </div>
+      <button class="rail__arrow rail__arrow--prev" type="button" data-rail-prev aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <button class="rail__arrow rail__arrow--next" type="button" data-rail-next aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </div>
+    <p class="more more--stack"><a class="u-link" href="shop.html">View all products</a></p>
+  </section>
+
+  <section class="section banner-sec" aria-labelledby="banner-title">
+    <div class="photo-banner">
+      <img src="assets/img/shoot/check-vine-wide-1600.webp" srcset="assets/img/shoot/check-vine-wide-1600.webp 1600w, assets/img/shoot/check-vine-wide.webp 2400w" sizes="100vw" alt="Model in a navy, red and orange checked boubou among hanging plants" loading="lazy" decoding="async" width="2400" height="1350">
+      <div class="photo-banner__text">
+        <h2 class="photo-banner__title" id="banner-title">The new chapter</h2>
+        <a class="pill pill--light" href="shop.html"><span class="pill__text">Shop the collection</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      </div>
     </div>
   </section>
 
-  <section class="section story-sec" aria-labelledby="story-title">
-    <div class="wrap">
-      <div class="story-card" data-reveal>
-        <div class="story-card__media" data-video>
-          <video src="assets/video/campaign.mp4" poster="assets/img/campaign-poster.webp" muted loop playsinline preload="none" aria-label="Film: models in the new ADA BEKE pieces"></video>
-          <button class="media-toggle" type="button" aria-label="Pause video"><svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg></button>
-        </div>
-        <div class="story-card__body">
-        <div class="story-card__text">
-          <h2 class="story-card__title" id="story-title">Chic, relaxed, elegance.</h2>
-          <p>ADA BEKE is a feel good fashion brand built on free size culture. Generous shapes, soft fabrics and pieces that flatter without fuss, made in Nigeria.</p>
-          <a class="pill pill--light" href="about.html"><span class="pill__text">About ADA BEKE</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-        </div>
-        <ul class="story-card__list" aria-label="What we stand for">
-          <li>Free size.</li>
-          <li>Made in Nigeria.</li>
-          <li>Delivered worldwide.</li>
-        </ul>
-        </div>
+  <section class="film-sec" aria-labelledby="story-title">
+    <div class="film-card" data-video>
+      <video class="film-card__video" poster="assets/img/campaign-poster.webp" data-poster-wide="assets/img/campaign-poster-wide.webp" muted loop playsinline preload="none" aria-label="Film: models in the new ADA BEKE pieces">
+        <source src="assets/video/campaign-wide.mp4" type="video/mp4" media="(min-width: 900px)">
+        <source src="assets/video/campaign.mp4" type="video/mp4">
+      </video>
+      <div class="film-card__shade" aria-hidden="true"></div>
+      <div class="film-card__text">
+        <h2 class="film-card__title" id="story-title">Chic, relaxed, elegance.</h2>
+        <p>ADA BEKE began with a simple idea: getting dressed should feel easy. Generous, free-size shapes in soft, flowing fabrics, designed and made in Nigeria for every body, and delivered to you wherever you are.</p>
+        <a class="pill pill--light" href="about.html"><span class="pill__text">About ADA BEKE</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
       </div>
+      <ul class="film-card__list" aria-label="What we stand for">
+        <li>Free size.</li>
+        <li>Made in Nigeria.</li>
+        <li>Delivered worldwide.</li>
+      </ul>
     </div>
   </section>
 
   <section class="section social-sec" aria-labelledby="social-title">
     <div class="wrap social">
       <div class="social__text">
-        <h2 class="social__title" id="social-title">Feel good, look good, in ADA BEKE.</h2>
+        <h2 class="social__title" id="social-title">&hellip;Feel good, look good, in ADA BEKE.</h2>
         <p>Follow us for new drops, styling ideas and the stories behind every piece.</p>
         <div class="social__links">
-          <a class="pill" href="https://www.instagram.com/byadabeke/" target="_blank" rel="noopener"><span class="pill__text">@byadabeke on Instagram</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".9" fill="currentColor" stroke="none"/></svg></span></a>
+          <a class="pill" href="https://www.instagram.com/byadabeke/" target="_blank" rel="noopener"><span class="pill__text">byadabeke</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".9" fill="currentColor" stroke="none"/></svg></span></a>
           <a class="pill" href="https://www.threads.net/@byadabeke" target="_blank" rel="noopener"><span class="pill__text">Threads</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M16.6 11.2c-.5-2.6-2.3-3.7-4.5-3.7-2.6 0-4.3 1.7-4.3 1.7"/><path d="M17.6 12.3c0 3-2.4 4.4-4.8 4.4-1.9 0-3.4-.9-3.4-2.6 0-2.4 3-2.9 7.2-2.4"/><path d="M19.5 7.5C18 4.6 15.4 3.5 12.2 3.5 7 3.5 4.5 7.2 4.5 12s2.5 8.5 7.7 8.5c3.4 0 5.6-1.4 6.8-3.6"/></svg></span></a>
-          <a class="pill" href="https://wa.me/2348093712578" target="_blank" rel="noopener"><span class="pill__text">Chat on WhatsApp</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15l-1.4 5 5.2-1.36A9.9 9.9 0 1 0 12.04 2Zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.08.81.82-3-.2-.31a8.2 8.2 0 1 1 6.94 3.83Zm4.5-6.14c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.55.12-.16.25-.63.8-.78.97-.14.16-.29.18-.53.06a6.7 6.7 0 0 1-3.32-2.9c-.25-.43.25-.4.72-1.33.08-.16.04-.3-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.3 2.74 2.74 0 0 0-.85 2.03 4.76 4.76 0 0 0 1 2.53 10.9 10.9 0 0 0 4.17 3.68c1.55.67 2.16.73 2.94.61.47-.07 1.46-.6 1.66-1.17.2-.58.2-1.07.14-1.17-.06-.1-.22-.16-.47-.28Z"/></svg></span></a>
+          <a class="pill" href="https://wa.me/2348093712578" target="_blank" rel="noopener"><span class="pill__text">WhatsApp</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15l-1.4 5 5.2-1.36A9.9 9.9 0 1 0 12.04 2Zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.08.81.82-3-.2-.31a8.2 8.2 0 1 1 6.94 3.83Zm4.5-6.14c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.55.12-.16.25-.63.8-.78.97-.14.16-.29.18-.53.06a6.7 6.7 0 0 1-3.32-2.9c-.25-.43.25-.4.72-1.33.08-.16.04-.3-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.3 2.74 2.74 0 0 0-.85 2.03 4.76 4.76 0 0 0 1 2.53 10.9 10.9 0 0 0 4.17 3.68c1.55.67 2.16.73 2.94.61.47-.07 1.46-.6 1.66-1.17.2-.58.2-1.07.14-1.17-.06-.1-.22-.16-.47-.28Z"/></svg></span></a>
         </div>
-        <p class="small">Tag @byadabeke on Instagram for a chance to be featured.</p>
+        <p class="small">Tag @byadabeke on Instagram for a chance to be featured on our page. By tagging us, you let us share your photo on our website and social media.</p>
       </div>
-      <div class="collage" aria-hidden="true">
-        <img src="assets/img/shoot/circles-lean-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
-        <img src="assets/img/shoot/check-doors-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
-        <img src="assets/img/shoot/gold-pleats-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
-        <img src="assets/img/shoot/abira-pose-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+      <div class="collage-wrap" aria-hidden="true">
+        <div class="collage">
+          <img class="img1" src="assets/img/shoot/circles-lean-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img2" src="assets/img/shoot/check-doors-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img3" src="assets/img/shoot/gold-pleats-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img4" src="assets/img/shoot/abira-turn-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img5" src="assets/img/shoot/circles-open-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section gallery-sec" aria-labelledby="gallery-title">
+    <div class="wrap">
+      <p class="gallery-head"><span class="gallery-head__mark" aria-hidden="true">ADA BEKE</span> <span id="gallery-title">&hellip;from the shoot to your wardrobe</span></p>
+      <div class="gallery">
+        <img class="g-tall" src="assets/img/shoot/circles-back-800.webp" alt="Model from behind in the circle-print boubou" loading="lazy" decoding="async" width="800" height="1000">
+        <img class="g-wide" src="assets/img/shoot/abira-set-800.webp" alt="Model in the Abira hoodie set" loading="lazy" decoding="async" width="800" height="1000">
+        <img class="g-wide" src="assets/img/shoot/wifey-seated-800.webp" alt="Model reclining in the Wifey boubou" loading="lazy" decoding="async" width="800" height="1000">
+        <img class="g-tall" src="assets/img/shoot/abira-back-800.webp" alt="The Abira hoodie set from behind" loading="lazy" decoding="async" width="800" height="1000">
+        <img class="g-square" src="assets/img/shoot/check-vine-800.webp" alt="Model in the checked boubou among hanging plants" loading="lazy" decoding="async" width="800" height="1000">
+        <img class="g-tall" src="assets/img/shoot/circles-side-800.webp" alt="Model in the circle-print boubou, hand in pocket" loading="lazy" decoding="async" width="800" height="1000">
       </div>
     </div>
   </section>
@@ -201,6 +243,6 @@
   </div>
 </footer>
 <script src="assets/js/products.js?v=77f4cb5cb5"></script>
-<script src="assets/js/main.js?v=d68d1b186c"></script>
+<script src="assets/js/main.js?v=18ff024527"></script>
 </body>
 </html>
