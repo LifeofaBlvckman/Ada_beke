@@ -34,15 +34,21 @@
 <script src="/api/catalogue" async onerror="window.ADA_SHOP={};document.dispatchEvent(new Event('ada:catalogue'))"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Jost:wght@300..600&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=0ce51df512">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Montserrat:wght@300..600&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=8fc7fdd2ea">
 </head>
 <body class="page-about">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header" data-header>
+  <div class="announce">
+    <p class="sr-only">Free size · Made in Nigeria · Worldwide delivery via DHL · Order on WhatsApp · New: the Abira hoodie set</p>
+    <div class="announce__track" aria-hidden="true"><span>Free size</span><span>Made in Nigeria</span><span>Worldwide delivery via DHL</span><span>Order on WhatsApp</span><span>New: the Abira hoodie set</span><span>Free size</span><span>Made in Nigeria</span><span>Worldwide delivery via DHL</span><span>Order on WhatsApp</span><span>New: the Abira hoodie set</span></div>
+  </div>
   <div class="site-header__inner">
+    <button class="icon-btn menu-btn" type="button" data-menu-toggle aria-controls="menu" aria-expanded="false" aria-label="Open menu"><span class="menu-btn__lines" aria-hidden="true"></span></button>
     <a class="brand" href="index.html" aria-label="ADA BEKE, home">ADA BEKE</a>
     <nav class="nav" aria-label="Main">
+      <a href="index.html">Home</a>
       <a href="shop.html">Shop</a>
       <a href="about.html" aria-current="page">About</a>
       <a href="contact.html">Contact</a>
@@ -50,7 +56,6 @@
     <div class="header-actions">
       <a class="icon-btn icon-btn--ig" href="https://www.instagram.com/byadabeke/" target="_blank" rel="noopener" aria-label="ADA BEKE on Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".9" fill="currentColor" stroke="none"/></svg></a>
       <button class="icon-btn bag-btn" type="button" data-bag-open aria-controls="bag" aria-label="Open bag, 0 items"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 8h14l-1 12.5H6L5 8Z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg><span class="bag-count" data-bag-count>0</span></button>
-      <button class="icon-btn menu-btn" type="button" data-menu-toggle aria-controls="menu" aria-expanded="false" aria-label="Open menu"><span class="menu-btn__lines" aria-hidden="true"></span></button>
     </div>
   </div>
 </header>
@@ -59,7 +64,7 @@
     <ul class="menu__links">
       <li><a href="index.html">Home</a></li>
       <li><a href="shop.html">Shop</a></li>
-      <li><a href="about.html" aria-current="page">Our story</a></li>
+      <li><a href="about.html" aria-current="page">About</a></li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
   </nav>
@@ -71,53 +76,47 @@
 </div>
 
 <main id="main">
-  <section class="page-hero page-hero--media" aria-labelledby="about-title">
-    <div class="page-hero__inner">
-      <h1 class="display page-hero__title" id="about-title">Our story</h1>
-      <div class="page-hero__media" data-video data-reveal data-reveal-load style="--d:150ms">
-        <video src="assets/video/campaign.mp4" poster="assets/img/campaign-poster.webp" autoplay muted loop playsinline preload="auto" aria-label="Film: models in the new ADA BEKE pieces"></video>
-        <button class="media-toggle" type="button" aria-label="Pause video"><svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg></button>
-      </div>
-      <div class="page-hero__aside" data-reveal data-reveal-load style="--d:800ms">
-        <p class="hero__desc">Chic, relaxed, elegance. Fashion pieces focused on free size culture: a feel good fashion brand, made in Nigeria.</p>
-      </div>
+  <section class="photo-hero" aria-labelledby="about-title">
+    <picture>
+      <source media="(min-width: 700px)" srcset="assets/img/shoot/circles-back-wide-1600.webp 1600w, assets/img/shoot/circles-back-wide.webp 2400w" sizes="100vw">
+      <img src="assets/img/shoot/circles-back.webp" srcset="assets/img/shoot/circles-back-800.webp 800w, assets/img/shoot/circles-back.webp 1600w" sizes="100vw" alt="Model seen from behind in a white boubou with large orange circle prints, against an orange wall with hanging plants" width="1600" height="2000" fetchpriority="high">
+    </picture>
+    <div class="photo-hero__text">
+      <h1 class="photo-hero__title" id="about-title">About <span>ADA BEKE</span></h1>
+      <p class="photo-hero__sub">Chic &middot; Relaxed &middot; Elegance</p>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="who-label">
-    <div class="wrap grid-3">
-      <p class="label" id="who-label">Who we are</p>
-      <p class="lede">ADA BEKE is a feel good fashion brand, built on free size culture. Getting dressed should feel easy: generous shapes, soft fabrics and pieces that flatter without fuss.</p>
-      <div class="who__img">
-        <div class="frame" data-reveal><img src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set in royal navy" loading="lazy"></div>
-      </div>
+  <section class="split split--cream" aria-labelledby="who-title">
+    <div class="split__media"><img src="assets/img/shoot/check-vine.webp" srcset="assets/img/shoot/check-vine-800.webp 800w, assets/img/shoot/check-vine.webp 1600w" sizes="(min-width: 900px) 50vw, 100vw" alt="Model in a navy, red and orange checked boubou among hanging plants" loading="lazy" decoding="async" width="1600" height="2000"></div>
+    <div class="split__text" data-reveal>
+      <p class="kicker">Our story</p>
+      <h2 class="split__title" id="who-title">The story</h2>
+      <p>ADA BEKE is a feel good fashion brand, built on free size culture. Getting dressed should feel easy: generous shapes, soft fabrics and pieces that flatter without fuss.</p>
+      <p>Chic, relaxed, elegance. Fashion pieces focused on free size culture, made in Nigeria and delivered worldwide.</p>
     </div>
   </section>
 
-  <section class="section section--mist" id="letter" aria-labelledby="letter-title">
-    <div class="wrap letter">
-      <div class="letter__side">
-        <p class="label">We&rsquo;re back</p>
+  <section class="quote-band" aria-label="A word from Ada Beke">
+    <blockquote>&ldquo;Through it all, God has been faithful.&rdquo;</blockquote>
+    <p class="kicker">Ada Beke</p>
+  </section>
+
+  <section class="split split--flip" id="letter" aria-labelledby="letter-title">
+    <div class="split__media"><img src="assets/img/shoot/wifey-standing.webp" srcset="assets/img/shoot/wifey-standing-800.webp 800w, assets/img/shoot/wifey-standing.webp 1600w" sizes="(min-width: 900px) 50vw, 100vw" alt="Model in the sheer black Wifey boubou, hand raised" loading="lazy" decoding="async" width="1600" height="2000"></div>
+    <div class="split__text" data-reveal>
+      <p class="kicker">We&rsquo;re back</p>
+      <h2 class="split__title" id="letter-title">Ready for a new chapter</h2>
+      <div class="letter__cols">
+        <p>After a little over a year away, we&rsquo;re finally ready to return to what we love most &mdash; bringing fashion, style, and elegance to you.</p>
+        <p>Shortly after taking the exciting step of rebranding, life took an unexpected turn. The space we were operating out of was sold and we had to evacuate the premises; then the daunting task of looking for a new production space began.</p>
+        <p>What was meant to be a fresh start became an unforeseen pause &mdash; one that gave us time to reflect, regroup, and prepare for everything ahead.</p>
+        <p>It hasn&rsquo;t been the easiest journey, but through it all, <strong>God has been faithful and his mercy has been evident every step of the way.</strong></p>
+        <p>To everyone who continued to support us, check in on us, and patiently await our return, <strong>thank you for standing by us, even in our silence.</strong> Your love and loyalty mean more than words can express.</p>
+        <p>We&rsquo;re back with renewed passion, fresh ideas, and an even stronger commitment to serving you better than ever.</p>
+        <p>This is more than a comeback; it&rsquo;s the beginning of a beautiful new chapter, and we can&rsquo;t wait to share it with you.</p>
       </div>
-      <div>
-        <h2 class="heading" id="letter-title" style="margin-bottom:clamp(32px,4vw,56px)">Ready for a new chapter</h2>
-        <div class="letter__cols">
-          <p>After a little over a year away, we&rsquo;re finally ready to return to what we love most &mdash; bringing fashion, style, and elegance to you.</p>
-          <p>Shortly after taking the exciting step of rebranding, life took an unexpected turn. The space we were operating out of was sold and we had to evacuate the premises; then the daunting task of looking for a new production space began.</p>
-          <p>What was meant to be a fresh start became an unforeseen pause &mdash; one that gave us time to reflect, regroup, and prepare for everything ahead.</p>
-          <p>It hasn&rsquo;t been the easiest journey, but through it all, <strong>God has been faithful and his mercy has been evident every step of the way.</strong></p>
-          <p>To everyone who continued to support us, check in on us, and patiently await our return, <strong>thank you for standing by us, even in our silence.</strong> Your love and loyalty mean more than words can express.</p>
-          <p>We&rsquo;re back with renewed passion, fresh ideas, and an even stronger commitment to serving you better than ever.</p>
-          <p>This is more than a comeback; it&rsquo;s the beginning of a beautiful new chapter, and we can&rsquo;t wait to share it with you.</p>
-        </div>
-      </div>
-      <div class="letter__side">
-        <blockquote class="pullquote">&ldquo;Through it all, God has been faithful.&rdquo;</blockquote>
-        <div class="signoff">
-          <span class="sig">Ada Beke</span>
-          <span class="label">Chic &bull; relaxed &bull; Elegance</span>
-        </div>
-      </div>
+      <p class="signoff"><span class="sig">Ada Beke</span><span class="label">Chic &bull; relaxed &bull; Elegance</span></p>
     </div>
   </section>
 
@@ -154,68 +153,60 @@
     </div></div>
   </section>
 
-  <section class="section" aria-labelledby="about-cta">
-    <div class="wrap">
-      <div class="banner" data-reveal>
-        <div class="banner__text">
-          <h2 class="heading" id="about-cta">Find your feel good piece</h2>
-          <div>
-            <p class="small">Start with our all-time bestseller, the Omalicha set, or the new Wifey boubou.</p>
-            <div style="margin-top:22px"><a class="pill pill--light" href="shop.html"><span class="pill__text">Shop the collection</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></div>
-          </div>
-        </div>
-        <div class="banner__media"><img src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set with its scarf" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div>
-      </div>
+  <section class="section about-cta" aria-labelledby="about-cta">
+    <div class="wrap about-cta__inner">
+      <h2 class="sec-title" id="about-cta">Find your feel good piece</h2>
+      <a class="pill pill--dark" href="shop.html"><span class="pill__text">Shop the collection</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
     </div>
   </section>
 </main>
 <footer class="site-footer">
   <div class="wrap">
+    <p class="footer__mark" aria-hidden="true">ADA BEKE</p>
     <div class="footer__grid">
-      <div class="footer__col">
-        <h2>Navigation</h2>
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="shop.html">Shop the collection</a></li>
-          <li><a href="about.html">Our story</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </div>
-      <div class="footer__col">
-        <h2>Client care</h2>
-        <ul>
-          <li><a href="contact.html#order">How to order</a></li>
-          <li><a href="contact.html#size">Free size guide</a></li>
-          <li><a href="contact.html#faq">Worldwide delivery</a></li>
-          <li><a href="contact.html#faq">Questions</a></li>
-        </ul>
-      </div>
-      <div class="footer__col footer__order footer__early">
-        <h2 class="big">Be first to the next drop</h2>
-        <form class="wa-form" data-early data-source="footer" novalidate>
-          <label class="sr-only" for="ea-foot">Email or WhatsApp number</label>
-          <input id="ea-foot" name="contact" type="text" placeholder="Email or WhatsApp number" autocomplete="email" required>
-          <button type="submit">Get early access</button>
-        </form>
-        <p class="small" data-early-msg aria-live="polite">New pieces reach the list before anyone else. No spam, ever.</p>
-      </div>
-      <div class="footer__col">
-        <h2>Social</h2>
-        <ul>
+      <div class="footer__col footer__about">
+        <p>Tag <a href="https://www.instagram.com/byadabeke/" target="_blank" rel="noopener">@byadabeke</a> on Instagram for a chance to be featured. Free-size boubous and sets in soft, flowing fabrics, made in Nigeria and delivered worldwide.</p>
+        <ul class="footer__social">
           <li><a href="https://www.instagram.com/byadabeke/" target="_blank" rel="noopener">Instagram</a></li>
           <li><a href="https://www.threads.net/@byadabeke" target="_blank" rel="noopener">Threads</a></li>
           <li><a href="https://wa.me/2348093712578" target="_blank" rel="noopener">WhatsApp</a></li>
         </ul>
       </div>
+      <div class="footer__col">
+        <h2>Shop</h2>
+        <ul>
+          <li><a href="shop.html">Shop all</a></li>
+          <li><a href="shop.html?c=sets">Sets</a></li>
+          <li><a href="shop.html?c=boubous">Boubous</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h2>Info</h2>
+        <ul>
+          <li><a href="about.html">About us</a></li>
+          <li><a href="contact.html">Contact us</a></li>
+          <li><a href="contact.html#order">How to order</a></li>
+          <li><a href="contact.html#size">Size guide</a></li>
+          <li><a href="contact.html#faq">Questions</a></li>
+        </ul>
+      </div>
+      <div class="footer__col footer__early">
+        <p class="footer__lead">Be first to the next drop. New pieces reach the list before anyone else.</p>
+        <form class="wa-form wa-form--line" data-early data-source="footer" novalidate>
+          <label class="sr-only" for="ea-foot">Email or WhatsApp number</label>
+          <input id="ea-foot" name="contact" type="text" placeholder="Email or WhatsApp number" autocomplete="email" required>
+          <button type="submit">Get early access</button>
+        </form>
+        <p class="small" data-early-msg aria-live="polite">No spam, ever.</p>
+      </div>
     </div>
     <div class="footer__base">
       <span>&copy; <span class="js-year">2026</span> ADA BEKE. All rights reserved.</span>
-      <span>Chic &bull; relaxed &bull; Elegance</span>
       <span>Made in Nigeria &middot; Delivered worldwide via DHL</span>
     </div>
   </div>
 </footer>
 <script src="assets/js/products.js?v=77f4cb5cb5"></script>
-<script src="assets/js/main.js?v=ee42b98fd9"></script>
+<script src="assets/js/main.js?v=d68d1b186c"></script>
 </body>
 </html>

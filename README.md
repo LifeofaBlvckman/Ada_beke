@@ -4,9 +4,9 @@
 
 | Page | File | What's on it |
 | --- | --- | --- |
-| Home | `index.html` | The shoot photos with their own backgrounds (one at a time on phones, three side by side on laptops), "Discover your style" and a shop button underneath, four pieces under "Handpicked for you", and "Shop by collection". The early-access sign-up is in the footer |
+| Home | `index.html` | Three shoot photos with their own backgrounds (one at a time on phones, side by side on laptops), "Discover your style" with four pieces, the two collections as big photo tiles, a wide lookbook photo, a dark story card with the campaign film, and links to Instagram, Threads and WhatsApp beside a photo collage |
 | Shop | `shop.html` | All pieces with filters, a product details panel, and the bag |
-| About | `about.html` | The campaign film, brand story, the full "We're back" letter, Chic / relaxed / Elegance |
+| About | `about.html` | A big photo with "About ADA BEKE" (as Moye's About page), a photo beside the cream "Our story" panel, a quote from Ada, the full "We're back" letter beside a photo, Chic / relaxed / Elegance |
 | Contact | `contact.html` | How to order, a WhatsApp contact form, the free-size guide and questions |
 | Your order | `order.html` | Where Paystack sends customers after paying: "Thank you" with their order, or "Payment not completed" |
 | Admin | `admin/` | The dashboard: sales, orders, pieces, delivery fees (password protected, hidden from search engines) |
@@ -138,9 +138,9 @@ These are ready but not in the shop yet, because the pieces need a name and pric
 
 ## Design
 
-- **Colours:** brand aqua `#58DADC` (taken from the ADA BEKE bags and end card), navy `#0F2A4A` (from the Omalicha fabric), and a pale aqua mist `#EAF8F8`, plus the rust of the boubou circle print `#C9602F` as an accent.
-- **Look:** simple and calm, after the brands Ada pointed to (Hertunba, Moye, Wanni Fuga): white pages, the photos with their real backgrounds, words beside or under the photos and never on the clothes, a light footer, and aqua and navy used for buttons and small accents.
-- **Type:** one font, Jost (a clean geometric sans), for everything; no italics. Product names are in small capitals. The ADA BEKE logo keeps its own lettering (Cinzel).
+- **Colours:** ADA BEKE aqua `#58DADC` (from her bags and end card) for the announcement bar, the page title bands and small accents; near-black `#141414` for text and buttons; white pages. The rust of the boubou print `#C9602F` is kept for placeholders.
+- **Look:** laid out after moyeafrica.com, as Ada asked: a moving announcement bar, the ADA BEKE logo centred with a small uppercase menu under it, a coloured band with each page's title, photos with their real backgrounds and no words on the clothes, small uppercase product names, outlined round-ended buttons, and a footer with the ADA BEKE name spelled out wide. ADA BEKE's own logo, photos, words and colours are used throughout; nothing is taken from Moye.
+- **Type:** one font, Montserrat (the same family Moye uses), for everything; no italics. Menus, product names and buttons are small capitals with wide spacing. The ADA BEKE logo keeps its own lettering (Cinzel).
 - **Motion:** kept to a minimum. Things fade up gently as they come into view, and on phones the home photos change every 5 seconds. All motion switches off for visitors who have "reduce motion" turned on.
 - **Lottie:** the "choosing a dress" animation appears when the bag is empty, on the Shop page, and on the Contact page, with a shimmering placeholder until it's ready. It's served from this site (`assets/lottie/choosing.js`), played with [lottie-web](https://github.com/airbnb/lottie-web) (MIT, `assets/vendor/`), and only loads when it's needed.
 
@@ -162,11 +162,11 @@ If the site moves to its own domain, change `SITE` at the top of `tools/build_pa
 
 ## Home photos
 
-Three photos from the shoot, set in the `HERO_PHOTOS` list in the page builder: the circle-print boubou, Abira and Wifey, shown with their real backgrounds. Phones show one at a time (they change every 5 seconds, or swipe, or tap a dot); laptops show all three side by side so nothing is cropped tight. "Discover your style", a short line and the shop button sit under the photos. To change a photo, put the new one in `assets/img/shoot/` in the two sizes described under "Photos from the shoot" and edit its line in `HERO_PHOTOS`.
+Three photos from the shoot, set in the `HERO_PHOTOS` list in the page builder: the circle-print boubou, Abira and Wifey, shown with their real backgrounds. Phones show one at a time (they change every 5 seconds, or swipe, or tap a dot); laptops show all three side by side. Further down, `duo-doors-wide.webp` is the wide lookbook photo and four smaller shoot photos make the collage beside the social links. To change a photo, put the new one in `assets/img/shoot/` in the two sizes described under "Photos from the shoot" and edit its line in `HERO_PHOTOS`. The announcement bar's notes are in `ANNOUNCE` at the top of the page builder.
 
 ## Speed
 
-The home page downloads about 1 MB, most of it the sharp photos. Phones preload the first photo and fetch the others one at a time; laptops load all three. The About page's film is about 4 MB and streams as it plays.
+The home page downloads about 1 MB, most of it the sharp photos. Phones preload the first photo and fetch the others one at a time; laptops load all three. The campaign film in the home page's story card (about 4 MB) only starts loading when it scrolls into view.
 
 ## Putting it online
 

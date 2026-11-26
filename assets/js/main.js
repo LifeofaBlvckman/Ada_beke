@@ -422,13 +422,13 @@
     if (online) {
       html +=
         '<p class="small">Delivery is added at the next step. Pay securely by card, bank transfer or USSD.</p>' +
-        '<button class="pill pill--navy pill--block" type="button" data-checkout-start><span class="pill__text">Checkout</span><span class="pill__icon">' + ICON.arrow + "</span></button>" +
+        '<button class="pill pill--dark pill--block" type="button" data-checkout-start><span class="pill__text">Checkout</span><span class="pill__icon">' + ICON.arrow + "</span></button>" +
         '<a class="drawer__alt" data-checkout target="_blank" rel="noopener" href="#">' + ICON.wa + "<span>Or order on WhatsApp</span></a>";
     } else {
       html +=
         '<p class="small">' + (t.onRequest ? "Some pieces are priced on request — we'll confirm the total with you. " : "") +
         "We confirm delivery and payment with you on WhatsApp. We deliver worldwide.</p>" +
-        '<a class="pill pill--navy pill--block" data-checkout target="_blank" rel="noopener" href="#">' + waBtn + "</a>";
+        '<a class="pill pill--dark pill--block" data-checkout target="_blank" rel="noopener" href="#">' + waBtn + "</a>";
     }
     bagFoot.innerHTML = html;
     $("[data-checkout]", bagFoot).href = waLink(orderMessage());
@@ -588,7 +588,7 @@
         '<div class="drawer__total"><span>Total</span><strong data-co-total></strong></div>' +
         '<p class="checkout__fx" data-co-fx hidden></p>' +
       "</div>" +
-      '<button class="pill pill--navy pill--block" type="submit" form="checkout-form"><span class="pill__text" data-co-pay></span><span class="pill__icon">' + ICON.lock + "</span></button>" +
+      '<button class="pill pill--dark pill--block" type="submit" form="checkout-form"><span class="pill__text" data-co-pay></span><span class="pill__icon">' + ICON.lock + "</span></button>" +
       '<p class="checkout__secure">Secured by Paystack &middot; card, bank transfer or USSD</p>';
     updateCheckoutTotals();
   }
@@ -843,7 +843,7 @@
       actions.innerHTML = '<button class="pill pill--block pill--off" type="button" disabled><span class="pill__text">Sold out</span></button>' +
         '<a class="pill pill--ghost pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! Will " + plainName(p.name) + " be restocked?")) + '"><span class="pill__text">Ask about a restock</span><span class="pill__icon">' + ICON.wa + "</span></a>";
     } else if (p.status === "soon") {
-      var waSoon = '<a class="pill ' + (SHOP.db ? "pill--ghost" : "pill--navy") + ' pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! Please let me know when " + plainName(p.name) + " drops.")) + '"><span class="pill__text">' + (SHOP.db ? "Or ask on WhatsApp" : "Tell me when it drops") + '</span><span class="pill__icon">' + ICON.wa + "</span></a>";
+      var waSoon = '<a class="pill ' + (SHOP.db ? "pill--ghost" : "pill--dark") + ' pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! Please let me know when " + plainName(p.name) + " drops.")) + '"><span class="pill__text">' + (SHOP.db ? "Or ask on WhatsApp" : "Tell me when it drops") + '</span><span class="pill__icon">' + ICON.wa + "</span></a>";
       actions.innerHTML = SHOP.db
         ? '<form class="early-mini" data-early data-source="piece:' + esc(p.id) + '" novalidate>' +
             '<p class="early-mini__title">Get early access</p>' +
@@ -856,7 +856,7 @@
         : waSoon;
     } else {
       actions.innerHTML =
-        '<button class="pill pill--navy pill--block" type="button" data-pd-add="' + esc(p.id) + '"><span class="pill__text">Add to bag</span><span class="pill__icon">' + ICON.plus + "</span></button>" +
+        '<button class="pill pill--dark pill--block" type="button" data-pd-add="' + esc(p.id) + '"><span class="pill__text">Add to bag</span><span class="pill__icon">' + ICON.plus + "</span></button>" +
         '<a class="pill pill--ghost pill--block" target="_blank" rel="noopener" href="' + esc(waLink("Hello ADA BEKE! I'd like to order the " + plainName(p.name) + (p.colour ? " (" + p.colour + ")" : "") + (p.price != null ? " — " + naira(p.price) : "") + ".")) + '"><span class="pill__text">Order this on WhatsApp</span><span class="pill__icon">' + ICON.wa + "</span></a>";
     }
     // You may also like: same collection first, then the rest

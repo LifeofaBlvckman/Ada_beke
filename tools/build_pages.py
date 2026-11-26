@@ -22,7 +22,7 @@ SITE = "https://adabeke.vercel.app"
 TODAY = date.today().isoformat()
 
 FONTS = ("https://fonts.googleapis.com/css2?family=Cinzel:wght@400"
-         "&family=Jost:wght@300..600&display=swap")
+         "&family=Montserrat:wght@300..600&display=swap")
 
 WA = "https://wa.me/2348093712578"
 IG = "https://www.instagram.com/byadabeke/"
@@ -66,6 +66,17 @@ def pill(text, href, variant="", icon="arrow", attrs=""):
 def toggle():
     return (f'<button class="media-toggle" type="button" aria-label="Pause video">'
             f'{ICON["pause"]}{ICON["play"]}</button>')
+
+
+ANNOUNCE = ["Free size", "Made in Nigeria", "Worldwide delivery via DHL", "Order on WhatsApp",
+            "New: the Abira hoodie set"]
+
+
+def band(title, id_, attrs=""):
+    """Dark band with the page title, as Moye's "SHOP ALL"."""
+    return (f'  <section class="band" aria-labelledby="{id_}">\n'
+            f'    <h1 class="band__title" id="{id_}"{attrs}>{title}</h1>\n'
+            f'  </section>\n')
 
 
 def skel_cards(n, tag="li", cls="rail__item skel-card"):
@@ -174,10 +185,17 @@ def head(title, desc, page, path, og_image, og_alt, graph=None, robots="index, f
 def header(page):
     def cur(p):
         return ' aria-current="page"' if p == page else ""
+    items = "".join(f"<span>{t}</span>" for t in ANNOUNCE)
     return f"""<header class="site-header" data-header>
+  <div class="announce">
+    <p class="sr-only">{" · ".join(ANNOUNCE)}</p>
+    <div class="announce__track" aria-hidden="true">{items}{items}</div>
+  </div>
   <div class="site-header__inner">
+    <button class="icon-btn menu-btn" type="button" data-menu-toggle aria-controls="menu" aria-expanded="false" aria-label="Open menu"><span class="menu-btn__lines" aria-hidden="true"></span></button>
     <a class="brand" href="index.html" aria-label="ADA BEKE, home">ADA BEKE</a>
     <nav class="nav" aria-label="Main">
+      <a href="index.html"{cur("home")}>Home</a>
       <a href="shop.html"{cur("shop")}>Shop</a>
       <a href="about.html"{cur("about")}>About</a>
       <a href="contact.html"{cur("contact")}>Contact</a>
@@ -185,7 +203,6 @@ def header(page):
     <div class="header-actions">
       <a class="icon-btn icon-btn--ig" href="{IG}" target="_blank" rel="noopener" aria-label="ADA BEKE on Instagram">{ICON["ig"]}</a>
       <button class="icon-btn bag-btn" type="button" data-bag-open aria-controls="bag" aria-label="Open bag, 0 items">{ICON["bag"]}<span class="bag-count" data-bag-count>0</span></button>
-      <button class="icon-btn menu-btn" type="button" data-menu-toggle aria-controls="menu" aria-expanded="false" aria-label="Open menu"><span class="menu-btn__lines" aria-hidden="true"></span></button>
     </div>
   </div>
 </header>
@@ -194,7 +211,7 @@ def header(page):
     <ul class="menu__links">
       <li><a href="index.html"{cur("home")}>Home</a></li>
       <li><a href="shop.html"{cur("shop")}>Shop</a></li>
-      <li><a href="about.html"{cur("about")}>Our story</a></li>
+      <li><a href="about.html"{cur("about")}>About</a></li>
       <li><a href="contact.html"{cur("contact")}>Contact</a></li>
     </ul>
   </nav>
@@ -209,46 +226,46 @@ def header(page):
 
 FOOTER = f"""<footer class="site-footer">
   <div class="wrap">
+    <p class="footer__mark" aria-hidden="true">ADA BEKE</p>
     <div class="footer__grid">
-      <div class="footer__col">
-        <h2>Navigation</h2>
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="shop.html">Shop the collection</a></li>
-          <li><a href="about.html">Our story</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </div>
-      <div class="footer__col">
-        <h2>Client care</h2>
-        <ul>
-          <li><a href="contact.html#order">How to order</a></li>
-          <li><a href="contact.html#size">Free size guide</a></li>
-          <li><a href="contact.html#faq">Worldwide delivery</a></li>
-          <li><a href="contact.html#faq">Questions</a></li>
-        </ul>
-      </div>
-      <div class="footer__col footer__order footer__early">
-        <h2 class="big">Be first to the next drop</h2>
-        <form class="wa-form" data-early data-source="footer" novalidate>
-          <label class="sr-only" for="ea-foot">Email or WhatsApp number</label>
-          <input id="ea-foot" name="contact" type="text" placeholder="Email or WhatsApp number" autocomplete="email" required>
-          <button type="submit">Get early access</button>
-        </form>
-        <p class="small" data-early-msg aria-live="polite">New pieces reach the list before anyone else. No spam, ever.</p>
-      </div>
-      <div class="footer__col">
-        <h2>Social</h2>
-        <ul>
+      <div class="footer__col footer__about">
+        <p>Tag <a href="{IG}" target="_blank" rel="noopener">@byadabeke</a> on Instagram for a chance to be featured. Free-size boubous and sets in soft, flowing fabrics, made in Nigeria and delivered worldwide.</p>
+        <ul class="footer__social">
           <li><a href="{IG}" target="_blank" rel="noopener">Instagram</a></li>
           <li><a href="{TH}" target="_blank" rel="noopener">Threads</a></li>
           <li><a href="{WA}" target="_blank" rel="noopener">WhatsApp</a></li>
         </ul>
       </div>
+      <div class="footer__col">
+        <h2>Shop</h2>
+        <ul>
+          <li><a href="shop.html">Shop all</a></li>
+          <li><a href="shop.html?c=sets">Sets</a></li>
+          <li><a href="shop.html?c=boubous">Boubous</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h2>Info</h2>
+        <ul>
+          <li><a href="about.html">About us</a></li>
+          <li><a href="contact.html">Contact us</a></li>
+          <li><a href="contact.html#order">How to order</a></li>
+          <li><a href="contact.html#size">Size guide</a></li>
+          <li><a href="contact.html#faq">Questions</a></li>
+        </ul>
+      </div>
+      <div class="footer__col footer__early">
+        <p class="footer__lead">Be first to the next drop. New pieces reach the list before anyone else.</p>
+        <form class="wa-form wa-form--line" data-early data-source="footer" novalidate>
+          <label class="sr-only" for="ea-foot">Email or WhatsApp number</label>
+          <input id="ea-foot" name="contact" type="text" placeholder="Email or WhatsApp number" autocomplete="email" required>
+          <button type="submit">Get early access</button>
+        </form>
+        <p class="small" data-early-msg aria-live="polite">No spam, ever.</p>
+      </div>
     </div>
     <div class="footer__base">
       <span>&copy; <span class="js-year">2026</span> ADA BEKE. All rights reserved.</span>
-      <span>Chic &bull; relaxed &bull; Elegance</span>
       <span>Made in Nigeria &middot; Delivered worldwide via DHL</span>
     </div>
   </div>
@@ -317,34 +334,78 @@ home = head(
                  "inLanguage": "en", "publisher": {"@id": ORG_ID}}],
 ) + header("home") + f"""
 <main id="main">
-  <section class="hero" aria-labelledby="hero-title">
+  <h1 class="sr-only">ADA BEKE: free-size fashion, made in Nigeria</h1>
+  <section class="hero" aria-label="New collection">
     <div class="hero__slides" data-slides aria-roledescription="carousel" aria-label="New collection">
 {slides_html()}
     </div>
     <div class="hero__dots" role="group" aria-label="Photos">{dots_html()}</div>
-    <div class="wrap hero__intro">
-      <h1 class="hero__title" id="hero-title">Discover your style</h1>
-      <p class="hero__text">Free-size boubous and sets in soft, flowing fabrics. Made in Nigeria.</p>
-      {pill("Shop the collection", "shop.html", "navy")}
-    </div>
   </section>
 
-  <section class="section" aria-labelledby="edit-title">
+  <section class="section home-pieces" aria-labelledby="edit-title">
     <div class="wrap">
-      <div class="sec-head">
-        <h2 class="heading" id="edit-title">Handpicked for you</h2>
-        <a class="text-link" href="shop.html">Shop all</a>
-      </div>
+      <h2 class="sec-title" id="edit-title">Discover your style</h2>
       <div class="cards cards--home" data-products="home">{skel_cards(4, "div", "skel-card")}</div>
+      <p class="more"><a class="u-link" href="shop.html">Shop all</a></p>
     </div>
   </section>
 
-  <section class="section section--tight collections" aria-labelledby="col-title" data-collections-section hidden>
+  <section class="collections" aria-labelledby="col-title" data-collections-section hidden>
+    <h2 class="sr-only" id="col-title">Shop by collection</h2>
+    <div class="col-grid" data-collections></div>
+  </section>
+
+  <section class="section lookbook" aria-label="Lookbook">
     <div class="wrap">
-      <div class="sec-head">
-        <h2 class="heading" id="col-title">Shop by collection</h2>
+      <picture>
+        <source media="(min-width: 700px)" srcset="assets/img/shoot/duo-doors-wide-1600.webp 1600w, assets/img/shoot/duo-doors-wide.webp 2400w" sizes="min(100vw, 1440px)">
+        <img src="assets/img/shoot/duo-doors.webp" srcset="{shoot_set("shoot/duo-doors")}" sizes="100vw" alt="Two models at arched black doors, in the circle-print and checked boubous" loading="lazy" decoding="async" width="1600" height="2000">
+      </picture>
+      <p class="more"><a class="u-link" href="shop.html">View all pieces</a></p>
+    </div>
+  </section>
+
+  <section class="section story-sec" aria-labelledby="story-title">
+    <div class="wrap">
+      <div class="story-card" data-reveal>
+        <div class="story-card__media" data-video>
+          <video src="assets/video/campaign.mp4" poster="assets/img/campaign-poster.webp" muted loop playsinline preload="none" aria-label="Film: models in the new ADA BEKE pieces"></video>
+          {toggle()}
+        </div>
+        <div class="story-card__body">
+        <div class="story-card__text">
+          <h2 class="story-card__title" id="story-title">Chic, relaxed, elegance.</h2>
+          <p>ADA BEKE is a feel good fashion brand built on free size culture. Generous shapes, soft fabrics and pieces that flatter without fuss, made in Nigeria.</p>
+          {pill("About ADA BEKE", "about.html", "light")}
+        </div>
+        <ul class="story-card__list" aria-label="What we stand for">
+          <li>Free size.</li>
+          <li>Made in Nigeria.</li>
+          <li>Delivered worldwide.</li>
+        </ul>
+        </div>
       </div>
-      <div class="col-grid" data-collections></div>
+    </div>
+  </section>
+
+  <section class="section social-sec" aria-labelledby="social-title">
+    <div class="wrap social">
+      <div class="social__text">
+        <h2 class="social__title" id="social-title">Feel good, look good, in ADA BEKE.</h2>
+        <p>Follow us for new drops, styling ideas and the stories behind every piece.</p>
+        <div class="social__links">
+          {pill("@byadabeke on Instagram", IG, "", "ig", ' target="_blank" rel="noopener"')}
+          {pill("Threads", TH, "", "threads", ' target="_blank" rel="noopener"')}
+          {pill("Chat on WhatsApp", WA, "", "wa", ' target="_blank" rel="noopener"')}
+        </div>
+        <p class="small">Tag @byadabeke on Instagram for a chance to be featured.</p>
+      </div>
+      <div class="collage" aria-hidden="true">
+        <img src="assets/img/shoot/circles-lean-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+        <img src="assets/img/shoot/check-doors-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+        <img src="assets/img/shoot/gold-pleats-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+        <img src="assets/img/shoot/abira-pose-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+      </div>
     </div>
   </section>
 </main>
@@ -363,17 +424,7 @@ shop = head(
            crumbs_ld("Shop", "/shop.html")],
 ) + header("shop") + f"""
 <main id="main">
-  <section class="page-hero" aria-labelledby="shop-title">
-    <div class="page-hero__inner">
-      <p class="crumbs label" data-reveal data-reveal-load><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Shop</span></p>
-      <h1 class="display page-hero__title" id="shop-title">The collection</h1>
-      <div class="page-hero__aside" data-reveal data-reveal-load style="--d:650ms">
-        <p class="label">New chapter &middot; 2026</p>
-        <p class="hero__desc">Every piece is free size and ready to wear. Add pieces to your bag and check out in a few taps. We deliver worldwide.</p>
-      </div>
-    </div>
-  </section>
-
+{band("Shop all", "shop-title")}
   <div class="filters">
     <div class="wrap filters__inner">
       <div class="chips" role="group" aria-label="Show pieces">
@@ -398,7 +449,7 @@ shop = head(
         <div style="display:grid;gap:16px;position:relative">
           <h3 id="help-title">Not sure which piece is you? We&rsquo;ll help you choose.</h3>
           <p>Tell us your height, your usual size and where you&rsquo;re wearing it. We&rsquo;ll reply on WhatsApp.</p>
-          <div>{pill("Ask on WhatsApp", WA + "?text=Hello%20ADA%20BEKE!%20Please%20help%20me%20choose%20a%20piece.", "navy", "wa", ' target="_blank" rel="noopener"')}</div>
+          <div>{pill("Ask on WhatsApp", WA + "?text=Hello%20ADA%20BEKE!%20Please%20help%20me%20choose%20a%20piece.", "dark", "wa", ' target="_blank" rel="noopener"')}</div>
         </div>
       </div>
     </div>
@@ -419,53 +470,47 @@ about = head(
            crumbs_ld("Our story", "/about.html")],
 ) + header("about") + f"""
 <main id="main">
-  <section class="page-hero page-hero--media" aria-labelledby="about-title">
-    <div class="page-hero__inner">
-      <h1 class="display page-hero__title" id="about-title">Our story</h1>
-      <div class="page-hero__media" data-video data-reveal data-reveal-load style="--d:150ms">
-        <video src="assets/video/campaign.mp4" poster="assets/img/campaign-poster.webp" autoplay muted loop playsinline preload="auto" aria-label="Film: models in the new ADA BEKE pieces"></video>
-        {toggle()}
-      </div>
-      <div class="page-hero__aside" data-reveal data-reveal-load style="--d:800ms">
-        <p class="hero__desc">Chic, relaxed, elegance. Fashion pieces focused on free size culture: a feel good fashion brand, made in Nigeria.</p>
-      </div>
+  <section class="photo-hero" aria-labelledby="about-title">
+    <picture>
+      <source media="(min-width: 700px)" srcset="assets/img/shoot/circles-back-wide-1600.webp 1600w, assets/img/shoot/circles-back-wide.webp 2400w" sizes="100vw">
+      <img src="assets/img/shoot/circles-back.webp" srcset="{shoot_set("shoot/circles-back")}" sizes="100vw" alt="Model seen from behind in a white boubou with large orange circle prints, against an orange wall with hanging plants" width="1600" height="2000" fetchpriority="high">
+    </picture>
+    <div class="photo-hero__text">
+      <h1 class="photo-hero__title" id="about-title">About <span>ADA BEKE</span></h1>
+      <p class="photo-hero__sub">Chic &middot; Relaxed &middot; Elegance</p>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="who-label">
-    <div class="wrap grid-3">
-      <p class="label" id="who-label">Who we are</p>
-      <p class="lede">ADA BEKE is a feel good fashion brand, built on free size culture. Getting dressed should feel easy: generous shapes, soft fabrics and pieces that flatter without fuss.</p>
-      <div class="who__img">
-        <div class="frame" data-reveal><img src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set in royal navy" loading="lazy"></div>
-      </div>
+  <section class="split split--cream" aria-labelledby="who-title">
+    <div class="split__media">{shoot_img("check-vine", "Model in a navy, red and orange checked boubou among hanging plants", "(min-width: 900px) 50vw, 100vw")}</div>
+    <div class="split__text" data-reveal>
+      <p class="kicker">Our story</p>
+      <h2 class="split__title" id="who-title">The story</h2>
+      <p>ADA BEKE is a feel good fashion brand, built on free size culture. Getting dressed should feel easy: generous shapes, soft fabrics and pieces that flatter without fuss.</p>
+      <p>Chic, relaxed, elegance. Fashion pieces focused on free size culture, made in Nigeria and delivered worldwide.</p>
     </div>
   </section>
 
-  <section class="section section--mist" id="letter" aria-labelledby="letter-title">
-    <div class="wrap letter">
-      <div class="letter__side">
-        <p class="label">We&rsquo;re back</p>
+  <section class="quote-band" aria-label="A word from Ada Beke">
+    <blockquote>&ldquo;Through it all, God has been faithful.&rdquo;</blockquote>
+    <p class="kicker">Ada Beke</p>
+  </section>
+
+  <section class="split split--flip" id="letter" aria-labelledby="letter-title">
+    <div class="split__media">{shoot_img("wifey-standing", "Model in the sheer black Wifey boubou, hand raised", "(min-width: 900px) 50vw, 100vw")}</div>
+    <div class="split__text" data-reveal>
+      <p class="kicker">We&rsquo;re back</p>
+      <h2 class="split__title" id="letter-title">Ready for a new chapter</h2>
+      <div class="letter__cols">
+        <p>After a little over a year away, we&rsquo;re finally ready to return to what we love most &mdash; bringing fashion, style, and elegance to you.</p>
+        <p>Shortly after taking the exciting step of rebranding, life took an unexpected turn. The space we were operating out of was sold and we had to evacuate the premises; then the daunting task of looking for a new production space began.</p>
+        <p>What was meant to be a fresh start became an unforeseen pause &mdash; one that gave us time to reflect, regroup, and prepare for everything ahead.</p>
+        <p>It hasn&rsquo;t been the easiest journey, but through it all, <strong>God has been faithful and his mercy has been evident every step of the way.</strong></p>
+        <p>To everyone who continued to support us, check in on us, and patiently await our return, <strong>thank you for standing by us, even in our silence.</strong> Your love and loyalty mean more than words can express.</p>
+        <p>We&rsquo;re back with renewed passion, fresh ideas, and an even stronger commitment to serving you better than ever.</p>
+        <p>This is more than a comeback; it&rsquo;s the beginning of a beautiful new chapter, and we can&rsquo;t wait to share it with you.</p>
       </div>
-      <div>
-        <h2 class="heading" id="letter-title" style="margin-bottom:clamp(32px,4vw,56px)">Ready for a new chapter</h2>
-        <div class="letter__cols">
-          <p>After a little over a year away, we&rsquo;re finally ready to return to what we love most &mdash; bringing fashion, style, and elegance to you.</p>
-          <p>Shortly after taking the exciting step of rebranding, life took an unexpected turn. The space we were operating out of was sold and we had to evacuate the premises; then the daunting task of looking for a new production space began.</p>
-          <p>What was meant to be a fresh start became an unforeseen pause &mdash; one that gave us time to reflect, regroup, and prepare for everything ahead.</p>
-          <p>It hasn&rsquo;t been the easiest journey, but through it all, <strong>God has been faithful and his mercy has been evident every step of the way.</strong></p>
-          <p>To everyone who continued to support us, check in on us, and patiently await our return, <strong>thank you for standing by us, even in our silence.</strong> Your love and loyalty mean more than words can express.</p>
-          <p>We&rsquo;re back with renewed passion, fresh ideas, and an even stronger commitment to serving you better than ever.</p>
-          <p>This is more than a comeback; it&rsquo;s the beginning of a beautiful new chapter, and we can&rsquo;t wait to share it with you.</p>
-        </div>
-      </div>
-      <div class="letter__side">
-        <blockquote class="pullquote">&ldquo;Through it all, God has been faithful.&rdquo;</blockquote>
-        <div class="signoff">
-          <span class="sig">Ada Beke</span>
-          <span class="label">Chic &bull; relaxed &bull; Elegance</span>
-        </div>
-      </div>
+      <p class="signoff"><span class="sig">Ada Beke</span><span class="label">Chic &bull; relaxed &bull; Elegance</span></p>
     </div>
   </section>
 
@@ -502,18 +547,10 @@ about = head(
     </div></div>
   </section>
 
-  <section class="section" aria-labelledby="about-cta">
-    <div class="wrap">
-      <div class="banner" data-reveal>
-        <div class="banner__text">
-          <h2 class="heading" id="about-cta">Find your feel good piece</h2>
-          <div>
-            <p class="small">Start with our all-time bestseller, the Omalicha set, or the new Wifey boubou.</p>
-            <div style="margin-top:22px">{pill("Shop the collection", "shop.html", "light")}</div>
-          </div>
-        </div>
-        <div class="banner__media"><img src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set with its scarf" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div>
-      </div>
+  <section class="section about-cta" aria-labelledby="about-cta">
+    <div class="wrap about-cta__inner">
+      <h2 class="sec-title" id="about-cta">Find your feel good piece</h2>
+      {pill("Shop the collection", "shop.html", "dark")}
     </div>
   </section>
 </main>
@@ -560,15 +597,10 @@ contact = head(
                             "acceptedAnswer": {"@type": "Answer", "text": plain}} for q, _, plain in FAQ]}],
 ) + header("contact") + f"""
 <main id="main">
-  <section class="page-hero" aria-labelledby="contact-title">
-    <div class="page-hero__inner">
-      <p class="crumbs label" data-reveal data-reveal-load><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Contact</span></p>
-      <h1 class="display page-hero__title" id="contact-title">Contact us</h1>
-      <div class="page-hero__aside" data-reveal data-reveal-load style="--d:700ms">
-        <p class="label">We reply on WhatsApp</p>
-        <p class="hero__desc">Orders, questions about fit, or help choosing a piece: send us a message and we&rsquo;ll take it from there.</p>
-        <div>{pill("Message us on WhatsApp", WA, "light", "wa", ' target="_blank" rel="noopener"')}</div>
-      </div>
+{band("Contact us", "contact-title")}  <section class="intro">
+    <div class="wrap intro__inner">
+      <p class="hero__desc">Orders, questions about fit, or help choosing a piece: send us a message on WhatsApp and we&rsquo;ll take it from there.</p>
+      {pill("Message us on WhatsApp", WA, "", "wa", ' target="_blank" rel="noopener"')}
     </div>
   </section>
 
@@ -611,7 +643,7 @@ contact = head(
             <label for="c-msg">Message</label>
             <textarea id="c-msg" name="message" rows="4" placeholder="Your height and usual size help us advise on fit."></textarea>
           </div>
-          <div><button class="pill pill--navy" type="submit"><span class="pill__text">Send on WhatsApp</span><span class="pill__icon">{ICON["wa"]}</span></button></div>
+          <div><button class="pill pill--dark" type="submit"><span class="pill__text">Send on WhatsApp</span><span class="pill__icon">{ICON["wa"]}</span></button></div>
           <p class="small">Opens WhatsApp with your message ready to send. Nothing is sent until you press send there.</p>
         </form>
       </div>
@@ -681,13 +713,10 @@ notfound = head(
     "notfound", "/404.html", "og-home.jpg", "ADA BEKE", robots="noindex, follow",
 ) + header("") + f"""
 <main id="main">
-  <section class="page-hero page-hero--404" aria-labelledby="nf-title">
-    <div class="page-hero__inner">
-      <h1 class="display page-hero__title" id="nf-title">Page not found</h1>
-      <div class="page-hero__aside" data-reveal data-reveal-load style="--d:600ms">
-        <p class="hero__desc">This page isn&rsquo;t here, but your feel good piece is.</p>
-        <div class="nf-actions">{pill("Shop the collection", "shop.html", "light")}{pill("Back home", "index.html", "ghost")}</div>
-      </div>
+{band("Page not found", "nf-title")}  <section class="intro intro--tall">
+    <div class="wrap intro__inner">
+      <p class="hero__desc">This page isn&rsquo;t here, but your feel good piece is.</p>
+      <div class="nf-actions">{pill("Shop the collection", "shop.html", "dark")}{pill("Back home", "index.html")}</div>
     </div>
   </section>
 </main>
@@ -702,14 +731,11 @@ order = head(
     "order", "/order.html", "og-home.jpg", "ADA BEKE", robots="noindex, nofollow",
 ) + header("") + f"""
 <main id="main">
-  <section class="page-hero page-hero--order" aria-labelledby="order-title">
-    <div class="page-hero__inner">
-      <p class="crumbs label" data-reveal data-reveal-load><span data-order-ref>Your order</span></p>
-      <h1 class="display page-hero__title" id="order-title" data-order-title>One moment</h1>
-      <div class="page-hero__aside" data-reveal data-reveal-load style="--d:600ms">
-        <p class="hero__desc" data-order-desc aria-live="polite">Checking your order&hellip;</p>
-        <div class="nf-actions" data-order-actions></div>
-      </div>
+{band("One moment", "order-title", " data-order-title")}  <section class="intro">
+    <div class="wrap intro__inner">
+      <p class="label" data-order-ref>Your order</p>
+      <p class="hero__desc" data-order-desc aria-live="polite">Checking your order&hellip;</p>
+      <div class="nf-actions" data-order-actions></div>
     </div>
   </section>
   <section class="section order-section">
