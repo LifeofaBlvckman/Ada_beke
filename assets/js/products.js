@@ -90,7 +90,7 @@ root.ADA_PRODUCTS = [
 
 // Collections group pieces on the home page and in the shop filters.
 root.ADA_COLLECTIONS = [
-  { id: "sets", name: "Sets", tagline: "Boubou and trouser sets, ready to wear", image: "assets/img/shoot/abira-duo.webp" },
+  { id: "sets", name: "Sets", tagline: "Boubou and trouser sets, ready to wear", image: "assets/img/shoot/abira-set.webp" },
   { id: "boubous", name: "Boubous", tagline: "Wide, flowing and free size", image: "assets/img/shoot/wifey-gaze.webp" },
 ];
 

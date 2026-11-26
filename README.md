@@ -4,7 +4,7 @@
 
 | Page | File | What's on it |
 | --- | --- | --- |
-| Home | `index.html` | Laid out section by section after moyeafrica.com: the three shoot photos changing one at a time (a wide banner on laptops), a sideways row of pieces with arrows, the two collections with their names on the photos, a big photo, a row of looks with names on them, a photo banner with a button, the campaign film filling a dark card with words on it, links to Instagram, Threads and WhatsApp beside slowly floating photos, and a gallery of shoot photos |
+| Home | `index.html` | Laid out section by section after moyeafrica.com: the three shoot photos changing one at a time (a wide banner on laptops), a sideways row of pieces with arrows, the two collections with their names on the photos, a big photo, a row of looks with names on them, a photo banner with a button, the campaign film filling a dark card with words on it, and links to Instagram, Threads and WhatsApp beside slowly floating photos. Each photo appears only once per page |
 | Shop | `shop.html` | All pieces with filters, a product details panel, and the bag |
 | About | `about.html` | A big photo with "About ADA BEKE" (as Moye's About page), a photo beside the cream "Our story" panel, a quote from Ada, the full "We're back" letter beside a photo, Chic / relaxed / Elegance |
 | Contact | `contact.html` | How to order, a WhatsApp contact form, the free-size guide and questions |
@@ -138,7 +138,7 @@ These are ready but not in the shop yet, because the pieces need a name and pric
 
 ## Design
 
-- **Colours:** ADA BEKE aqua `#58DADC` (from her bags and end card) for the announcement bar, the page title bands and small accents; near-black `#141414` for text and buttons; white pages. The rust of the boubou print `#C9602F` is kept for placeholders.
+- **Colours:** ADA BEKE aqua `#58DADC` (from her bags and end card) for the announcement bar, the page title bands, the footer and small accents; near-black `#141414` for text and buttons; white pages. The rust of the boubou print `#C9602F` is kept for placeholders.
 - **Look:** laid out after moyeafrica.com, as Ada asked: a moving announcement bar, the ADA BEKE logo centred with a small uppercase menu under it, a coloured band with each page's title, photos with their real backgrounds and no words on the clothes, small uppercase product names, outlined round-ended buttons, and a footer with the ADA BEKE name spelled out wide. ADA BEKE's own logo, photos, words and colours are used throughout; nothing is taken from Moye.
 - **Type:** one font, Montserrat (the same family Moye uses), for everything; no italics. Menus, product names and buttons are small capitals with wide spacing. The ADA BEKE logo keeps its own lettering (Cinzel).
 - **Motion:** kept to a minimum. Things fade up gently as they come into view, and on phones the home photos change every 5 seconds. All motion switches off for visitors who have "reduce motion" turned on.

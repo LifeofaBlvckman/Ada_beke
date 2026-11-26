@@ -285,9 +285,9 @@ SCRIPTS = f"""<script src="assets/js/products.js?v={V_PRODUCTS}"></script>
 # (they change on their own, swipe or tap a dot); laptops show all three side by side.
 # The words sit under the photos, never on the clothes.
 HERO_PHOTOS = [
-    ("circles-side", "Model in a white boubou with large orange circle prints"),
-    ("abira-front", "Model in the rust and cobalt Abira hoodie set, hood up"),
-    ("wifey-gaze", "Model in the sheer black Wifey boubou"),
+    ("circles-open", "Model with arms outstretched in a white boubou with large orange circle prints"),
+    ("abira-duo", "Two models in the rust and cobalt Abira hoodie set"),
+    ("check-doors", "Model in a navy, red and orange checked boubou at arched black doors"),
 ]
 HERO_SIZES = "(min-width: 900px) 34vw, 100vw"
 
@@ -318,8 +318,8 @@ def slides_html():
 LOOKS = [
     ("abira", "Abira hoodie set", "assets/img/shoot/abira-pose-800.webp"),
     ("wifey", "Wifey boubou", "assets/img/shoot/wifey-standing-800.webp"),
-    ("omalicha", "Omalicha set", "assets/img/omalicha-mannequin.webp"),
-    ("something-soft", "Something soft", "assets/img/bags-bag.webp"),
+    ("omalicha", "Omalicha set", "assets/img/omalicha-runway.webp"),
+    ("something-soft", "Something soft", "assets/img/bags-glass.webp"),
 ]
 
 
@@ -440,28 +440,15 @@ home = head(
       <div class="collage-wrap" aria-hidden="true">
         <div class="collage">
           <img class="img1" src="assets/img/shoot/circles-lean-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
-          <img class="img2" src="assets/img/shoot/check-doors-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
-          <img class="img3" src="assets/img/shoot/gold-pleats-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
-          <img class="img4" src="assets/img/shoot/abira-turn-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
-          <img class="img5" src="assets/img/shoot/circles-open-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img2" src="assets/img/shoot/gold-pleats-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img3" src="assets/img/shoot/abira-turn-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img4" src="assets/img/shoot/circles-side-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
+          <img class="img5" src="assets/img/shoot/circles-back-800.webp" alt="" loading="lazy" decoding="async" width="800" height="1000">
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section gallery-sec" aria-labelledby="gallery-title">
-    <div class="wrap">
-      <p class="gallery-head"><span class="gallery-head__mark" aria-hidden="true">ADA BEKE</span> <span id="gallery-title">&hellip;from the shoot to your wardrobe</span></p>
-      <div class="gallery">
-        <img class="g-tall" src="assets/img/shoot/circles-back-800.webp" alt="Model from behind in the circle-print boubou" loading="lazy" decoding="async" width="800" height="1000">
-        <img class="g-wide" src="assets/img/shoot/abira-set-800.webp" alt="Model in the Abira hoodie set" loading="lazy" decoding="async" width="800" height="1000">
-        <img class="g-wide" src="assets/img/shoot/wifey-seated-800.webp" alt="Model reclining in the Wifey boubou" loading="lazy" decoding="async" width="800" height="1000">
-        <img class="g-tall" src="assets/img/shoot/abira-back-800.webp" alt="The Abira hoodie set from behind" loading="lazy" decoding="async" width="800" height="1000">
-        <img class="g-square" src="assets/img/shoot/check-vine-800.webp" alt="Model in the checked boubou among hanging plants" loading="lazy" decoding="async" width="800" height="1000">
-        <img class="g-tall" src="assets/img/shoot/circles-side-800.webp" alt="Model in the circle-print boubou, hand in pocket" loading="lazy" decoding="async" width="800" height="1000">
-      </div>
-    </div>
-  </section>
 </main>
 """ + FOOTER + SCRIPTS
 
@@ -551,7 +538,7 @@ about = head(
   </section>
 
   <section class="split split--flip" id="letter" aria-labelledby="letter-title">
-    <div class="split__media">{shoot_img("wifey-standing", "Model in the sheer black Wifey boubou, hand raised", "(min-width: 900px) 50vw, 100vw")}</div>
+    <div class="split__media">{shoot_img("abira-back", "The Abira hoodie set from behind, hood up", "(min-width: 900px) 50vw, 100vw")}</div>
     <div class="split__text" data-reveal>
       <p class="kicker">We&rsquo;re back</p>
       <h2 class="split__title" id="letter-title">Ready for a new chapter</h2>
