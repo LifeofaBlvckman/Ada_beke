@@ -611,14 +611,6 @@ ul, ol { padding: 0; list-style: none; }
 .rail__arrow--prev { left: 10px; }
 .rail__arrow--next { right: 10px; }
 @media (max-width: 899px) { .rail__arrow { width: 30px; height: 30px; margin-top: calc((100vw - 6px) / 2 * 0.75 - 15px); } .rail__arrow svg { width: 13px; height: 13px; } }
-.more--stack { margin-bottom: 0; }
-
-/* looks: photos with the piece's name on them, as Moye's "Odey Pants" */
-.look { position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden; background: var(--mist); color: var(--white); }
-.look img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
-.look:hover img { transform: scale(1.03); }
-.look::after { content: ""; position: absolute; inset: 55% 0 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5)); }
-.look__name { position: absolute; z-index: 1; left: 0; right: 0; bottom: 14px; font-size: clamp(14px, 1.4vw, 20px); text-align: center; }
 
 /* big photo: full width on phones, a wide inset on laptops */
 .feature img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }

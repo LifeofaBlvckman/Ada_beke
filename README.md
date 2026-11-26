@@ -4,7 +4,7 @@
 
 | Page | File | What's on it |
 | --- | --- | --- |
-| Home | `index.html` | Laid out section by section after moyeafrica.com: the three shoot photos changing one at a time (a wide banner on laptops), a sideways row of pieces with arrows, the two collections with their names on the photos, a big photo, a row of looks with names on them, a photo banner with a button, the campaign film filling a dark card with words on it, and links to Instagram, Threads and WhatsApp beside slowly floating photos. Each photo appears only once per page |
+| Home | `index.html` | Laid out section by section after moyeafrica.com: the three shoot photos changing one at a time (a wide banner on laptops), a sideways row of pieces with arrows, the two collections with their names on the photos, a big photo, a photo banner with a button, the campaign film filling a dark card with words on it, and links to Instagram, Threads and WhatsApp beside slowly floating photos. Each photo appears only once per page |
 | Shop | `shop.html` | All pieces with filters, a product details panel, and the bag |
 | About | `about.html` | A big photo with "About ADA BEKE" (as Moye's About page), a photo beside the cream "Our story" panel, a quote from Ada, the full "We're back" letter beside a photo, Chic / relaxed / Elegance |
 | Contact | `contact.html` | How to order, a WhatsApp contact form, the free-size guide and questions |
@@ -45,6 +45,8 @@ The database is **Supabase** (Postgres). Either way below works:
 
 - **Easiest, from Vercel:** open the `adabeke` project → **Storage** → **Create Database** → **Supabase**, free plan, region **East US (North Virginia)** so it sits next to the site's functions, and connect it to the project. This adds `POSTGRES_URL` for you.
 - **With a Supabase project you already have:** in Supabase press **Connect**, copy the **Transaction pooler** connection string (port `6543`) and put your database password in it. In Vercel → **Settings → Environment Variables**, add it as `DATABASE_URL`.
+
+To create the tables yourself instead of letting the site do it on its first visit, paste [`supabase/schema.sql`](supabase/schema.sql) into Supabase → **SQL Editor** → **New query** and press **Run**. It makes every table (with row level security on), adds the starting pieces and collections, and is safe to run twice. If the table definitions in `lib/db.js` or the starting pieces change, remake it with `node tools/make_schema_sql.js`.
 
 Then:
 

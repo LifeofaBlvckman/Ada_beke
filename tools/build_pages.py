@@ -315,21 +315,6 @@ def slides_html():
     return "\n".join(figs)
 
 
-LOOKS = [
-    ("abira", "Abira hoodie set", "assets/img/shoot/abira-pose-800.webp"),
-    ("wifey", "Wifey boubou", "assets/img/shoot/wifey-standing-800.webp"),
-    ("omalicha", "Omalicha set", "assets/img/omalicha-runway.webp"),
-    ("something-soft", "Something soft", "assets/img/bags-glass.webp"),
-]
-
-
-def looks_html():
-    return "\n".join(
-        f'          <a class="look rail__item" href="shop.html?p={pid}" data-product="{pid}">'
-        f'<img src="{src}" alt="" loading="lazy" decoding="async"><span class="look__name">{name}</span></a>'
-        for pid, name, src in LOOKS)
-
-
 def dots_html():
     return "".join(
         f'<button type="button" data-dot aria-label="Show photo {k + 1}" aria-current="{str(k == 0).lower()}"></button>'
@@ -379,20 +364,6 @@ home = head(
       <source media="(min-width: 700px)" srcset="assets/img/shoot/duo-doors-wide-1600.webp 1600w, assets/img/shoot/duo-doors-wide.webp 2400w" sizes="min(100vw, 1210px)">
       <img src="assets/img/shoot/duo-doors.webp" srcset="{shoot_set("shoot/duo-doors")}" sizes="100vw" alt="Two models at arched black doors, in the circle-print and checked boubous" loading="lazy" decoding="async" width="1600" height="2000">
     </picture>
-  </section>
-
-  <section class="rail-sec" aria-labelledby="looks-title">
-    <h2 class="sr-only" id="looks-title">Shop the looks</h2>
-    <div class="rail-wrap">
-      <div class="rail" data-rail tabindex="0" aria-label="Looks. Swipe or use the arrows to see more.">
-        <div class="rail__track">
-{looks_html()}
-        </div>
-      </div>
-      <button class="rail__arrow rail__arrow--prev" type="button" data-rail-prev aria-label="Previous">{ICON["left"]}</button>
-      <button class="rail__arrow rail__arrow--next" type="button" data-rail-next aria-label="Next">{ICON["arrow"]}</button>
-    </div>
-    <p class="more more--stack"><a class="u-link" href="shop.html">View all products</a></p>
   </section>
 
   <section class="section banner-sec" aria-labelledby="banner-title">
