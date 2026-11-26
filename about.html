@@ -34,12 +34,11 @@
 <script src="/api/catalogue" async onerror="window.ADA_SHOP={};document.dispatchEvent(new Event('ada:catalogue'))"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..500&family=Cinzel:wght@400;500&family=Jost:wght@300..600&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=bc97e31409">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Jost:wght@300..600&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=0ce51df512">
 </head>
 <body class="page-about">
 <a class="skip" href="#main">Skip to content</a>
-<div class="curtain" aria-hidden="true"><span class="curtain__mark"><span style="--ci:0">A</span><span style="--ci:1">D</span><span style="--ci:2">A</span><span style="--ci:3">&nbsp;</span><span style="--ci:4">B</span><span style="--ci:5">E</span><span style="--ci:6">K</span><span style="--ci:7">E</span></span></div>
 <header class="site-header" data-header>
   <div class="site-header__inner">
     <a class="brand" href="index.html" aria-label="ADA BEKE, home">ADA BEKE</a>
@@ -59,8 +58,8 @@
   <nav aria-label="Menu">
     <ul class="menu__links">
       <li><a href="index.html">Home</a></li>
-      <li><a href="shop.html">Shop <em>the collection</em></a></li>
-      <li><a href="about.html" aria-current="page">Our <em>story</em></a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html" aria-current="page">Our story</a></li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
   </nav>
@@ -73,31 +72,24 @@
 
 <main id="main">
   <section class="page-hero page-hero--media" aria-labelledby="about-title">
-    <div class="hero__lines" aria-hidden="true"><span></span><span></span><span></span></div>
     <div class="page-hero__inner">
-      <h1 class="display page-hero__title" id="about-title" data-split="load">Chic,<br><em>relaxed,</em><br>Elegance.</h1>
-      <div class="page-hero__media" data-video data-reveal="clip" data-reveal-load style="--d:150ms">
+      <h1 class="display page-hero__title" id="about-title">Our story</h1>
+      <div class="page-hero__media" data-video data-reveal data-reveal-load style="--d:150ms">
         <video src="assets/video/campaign.mp4" poster="assets/img/campaign-poster.webp" autoplay muted loop playsinline preload="auto" aria-label="Film: models in the new ADA BEKE pieces"></video>
         <button class="media-toggle" type="button" aria-label="Pause video"><svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg></button>
       </div>
       <div class="page-hero__aside" data-reveal data-reveal-load style="--d:800ms">
-        <p class="label">Our story</p>
-        <p class="hero__desc">Fashion pieces focused on free size culture. A feel good fashion brand, made in Nigeria.</p>
+        <p class="hero__desc">Chic, relaxed, elegance. Fashion pieces focused on free size culture: a feel good fashion brand, made in Nigeria.</p>
       </div>
     </div>
-    <figure class="polaroid" data-reveal="drop" data-reveal-load style="--d:1200ms">
-      <img src="assets/img/bags-heels.webp" alt="ADA BEKE shopping bag beside red strappy heels" width="720" height="1280">
-      <figcaption>Wrapped in aqua</figcaption>
-    </figure>
-    <div class="megamark" aria-hidden="true"><svg viewBox="0 0 1000 150" preserveAspectRatio="xMidYMax meet" focusable="false"><text x="500" y="139" text-anchor="middle" font-size="178" textLength="992" lengthAdjust="spacingAndGlyphs"><tspan style="transition-delay:0ms">A</tspan><tspan style="transition-delay:90ms">D</tspan><tspan style="transition-delay:180ms">A</tspan> <tspan style="transition-delay:330ms">B</tspan><tspan style="transition-delay:420ms">E</tspan><tspan style="transition-delay:510ms">K</tspan><tspan style="transition-delay:600ms">E</tspan></text></svg></div>
   </section>
 
   <section class="section" aria-labelledby="who-label">
     <div class="wrap grid-3">
-      <p class="label" id="who-label" data-pop="chars">Who we are</p>
-      <p class="lede" data-scrub style="max-width:22ch"><span class="mark">ADA BEKE</span> is a feel good fashion brand, built on free size culture. Getting dressed should feel easy: generous shapes, soft fabrics and pieces that flatter without fuss.</p>
+      <p class="label" id="who-label">Who we are</p>
+      <p class="lede">ADA BEKE is a feel good fashion brand, built on free size culture. Getting dressed should feel easy: generous shapes, soft fabrics and pieces that flatter without fuss.</p>
       <div class="who__img">
-        <div class="frame" data-reveal="wipe"><img data-parallax="0.05" src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set in royal navy" loading="lazy"></div>
+        <div class="frame" data-reveal><img src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set in royal navy" loading="lazy"></div>
       </div>
     </div>
   </section>
@@ -105,11 +97,11 @@
   <section class="section section--mist" id="letter" aria-labelledby="letter-title">
     <div class="wrap letter">
       <div class="letter__side">
-        <p class="label" data-pop="chars">We&rsquo;re back</p>
+        <p class="label">We&rsquo;re back</p>
       </div>
       <div>
-        <h2 class="heading" id="letter-title" data-split style="margin-bottom:clamp(32px,4vw,56px)">Ready for a<br><em>new chapter.</em></h2>
-        <div class="letter__cols" data-pop="items">
+        <h2 class="heading" id="letter-title" style="margin-bottom:clamp(32px,4vw,56px)">Ready for a new chapter</h2>
+        <div class="letter__cols">
           <p>After a little over a year away, we&rsquo;re finally ready to return to what we love most &mdash; bringing fashion, style, and elegance to you.</p>
           <p>Shortly after taking the exciting step of rebranding, life took an unexpected turn. The space we were operating out of was sold and we had to evacuate the premises; then the daunting task of looking for a new production space began.</p>
           <p>What was meant to be a fresh start became an unforeseen pause &mdash; one that gave us time to reflect, regroup, and prepare for everything ahead.</p>
@@ -120,8 +112,8 @@
         </div>
       </div>
       <div class="letter__side">
-        <blockquote class="pullquote" data-pop="words">&ldquo;Through it all, God has been faithful.&rdquo;</blockquote>
-        <div class="signoff" data-pop="items">
+        <blockquote class="pullquote">&ldquo;Through it all, God has been faithful.&rdquo;</blockquote>
+        <div class="signoff">
           <span class="sig">Ada Beke</span>
           <span class="label">Chic &bull; relaxed &bull; Elegance</span>
         </div>
@@ -132,23 +124,22 @@
   <section class="section" id="values" aria-labelledby="values-title">
     <div class="wrap">
       <div class="edit__head">
-        <p class="label" data-pop="chars">What we stand for</p>
-        <h2 class="heading" id="values-title" data-split>Three words,<br><em>one feeling.</em></h2>
+        <h2 class="heading" id="values-title">Chic, relaxed, elegance</h2>
       </div>
-      <div class="values" data-pop="items">
+      <div class="values">
         <article class="value">
-          <h3 class="value__word">CHIC</h3>
-          <div class="value__img"><img data-parallax="0.05" src="assets/img/shoot/gold-pleats.webp" srcset="assets/img/shoot/gold-pleats-800.webp 800w, assets/img/shoot/gold-pleats.webp 1600w" sizes="(min-width: 900px) 30vw, 100vw" alt="Model in a sheer black shirt and gold pleated wide-leg trousers" loading="lazy" decoding="async" width="1600" height="2000"></div>
+          <h3 class="value__word">Chic</h3>
+          <div class="value__img"><img src="assets/img/shoot/gold-pleats.webp" srcset="assets/img/shoot/gold-pleats-800.webp 800w, assets/img/shoot/gold-pleats.webp 1600w" sizes="(min-width: 900px) 30vw, 100vw" alt="Model in a sheer black shirt and gold pleated wide-leg trousers" loading="lazy" decoding="async" width="1600" height="2000"></div>
           <p>Clean lines, rich colour and fabric that catches the light. Pieces that look considered without trying too hard.</p>
         </article>
         <article class="value">
-          <h3 class="value__word is-relaxed">relaxed</h3>
-          <div class="value__img frame"><img data-parallax="0.05" src="assets/img/shoot/circles-side.webp" srcset="assets/img/shoot/circles-side-800.webp 800w, assets/img/shoot/circles-side.webp 1600w" sizes="(min-width: 900px) 30vw, 100vw" alt="Model in a white boubou with orange circle prints, hand in pocket" loading="lazy" decoding="async" width="1600" height="2000"></div>
+          <h3 class="value__word">Relaxed</h3>
+          <div class="value__img frame"><img src="assets/img/shoot/circles-side.webp" srcset="assets/img/shoot/circles-side-800.webp 800w, assets/img/shoot/circles-side.webp 1600w" sizes="(min-width: 900px) 30vw, 100vw" alt="Model in a white boubou with orange circle prints, hand in pocket" loading="lazy" decoding="async" width="1600" height="2000"></div>
           <p>Wide, easy shapes you can sit, move and breathe in. Free size means no squeezing into a number.</p>
         </article>
         <article class="value">
-          <h3 class="value__word">ELEGANCE</h3>
-          <div class="value__img"><img data-parallax="0.05" src="assets/img/shoot/wifey-standing.webp" srcset="assets/img/shoot/wifey-standing-800.webp 800w, assets/img/shoot/wifey-standing.webp 1600w" sizes="(min-width: 900px) 30vw, 100vw" alt="Model in the sheer black Wifey boubou, hand raised" loading="lazy" decoding="async" width="1600" height="2000"></div>
+          <h3 class="value__word">Elegance</h3>
+          <div class="value__img"><img src="assets/img/shoot/wifey-standing.webp" srcset="assets/img/shoot/wifey-standing-800.webp 800w, assets/img/shoot/wifey-standing.webp 1600w" sizes="(min-width: 900px) 30vw, 100vw" alt="Model in the sheer black Wifey boubou, hand raised" loading="lazy" decoding="async" width="1600" height="2000"></div>
           <p>Flowing chiffon and graceful drape that carry you from a quiet day to a special evening.</p>
         </article>
       </div>
@@ -156,10 +147,10 @@
   </section>
 
   <section class="section--tight section--mist" id="made" aria-label="How we work">
-    <div class="wrap"><div class="facts" data-pop="items">
-      <div class="fact"><h3>Free <em>size</em></h3><p>Generous, flowing cuts designed to sit beautifully on a wide range of bodies.</p></div>
-      <div class="fact"><h3>Made in <em>Nigeria</em></h3><p>Designed and produced in Nigeria, from our new production space.</p></div>
-      <div class="fact"><h3>Delivered <em>worldwide</em></h3><p>Wherever you are, we deliver via DHL. Message us and we&rsquo;ll get your piece to you.</p></div>
+    <div class="wrap"><div class="facts">
+      <div class="fact"><h3>Free size</h3><p>Generous, flowing cuts designed to sit beautifully on a wide range of bodies.</p></div>
+      <div class="fact"><h3>Made in Nigeria</h3><p>Designed and produced in Nigeria, from our new production space.</p></div>
+      <div class="fact"><h3>Delivered worldwide</h3><p>Wherever you are, we deliver via DHL. Message us and we&rsquo;ll get your piece to you.</p></div>
     </div></div>
   </section>
 
@@ -167,13 +158,13 @@
     <div class="wrap">
       <div class="banner" data-reveal>
         <div class="banner__text">
-          <h2 class="heading" id="about-cta" data-split>Find your<br><em>feel good piece.</em></h2>
+          <h2 class="heading" id="about-cta">Find your feel good piece</h2>
           <div>
-            <p class="small" data-pop="words">Start with our all-time bestseller, the Omalicha set, or the new Wifey boubou.</p>
+            <p class="small">Start with our all-time bestseller, the Omalicha set, or the new Wifey boubou.</p>
             <div style="margin-top:22px"><a class="pill pill--light" href="shop.html"><span class="pill__text">Shop the collection</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></div>
           </div>
         </div>
-        <div class="banner__media"><img data-parallax="0.05" src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set with its scarf" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div>
+        <div class="banner__media"><img src="assets/img/omalicha-mannequin.webp" alt="The Omalicha set with its scarf" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div>
       </div>
     </div>
   </section>
@@ -183,7 +174,7 @@
     <div class="footer__grid">
       <div class="footer__col">
         <h2>Navigation</h2>
-        <ul data-pop="items">
+        <ul>
           <li><a href="index.html">Home</a></li>
           <li><a href="shop.html">Shop the collection</a></li>
           <li><a href="about.html">Our story</a></li>
@@ -192,7 +183,7 @@
       </div>
       <div class="footer__col">
         <h2>Client care</h2>
-        <ul data-pop="items">
+        <ul>
           <li><a href="contact.html#order">How to order</a></li>
           <li><a href="contact.html#size">Free size guide</a></li>
           <li><a href="contact.html#faq">Worldwide delivery</a></li>
@@ -200,7 +191,7 @@
         </ul>
       </div>
       <div class="footer__col footer__order footer__early">
-        <h2 class="big" data-split>Be first to <em>the next drop.</em></h2>
+        <h2 class="big">Be first to the next drop</h2>
         <form class="wa-form" data-early data-source="footer" novalidate>
           <label class="sr-only" for="ea-foot">Email or WhatsApp number</label>
           <input id="ea-foot" name="contact" type="text" placeholder="Email or WhatsApp number" autocomplete="email" required>
@@ -210,22 +201,21 @@
       </div>
       <div class="footer__col">
         <h2>Social</h2>
-        <ul data-pop="items">
+        <ul>
           <li><a href="https://www.instagram.com/byadabeke/" target="_blank" rel="noopener">Instagram</a></li>
           <li><a href="https://www.threads.net/@byadabeke" target="_blank" rel="noopener">Threads</a></li>
           <li><a href="https://wa.me/2348093712578" target="_blank" rel="noopener">WhatsApp</a></li>
         </ul>
       </div>
     </div>
-    <div class="footer__base" data-pop="items">
+    <div class="footer__base">
       <span>&copy; <span class="js-year">2026</span> ADA BEKE. All rights reserved.</span>
       <span>Chic &bull; relaxed &bull; Elegance</span>
       <span>Made in Nigeria &middot; Delivered worldwide via DHL</span>
     </div>
   </div>
-  <div class="megamark" aria-hidden="true"><svg viewBox="0 0 1000 150" preserveAspectRatio="xMidYMax meet" focusable="false"><text x="500" y="139" text-anchor="middle" font-size="178" textLength="992" lengthAdjust="spacingAndGlyphs"><tspan style="transition-delay:0ms">A</tspan><tspan style="transition-delay:90ms">D</tspan><tspan style="transition-delay:180ms">A</tspan> <tspan style="transition-delay:330ms">B</tspan><tspan style="transition-delay:420ms">E</tspan><tspan style="transition-delay:510ms">K</tspan><tspan style="transition-delay:600ms">E</tspan></text></svg></div>
 </footer>
-<script src="assets/js/products.js?v=e94861dfcd"></script>
-<script src="assets/js/main.js?v=2aae152a3f"></script>
+<script src="assets/js/products.js?v=77f4cb5cb5"></script>
+<script src="assets/js/main.js?v=ee42b98fd9"></script>
 </body>
 </html>

@@ -34,13 +34,12 @@
 <script src="/api/catalogue" async onerror="window.ADA_SHOP={};document.dispatchEvent(new Event('ada:catalogue'))"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..500&family=Cinzel:wght@400;500&family=Jost:wght@300..600&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=bc97e31409">
-<link rel="preload" as="image" href="assets/img/shoot/circles-side-cut.webp" imagesrcset="assets/img/shoot/circles-side-cut-1000.webp 322w, assets/img/shoot/circles-side-cut.webp 644w" imagesizes="(min-aspect-ratio: 5/4) and (min-width: 900px) 33vh, 28vh" fetchpriority="high">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400&family=Jost:wght@300..600&display=swap">
+<link rel="stylesheet" href="assets/css/style.css?v=0ce51df512">
+<link rel="preload" as="image" href="assets/img/shoot/circles-side.webp" imagesrcset="assets/img/shoot/circles-side-800.webp 800w, assets/img/shoot/circles-side.webp 1600w" imagesizes="(min-width: 900px) 34vw, 100vw" fetchpriority="high">
 </head>
 <body class="page-home">
 <a class="skip" href="#main">Skip to content</a>
-<div class="curtain" aria-hidden="true"><span class="curtain__mark"><span style="--ci:0">A</span><span style="--ci:1">D</span><span style="--ci:2">A</span><span style="--ci:3">&nbsp;</span><span style="--ci:4">B</span><span style="--ci:5">E</span><span style="--ci:6">K</span><span style="--ci:7">E</span></span></div>
 <header class="site-header" data-header>
   <div class="site-header__inner">
     <a class="brand" href="index.html" aria-label="ADA BEKE, home">ADA BEKE</a>
@@ -60,8 +59,8 @@
   <nav aria-label="Menu">
     <ul class="menu__links">
       <li><a href="index.html" aria-current="page">Home</a></li>
-      <li><a href="shop.html">Shop <em>the collection</em></a></li>
-      <li><a href="about.html">Our <em>story</em></a></li>
+      <li><a href="shop.html">Shop</a></li>
+      <li><a href="about.html">Our story</a></li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
   </nav>
@@ -73,49 +72,34 @@
 </div>
 
 <main id="main">
-  <section class="hero" aria-labelledby="hero-title" aria-roledescription="carousel" data-slides data-tone="dark">
-    <div class="hero__slides">
-      <figure class="slide is-active" data-tone="dark" style="--stage:#0f2a4a;--ink:#58dadc;--dot:#ffffff;--cut-x:0.585;--cut-xp:0.66;--front:#58dadc;--front-glow:0 0 1px rgba(9, 27, 50, 0.95), 0 0 3px rgba(9, 27, 50, 0.85), 0 2px 20px rgba(9, 27, 50, 0.6)" aria-roledescription="slide" aria-label="1 of 3"><span class="sr-only">Model in a white boubou with large orange circle prints, hand in pocket</span></figure>
-      <figure class="slide" data-tone="light" style="--stage:#eaf8f8;--ink:#0f2a4a;--dot:#3fc4c7;--cut-x:0.615;--cut-xp:0.62;--front:#0f2a4a;--front-glow:0 0 1px rgba(234, 248, 248, 1), 0 0 3px rgba(234, 248, 248, 1), 0 0 12px rgba(234, 248, 248, 0.85)" aria-roledescription="slide" aria-label="2 of 3" aria-hidden="true"><span class="sr-only">Model in the rust and cobalt Abira hoodie set, hood up</span></figure>
-      <figure class="slide" data-tone="light" style="--stage:#58dadc;--ink:#0f2a4a;--dot:#ffffff;--cut-x:0.585;--cut-xp:0.64;--front:#ffffff;--front-glow:0 2px 16px rgba(15, 42, 74, 0.28)" aria-roledescription="slide" aria-label="3 of 3" aria-hidden="true"><span class="sr-only">Model in the sheer black Wifey boubou</span></figure>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__slides" data-slides aria-roledescription="carousel" aria-label="New collection">
+      <figure class="slide is-active"><img src="assets/img/shoot/circles-side.webp" srcset="assets/img/shoot/circles-side-800.webp 800w, assets/img/shoot/circles-side.webp 1600w" sizes="(min-width: 900px) 34vw, 100vw" alt="Model in a white boubou with large orange circle prints" width="1600" height="2000" decoding="async" fetchpriority="high"></figure>
+      <figure class="slide"><img data-src="assets/img/shoot/abira-front.webp" data-srcset="assets/img/shoot/abira-front-800.webp 800w, assets/img/shoot/abira-front.webp 1600w" sizes="(min-width: 900px) 34vw, 100vw" alt="Model in the rust and cobalt Abira hoodie set, hood up" width="1600" height="2000" decoding="async"></figure>
+      <figure class="slide"><img data-src="assets/img/shoot/wifey-gaze.webp" data-srcset="assets/img/shoot/wifey-gaze-800.webp 800w, assets/img/shoot/wifey-gaze.webp 1600w" sizes="(min-width: 900px) 34vw, 100vw" alt="Model in the sheer black Wifey boubou" width="1600" height="2000" decoding="async"></figure>
     </div>
-    <div class="hero__inner">
-      <h1 class="hero__title" id="hero-title" data-chars="load" aria-label="Discover your style."><span class="ln ln--back" aria-hidden="true">Discover</span><span class="ln ln--front" aria-hidden="true">your style<span class="dot">.</span></span></h1>
-      <div class="hero__cuts" aria-hidden="true">
-      <img class="cut is-active" style="--cut-x:0.585;--cut-xp:0.66" src="assets/img/shoot/circles-side-cut.webp" srcset="assets/img/shoot/circles-side-cut-1000.webp 322w, assets/img/shoot/circles-side-cut.webp 644w" sizes="(min-aspect-ratio: 5/4) and (min-width: 900px) 33vh, 28vh" alt="" width="644" height="2000" fetchpriority="high">
-      <img class="cut" style="--cut-x:0.615;--cut-xp:0.62" data-src="assets/img/shoot/abira-front-cut.webp" data-srcset="assets/img/shoot/abira-front-cut-1000.webp 398w, assets/img/shoot/abira-front-cut.webp 796w" sizes="(min-aspect-ratio: 5/4) and (min-width: 900px) 41vh, 34vh" alt="" width="796" height="2000">
-      <img class="cut" style="--cut-x:0.585;--cut-xp:0.64" data-src="assets/img/shoot/wifey-gaze-cut.webp" data-srcset="assets/img/shoot/wifey-gaze-cut-1000.webp 337w, assets/img/shoot/wifey-gaze-cut.webp 674w" sizes="(min-aspect-ratio: 5/4) and (min-width: 900px) 35vh, 29vh" alt="" width="674" height="2000">
-      </div>
-      <p class="hero__note" data-reveal data-reveal-load style="--d:1100ms">Free-size boubous and sets in soft, flowing fabrics. Made in Nigeria.</p>
-      <div class="hero__cta" data-reveal data-reveal-load style="--d:900ms"><a class="pill pill--film" href="shop.html"><span class="pill__text">Shop the collection</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></div>
+    <div class="hero__dots" role="group" aria-label="Photos"><button type="button" data-dot aria-label="Show photo 1" aria-current="true"></button><button type="button" data-dot aria-label="Show photo 2" aria-current="false"></button><button type="button" data-dot aria-label="Show photo 3" aria-current="false"></button></div>
+    <div class="wrap hero__intro">
+      <h1 class="hero__title" id="hero-title">Discover your style</h1>
+      <p class="hero__text">Free-size boubous and sets in soft, flowing fabrics. Made in Nigeria.</p>
+      <a class="pill pill--navy" href="shop.html"><span class="pill__text">Shop the collection</span><span class="pill__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
     </div>
   </section>
 
-  <section class="section edit" aria-labelledby="edit-title">
+  <section class="section" aria-labelledby="edit-title">
     <div class="wrap">
-      <div class="edit__head">
-        <p class="label" data-pop="chars">The edit</p>
-        <h2 class="heading" id="edit-title" data-split>Handpicked<br><em>for you.</em></h2>
-        <div class="rail__nav" data-pop="items">
-          <button class="round-btn" type="button" data-rail-prev aria-label="Previous pieces"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
-          <button class="round-btn round-btn--on" type="button" data-rail-next aria-label="Next pieces"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-        </div>
+      <div class="sec-head">
+        <h2 class="heading" id="edit-title">Handpicked for you</h2>
+        <a class="text-link" href="shop.html">Shop all</a>
       </div>
-    </div>
-    <div class="rail" data-rail tabindex="0" aria-label="Handpicked pieces. Swipe or use the arrows to see more.">
-      <ul class="rail__track" data-products="rail"><li class="rail__item skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></li><li class="rail__item skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></li><li class="rail__item skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></li><li class="rail__item skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></li></ul>
-    </div>
-    <div class="wrap rail__foot" data-reveal>
-      <div class="rail__bar" aria-hidden="true"><span data-rail-fill></span></div>
-      <p class="rail__count" aria-hidden="true"><span data-rail-now>01</span><span class="rail__sep">/</span><span data-rail-total>04</span></p>
+      <div class="cards cards--home" data-products="home"><div class="skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div><div class="skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div><div class="skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div><div class="skel-card" aria-hidden="true"><div class="skel-card__media"></div><div class="skel-card__row"><span class="skel-card__line"></span><span class="skel-card__line skel-card__line--price"></span></div><span class="skel-card__line skel-card__line--short"></span></div></div>
     </div>
   </section>
 
   <section class="section section--tight collections" aria-labelledby="col-title" data-collections-section hidden>
     <div class="wrap">
-      <div class="edit__head">
-        <p class="label" data-pop="chars">Collections</p>
-        <h2 class="heading" id="col-title" data-split>Shop by<br><em>collection.</em></h2>
+      <div class="sec-head">
+        <h2 class="heading" id="col-title">Shop by collection</h2>
       </div>
       <div class="col-grid" data-collections></div>
     </div>
@@ -126,7 +110,7 @@
     <div class="footer__grid">
       <div class="footer__col">
         <h2>Navigation</h2>
-        <ul data-pop="items">
+        <ul>
           <li><a href="index.html">Home</a></li>
           <li><a href="shop.html">Shop the collection</a></li>
           <li><a href="about.html">Our story</a></li>
@@ -135,7 +119,7 @@
       </div>
       <div class="footer__col">
         <h2>Client care</h2>
-        <ul data-pop="items">
+        <ul>
           <li><a href="contact.html#order">How to order</a></li>
           <li><a href="contact.html#size">Free size guide</a></li>
           <li><a href="contact.html#faq">Worldwide delivery</a></li>
@@ -143,7 +127,7 @@
         </ul>
       </div>
       <div class="footer__col footer__order footer__early">
-        <h2 class="big" data-split>Be first to <em>the next drop.</em></h2>
+        <h2 class="big">Be first to the next drop</h2>
         <form class="wa-form" data-early data-source="footer" novalidate>
           <label class="sr-only" for="ea-foot">Email or WhatsApp number</label>
           <input id="ea-foot" name="contact" type="text" placeholder="Email or WhatsApp number" autocomplete="email" required>
@@ -153,22 +137,21 @@
       </div>
       <div class="footer__col">
         <h2>Social</h2>
-        <ul data-pop="items">
+        <ul>
           <li><a href="https://www.instagram.com/byadabeke/" target="_blank" rel="noopener">Instagram</a></li>
           <li><a href="https://www.threads.net/@byadabeke" target="_blank" rel="noopener">Threads</a></li>
           <li><a href="https://wa.me/2348093712578" target="_blank" rel="noopener">WhatsApp</a></li>
         </ul>
       </div>
     </div>
-    <div class="footer__base" data-pop="items">
+    <div class="footer__base">
       <span>&copy; <span class="js-year">2026</span> ADA BEKE. All rights reserved.</span>
       <span>Chic &bull; relaxed &bull; Elegance</span>
       <span>Made in Nigeria &middot; Delivered worldwide via DHL</span>
     </div>
   </div>
-  <div class="megamark" aria-hidden="true"><svg viewBox="0 0 1000 150" preserveAspectRatio="xMidYMax meet" focusable="false"><text x="500" y="139" text-anchor="middle" font-size="178" textLength="992" lengthAdjust="spacingAndGlyphs"><tspan style="transition-delay:0ms">A</tspan><tspan style="transition-delay:90ms">D</tspan><tspan style="transition-delay:180ms">A</tspan> <tspan style="transition-delay:330ms">B</tspan><tspan style="transition-delay:420ms">E</tspan><tspan style="transition-delay:510ms">K</tspan><tspan style="transition-delay:600ms">E</tspan></text></svg></div>
 </footer>
-<script src="assets/js/products.js?v=e94861dfcd"></script>
-<script src="assets/js/main.js?v=2aae152a3f"></script>
+<script src="assets/js/products.js?v=77f4cb5cb5"></script>
+<script src="assets/js/main.js?v=ee42b98fd9"></script>
 </body>
 </html>

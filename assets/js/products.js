@@ -8,7 +8,7 @@
    Before the database is connected, edit pieces here.
 
    id        short unique name, used in links (shop.html?p=omalicha)
-   name      shown in the shop. Wrap a word in *stars* to set it in italics.
+   name      shown in the shop, e.g. "Omalicha set"
    price     a number in naira (45000), or null to show "Price on request"
    status    "available", "soon", "sold_out" or "hidden"
    collection the id of one of the collections below, or "" for none
@@ -22,7 +22,7 @@
 root.ADA_PRODUCTS = [
   {
     id: "omalicha",
-    name: "*Omalicha* set",
+    name: "Omalicha set",
     colour: "Royal navy shimmer chiffon",
     price: 45000,
     status: "available",
@@ -37,7 +37,7 @@ root.ADA_PRODUCTS = [
   },
   {
     id: "wifey",
-    name: "*Wifey* boubou",
+    name: "Wifey boubou",
     colour: "Black",
     price: 50000,
     status: "available",
@@ -52,7 +52,7 @@ root.ADA_PRODUCTS = [
   },
   {
     id: "abira",
-    name: "*Abira* hoodie set",
+    name: "Abira hoodie set",
     colour: "Rust & cobalt leaf print",
     price: 50000,
     status: "available",
@@ -73,7 +73,7 @@ root.ADA_PRODUCTS = [
   },
   {
     id: "something-soft",
-    name: "Something *soft*",
+    name: "Something soft",
     colour: "Dropping soon",
     price: null,
     status: "soon",

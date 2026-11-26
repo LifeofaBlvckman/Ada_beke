@@ -1,7 +1,7 @@
 /* ==========================================================================
    ADA BEKE — site behaviour
-   Fades, word-by-word reveals, bag + WhatsApp checkout, product details,
-   Lottie embed. Vanilla JS, no build step.
+   Gentle fades, home photo slideshow, bag + checkout, product details.
+   Vanilla JS, no build step.
    ========================================================================== */
 (function () {
   "use strict";
@@ -99,59 +99,15 @@
   }
 
   /* ======================================================================
-     1. Curtain: load fade + page-to-page fade
+     1. Page start: show what waits for the page to load
      ====================================================================== */
-  // Arriving from another ADA BEKE page? Then skip the brand pause and lift at once.
-  var NAV_KEY = "adabeke-nav";
-  var fromInside = false;
-  try { fromInside = sessionStorage.getItem(NAV_KEY) === "1"; sessionStorage.setItem(NAV_KEY, "0"); } catch (e) {}
-
-  var started = false;
-  function reveal() {
-    // the aqua panel lifts away, then resets out of sight
-    root.classList.add("is-revealing");
-    root.classList.remove("is-loading", "is-leaving");
-    setTimeout(function () { root.classList.remove("is-revealing"); }, reduceMotion ? 0 : 720);
-  }
   function lift() {
-    if (started) return;
-    started = true;
-    if (plain) return; // nothing to lift: the page is already showing
-    reveal();
-    // page words start while the curtain lifts
-    setTimeout(function () {
-      $$('[data-split="load"], [data-chars="load"]').forEach(function (el) { el.classList.add("is-in"); });
-      $$('[data-reveal-load]').forEach(function (el) { el.classList.add("is-in"); });
-      $$(".hero .megamark, .page-hero .megamark").forEach(function (el) { el.classList.add("is-in"); });
-    }, reduceMotion || fromInside ? 0 : 140);
+    root.classList.remove("is-loading");
+    if (plain) return; // the page is already showing plainly
+    $$("[data-reveal-load]").forEach(function (el) { el.classList.add("is-in"); });
   }
-  function whenReady() {
-    // Fonts swap in on their own; never hold the page back waiting for them.
-    setTimeout(lift, reduceMotion || fromInside ? 0 : 420);
-  }
-  if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", whenReady);
-  else whenReady();
-
-  window.addEventListener("pageshow", function (e) {
-    if (e.persisted) { if (started) reveal(); else lift(); }
-  });
-
-  doc.addEventListener("click", function (e) {
-    var a = e.target.closest && e.target.closest("a[href]");
-    if (!a || e.defaultPrevented) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    if (a.target && a.target !== "_self") return;
-    if (a.hasAttribute("download") || a.dataset.noTransition !== undefined) return;
-    if (a.hasAttribute("data-product")) return; // pieces open their details in place
-    if (a.protocol !== location.protocol || a.host !== location.host) return;
-    if (a.pathname === location.pathname && a.search === location.search && a.hash) return;
-    if (!/\.html?$|\/$/.test(a.pathname)) return;
-    if (reduceMotion) return;
-    e.preventDefault();
-    root.classList.add("is-leaving");
-    try { sessionStorage.setItem(NAV_KEY, "1"); } catch (err) {}
-    setTimeout(function () { location.href = a.href; }, 430);
-  });
+  if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", lift);
+  else lift();
 
   /* ======================================================================
      2. Header: solid after scroll, hides on the way down
@@ -189,113 +145,7 @@
   if (menuBtn) menuBtn.addEventListener("click", function () { setMenu(!root.classList.contains("menu-open")); });
 
   /* ======================================================================
-     4. Words appearing one by one
-     ====================================================================== */
-  function splitWords(el, cls) {
-    var i = 0;
-    (function walk(node) {
-      Array.prototype.slice.call(node.childNodes).forEach(function (ch) {
-        if (ch.nodeType === 3) {
-          var parts = ch.textContent.split(/(\s+)/);
-          var frag = doc.createDocumentFragment();
-          parts.forEach(function (p) {
-            if (!p) return;
-            if (/^\s+$/.test(p)) { frag.appendChild(doc.createTextNode(p)); return; }
-            var s = doc.createElement("span");
-            s.className = cls;
-            s.style.setProperty("--i", i++);
-            s.textContent = p;
-            frag.appendChild(s);
-          });
-          ch.parentNode.replaceChild(frag, ch);
-        } else if (ch.nodeType === 1) {
-          if (ch.tagName === "BR" || ch.classList.contains("spark")) return;
-          if (ch.tagName.toLowerCase() === "svg" || ch.classList.contains("mark")) {
-            var w = doc.createElement("span");
-            w.className = cls;
-            w.style.setProperty("--i", i++);
-            ch.parentNode.replaceChild(w, ch);
-            w.appendChild(ch);
-            return;
-          }
-          walk(ch);
-        }
-      });
-    })(el);
-    return i;
-  }
-  $$("[data-split]").forEach(function (el) { splitWords(el, "w"); });
-
-  // Letter by letter
-  function splitChars(el, cls) {
-    var i = 0;
-    (function walk(node) {
-      Array.prototype.slice.call(node.childNodes).forEach(function (ch) {
-        if (ch.nodeType === 3) {
-          var frag = doc.createDocumentFragment();
-          Array.prototype.forEach.call(ch.textContent, function (c) {
-            if (/\s/.test(c)) { frag.appendChild(doc.createTextNode(c)); return; }
-            var s = doc.createElement("span");
-            s.className = cls;
-            s.style.setProperty("--i", i++);
-            s.textContent = c;
-            frag.appendChild(s);
-          });
-          ch.parentNode.replaceChild(frag, ch);
-        } else if (ch.nodeType === 1) {
-          if (ch.tagName.toLowerCase() === "svg") {
-            var w = doc.createElement("span");
-            w.className = cls;
-            w.style.setProperty("--i", i++);
-            ch.parentNode.replaceChild(w, ch);
-            w.appendChild(ch);
-            return;
-          }
-          walk(ch);
-        }
-      });
-    })(el);
-  }
-  $$("[data-chars]").forEach(function (el) { splitChars(el, "ch"); });
-
-  // Pop-in: children ("items"), words or letters appear one after another
-  $$("[data-pop]").forEach(function (el) {
-    var mode = el.getAttribute("data-pop");
-    if (mode === "words") {
-      splitWords(el, "pw");
-    } else if (mode === "chars") {
-      // screen readers get the whole word, not single letters
-      var text = el.textContent.replace(/\s+/g, " ").trim();
-      splitChars(el, "pc");
-      $$(".pc", el).forEach(function (s) { s.setAttribute("aria-hidden", "true"); });
-      var sr = doc.createElement("span");
-      sr.className = "sr-only";
-      sr.textContent = text;
-      el.appendChild(sr);
-    } else {
-      Array.prototype.forEach.call(el.children, function (c, i) { c.style.setProperty("--i", i); });
-    }
-  });
-
-  /* Scroll-scrubbed paragraph: words light up as you scroll */
-  var scrubs = $$("[data-scrub]").map(function (el) {
-    splitWords(el, "sw");
-    return { el: el, words: $$(".sw", el) };
-  });
-  function onScrollScrub() {
-    var vh = window.innerHeight;
-    scrubs.forEach(function (s) {
-      var r = s.el.getBoundingClientRect();
-      var start = vh * 0.9, end = vh * 0.38;
-      var p = (start - r.top) / (start - end + r.height * 0.55);
-      p = Math.max(0, Math.min(1, p));
-      var n = Math.round(p * s.words.length);
-      for (var i = 0; i < s.words.length; i++) s.words[i].classList.toggle("on", i < n);
-    });
-  }
-
-  /* ======================================================================
-     5. Fade-in on scroll
+     4. Fade-in on scroll
      ====================================================================== */
   // Clipped elements have no visible area until revealed, so they are
   // watched through their parent instead.
@@ -318,7 +168,7 @@
     watchers.get(target).push(el);
   }
   function observeAll(ctx) {
-    $$("[data-reveal]:not([data-reveal-load]), [data-split]:not([data-split='load']), [data-pop], .site-footer .megamark", ctx).forEach(observe);
+    $$("[data-reveal]:not([data-reveal-load])", ctx).forEach(observe);
   }
 
   /* ======================================================================
@@ -375,14 +225,9 @@
   }
   function renderProducts() {
     $$("[data-products]").forEach(function (box) {
-      if (box.getAttribute("data-products") === "rail") {
-        // Home slider: every piece, then a card that leads to the shop
-        box.innerHTML = PRODUCTS.map(function (p, i) {
-          return '<li class="rail__item">' + cardHTML(p, i, 70) + "</li>";
-        }).join("") +
-          '<li class="rail__item rail__item--end"><a class="rail__end" href="shop.html" data-reveal>' +
-            '<span class="rail__end-title">See every<br><em>piece.</em></span>' +
-            '<span class="pill__icon">' + ICON.arrow + "</span></a></li>";
+      if (box.getAttribute("data-products") === "home") {
+        // Home: the first four pieces; "Shop all" leads to the rest
+        box.innerHTML = PRODUCTS.slice(0, 4).map(function (p, i) { return cardHTML(p, i, 70); }).join("");
       } else {
         box.innerHTML = PRODUCTS.length
           ? PRODUCTS.map(function (p, i) { return cardHTML(p, i); }).join("")
@@ -445,10 +290,9 @@
       var count = PRODUCTS.filter(function (p) { return p.collection === c.id; }).length;
       return '<a class="col-card" href="shop.html?c=' + encodeURIComponent(c.id) + '" data-reveal style="--d:' + i * 120 + 'ms">' +
         '<div class="col-card__media">' + (c.image ? '<img ' + sized(c.image, "(min-width: 640px) 50vw, 100vw") + ' alt="" loading="lazy" decoding="async">' : "") + "</div>" +
-        '<div class="col-card__text"><p class="col-card__count">' + count + (count === 1 ? " piece" : " pieces") + "</p>" +
-          '<h3 class="col-card__name">' + esc(c.name) + "</h3>" +
-          (c.tagline ? '<p class="col-card__tag">' + esc(c.tagline) + "</p>" : "") +
-          '<span class="col-card__cta">Shop now<span class="pill__icon">' + ICON.arrow + "</span></span></div></a>";
+        '<div class="col-card__text"><h3 class="col-card__name">' + esc(c.name) + "</h3>" +
+          '<p class="col-card__count">' + count + (count === 1 ? " piece" : " pieces") + "</p>" +
+          (c.tagline ? '<p class="col-card__tag">' + esc(c.tagline) + "</p>" : "") + "</div></a>";
     }).join("");
     skel(box);
     observeAll(box);
@@ -538,7 +382,7 @@
       bagBody.innerHTML =
         '<div class="drawer__empty">' +
           '<div class="lottie lottie--bag" data-lottie aria-hidden="true" style="--i:0"></div>' +
-          '<p style="--i:1">Your bag is empty.<br><em class="serif-i">Find a piece that feels like you.</em></p>' +
+          '<p style="--i:1">Your bag is empty.<br>Find a piece that feels like you.</p>' +
           '<a class="pill" href="shop.html" style="--i:2"><span class="pill__text">Browse the collection</span><span class="pill__icon">' + ICON.arrow + "</span></a>" +
         "</div>";
       bagFoot.hidden = true;
@@ -1059,12 +903,7 @@
     var title = $("[data-order-title]"), desc = $("[data-order-desc]"), refEl = $("[data-order-ref]"), actions = $("[data-order-actions]");
     var tries = 0;
 
-    function setTitle(html) {
-      title.classList.remove("is-in");
-      title.innerHTML = html;
-      splitWords(title, "w");
-      requestAnimationFrame(function () { requestAnimationFrame(function () { title.classList.add("is-in"); }); });
-    }
+    function setTitle(html) { title.innerHTML = html; }
     function pills(list) {
       actions.innerHTML = list.map(function (a) {
         return a.bag
@@ -1079,7 +918,7 @@
           '<div><p class="order-line__name">' + esc(i.name) + '</p><p class="order-line__sub">' + esc([i.colour, "× " + i.qty].filter(Boolean).join(" · ")) + "</p></div>" +
           '<p class="order-line__price">' + (i.price == null ? "On request" : naira(i.price * i.qty)) + "</p></li>";
       }).join("");
-      return '<div class="order-card" data-pop="items">' +
+      return '<div class="order-card">' +
         '<h2 class="order-card__title">Your <em>order</em></h2>' +
         '<ul class="order-card__lines">' + rows + "</ul>" +
         '<div class="order-card__sum">' +
@@ -1094,7 +933,7 @@
       var wa = { text: "Message us on WhatsApp", href: waLink(waText), ext: true, icon: ICON.wa, cls: "pill--light" };
       if (!o) {
         refEl.textContent = ref ? ref : "Order";
-        setTitle("We can&rsquo;t find<br><em>that order.</em>");
+        setTitle("We can&rsquo;t find that order");
         desc.textContent = "The link may be incomplete. If you’ve paid, don’t worry: message us with your receipt and we’ll sort it out.";
         pills([{ text: "Back to the shop", href: "shop.html" }, wa]);
         box.innerHTML = "";
@@ -1103,7 +942,7 @@
       refEl.textContent = "Order " + o.reference;
       var name = o.firstName ? esc(o.firstName) : "";
       if (o.payment === "paid") {
-        setTitle("Thank you" + (name ? ",<br><em>" + name + ".</em>" : "<em>.</em>"));
+        setTitle("Thank you" + (name ? ", " + name : ""));
         desc.textContent = o.channel === "paystack"
           ? "Your payment of " + naira(o.total) + " is confirmed. Paystack has emailed your receipt, and we’ll message you on WhatsApp to arrange delivery."
           : "Your order is confirmed and paid. We’ll message you on WhatsApp to arrange delivery.";
@@ -1112,15 +951,15 @@
         try { localStorage.removeItem("adabeke-pending"); } catch (e) {}
         root.classList.add("order-paid");
       } else if (o.status === "cancelled") {
-        setTitle("This order was<br><em>cancelled.</em>");
+        setTitle("This order was cancelled");
         desc.textContent = "If that’s a surprise, message us and we’ll help.";
         pills([{ text: "Back to the shop", href: "shop.html" }, wa]);
       } else if (o.channel === "whatsapp") {
-        setTitle("We&rsquo;ve got<br><em>your order.</em>");
+        setTitle("We&rsquo;ve got your order");
         desc.textContent = "We’ll confirm your total, payment and delivery with you on WhatsApp.";
         pills([wa, { text: "Back to the shop", href: "shop.html", cls: "pill--ghost" }]);
       } else {
-        setTitle("Payment not<br><em>completed.</em>");
+        setTitle("Payment not completed");
         desc.textContent = bag.length
           ? "No money was taken. Your bag is saved, so you can try again whenever you’re ready."
           : "No money was taken. You can place your order again, or message us and we’ll help.";
@@ -1289,7 +1128,7 @@
       });
       if (reduceMotion) anim.addEventListener("DOMLoaded", function () { anim.goToAndStop(30, true); });
       el.classList.add("is-ready");
-    }).catch(function () { /* animation is decorative; ignore */ });
+    }).catch(function () { el.classList.add("is-ready"); }); // decorative: on failure just stop the shimmer
   }
   function initLotties(ctx) {
     $$("[data-lottie]", ctx).forEach(function (el) {
@@ -1318,65 +1157,48 @@
     else if (root.classList.contains("menu-open")) { setMenu(false); menuBtn && menuBtn.focus(); }
   });
 
-  /* Hero: words drift up and fade, film pushes in, as the page scrolls */
-  var heroEl = $(".hero");
-  function onScrollHero() {
-    if (!heroEl || reduceMotion) return;
-    var p = Math.max(0, Math.min(1, window.scrollY / (window.innerHeight * 0.9)));
-    heroEl.style.setProperty("--hero-p", p.toFixed(4));
-  }
-
-  /* Home photo slideshow: changes on its own, swipe on phones */
+  /* Home photos: phones show one at a time (they change on their own, or swipe,
+     or tap a dot); laptops show all three side by side. */
   var slideBox = $("[data-slides]");
   if (slideBox) (function () {
     var slides = $$(".slide", slideBox);
-    var cuts = $$(".cut", slideBox);   // the models, in front of the words
-    var SLIDE_MS = 5500;
+    var dots = $$("[data-dot]");
+    var wide = window.matchMedia("(min-width: 900px)");
+    var SLIDE_MS = 5000;
     var idx = 0, timer = null, onScreen = true;
 
     function load(i) {
-      var im = cuts[i];
-      if (!im || !im.hasAttribute("data-src")) return;
+      var im = slides[i] && $("img[data-src]", slides[i]);
+      if (!im) return;
       im.srcset = im.getAttribute("data-srcset");
       im.removeAttribute("data-srcset");
       im.src = im.getAttribute("data-src");
       im.removeAttribute("data-src");
-    }
-    // Each slide sets its colours; light words and menu on navy, navy on the light colours
-    function setTone() {
-      var s = slides[idx];
-      slideBox.style.setProperty("--hero-ink", s.style.getPropertyValue("--ink"));
-      slideBox.style.setProperty("--hero-dot", s.style.getPropertyValue("--dot"));
-      slideBox.style.setProperty("--hero-front", s.style.getPropertyValue("--front"));
-      slideBox.style.setProperty("--hero-front-glow", s.style.getPropertyValue("--front-glow"));
-      var tone = s.getAttribute("data-tone");
-      slideBox.setAttribute("data-tone", tone);
-      slideBox.setAttribute("data-head", tone);
-      root.setAttribute("data-hero", tone);
+      watchImg(im);
     }
     function schedule() {
       clearTimeout(timer);
-      var paused = reduceMotion || !onScreen || doc.hidden;
-      slideBox.classList.toggle("is-paused", paused);
-      if (!paused) timer = setTimeout(function () { show(idx + 1); }, SLIDE_MS);
+      if (reduceMotion || wide.matches || !onScreen || doc.hidden) return;
+      timer = setTimeout(function () { show(idx + 1); }, SLIDE_MS);
     }
     function show(i) {
       idx = (i + slides.length) % slides.length;
       load(idx);
       load((idx + 1) % slides.length);
-      slides.forEach(function (s, k) {
-        s.classList.toggle("is-active", k === idx);
-        s.setAttribute("aria-hidden", String(k !== idx));
-      });
-      cuts.forEach(function (c, k) { c.classList.toggle("is-active", k === idx); });
-      setTone();
+      slides.forEach(function (s, k) { s.classList.toggle("is-active", k === idx); });
+      dots.forEach(function (d, k) { d.setAttribute("aria-current", String(k === idx)); });
       schedule();
     }
+    function sync() {
+      if (wide.matches) slides.forEach(function (s, k) { load(k); }); // all three side by side
+      schedule();
+    }
+    dots.forEach(function (d, k) { d.addEventListener("click", function () { show(k); }); });
 
     var sx = null, sy = null;
     slideBox.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
     slideBox.addEventListener("touchend", function (e) {
-      if (sx === null) return;
+      if (sx === null || wide.matches) return;
       var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
       if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) show(idx + (dx < 0 ? 1 : -1));
       sx = null;
@@ -1385,100 +1207,15 @@
     // Pause while the photos are off screen or the tab is hidden
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (en) {
-        var was = onScreen;
         onScreen = en[0].isIntersecting;
-        if (onScreen && !was) show(idx); else if (!onScreen) schedule();
+        schedule();
       }, { threshold: 0.25 }).observe(slideBox);
     }
-    doc.addEventListener("visibilitychange", function () { if (doc.hidden) schedule(); else show(idx); });
+    doc.addEventListener("visibilitychange", schedule);
+    if (wide.addEventListener) wide.addEventListener("change", sync); else if (wide.addListener) wide.addListener(sync);
     window.addEventListener("load", function () { load(1); });
-
-    setTone();
-    schedule();
+    sync();
   })();
-
-  /* "Handpicked for you" slider: swipe, arrows, mouse drag, progress */
-  $$("[data-rail]").forEach(function (rail) {
-    var sec = rail.closest("section") || doc;
-    var prev = $("[data-rail-prev]", sec), next = $("[data-rail-next]", sec);
-    var fill = $("[data-rail-fill]", sec), now = $("[data-rail-now]", sec), total = $("[data-rail-total]", sec);
-    var bar = fill && fill.parentElement;
-    function items() { return $$(".rail__item", rail); }
-    function step() {
-      var it = items();
-      return it.length > 1 ? it[1].offsetLeft - it[0].offsetLeft : rail.clientWidth;
-    }
-    function pad(n) { return (n < 10 ? "0" : "") + n; }
-    function update() {
-      var max = rail.scrollWidth - rail.clientWidth;
-      var p = max > 0 ? rail.scrollLeft / max : 0;
-      var count = items().length;
-      if (fill && bar) {
-        var bw = bar.clientWidth;
-        var tw = Math.max(0.12, Math.min(1, rail.clientWidth / rail.scrollWidth)) * bw;
-        fill.style.setProperty("--tw", tw.toFixed(1) + "px");
-        fill.style.setProperty("--tx", (p * (bw - tw)).toFixed(1) + "px");
-      }
-      var n = max <= 0 ? 1 : rail.scrollLeft >= max - 4 ? count : Math.min(count, Math.round(rail.scrollLeft / step()) + 1);
-      if (now) now.textContent = pad(n);
-      if (total) total.textContent = pad(count);
-      if (prev) prev.disabled = rail.scrollLeft < 4;
-      if (next) next.disabled = rail.scrollLeft > max - 4;
-    }
-    doc.addEventListener("ada:products", function () { rail.scrollLeft = 0; update(); });
-    var queued = false;
-    rail.addEventListener("scroll", function () {
-      if (queued) return;
-      queued = true;
-      requestAnimationFrame(function () { update(); queued = false; });
-    }, { passive: true });
-    window.addEventListener("resize", update);
-    function go(dir) { rail.scrollBy({ left: dir * step(), behavior: reduceMotion ? "auto" : "smooth" }); }
-    if (prev) prev.addEventListener("click", function () { go(-1); });
-    if (next) next.addEventListener("click", function () { go(1); });
-
-    // drag with a mouse (fingers already swipe it natively)
-    var down = false, moved = false, startX = 0, startL = 0;
-    rail.addEventListener("pointerdown", function (e) {
-      if (e.pointerType !== "mouse" || e.button !== 0) return;
-      down = true; moved = false; startX = e.clientX; startL = rail.scrollLeft;
-    });
-    window.addEventListener("pointermove", function (e) {
-      if (!down) return;
-      var dx = e.clientX - startX;
-      if (!moved && Math.abs(dx) > 6) { moved = true; rail.classList.add("is-dragging"); }
-      if (moved) rail.scrollLeft = startL - dx;
-    });
-    window.addEventListener("pointerup", function () {
-      if (!down) return;
-      down = false;
-      if (!moved) return;
-      rail.classList.toggle("is-dragging", false);
-      var s = step();
-      rail.scrollTo({ left: Math.round(rail.scrollLeft / s) * s, behavior: reduceMotion ? "auto" : "smooth" });
-    });
-    // a drag is not a tap: don't open a piece after dragging
-    rail.addEventListener("click", function (e) {
-      if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
-    }, true);
-    update();
-  });
-
-
-  /* Buttons lean towards the mouse */
-  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches && !reduceMotion) {
-    var magnet = null;
-    doc.addEventListener("mousemove", function (e) {
-      var p = e.target.closest && e.target.closest(".pill");
-      if (magnet && magnet !== p) { magnet.style.translate = ""; magnet = null; }
-      if (!p || p.closest(".pdialog, .drawer")) return;
-      var r = p.getBoundingClientRect();
-      var dx = (e.clientX - (r.left + r.width / 2)) * 0.16;
-      var dy = (e.clientY - (r.top + r.height / 2)) * 0.3;
-      p.style.translate = dx.toFixed(1) + "px " + dy.toFixed(1) + "px";
-      magnet = p;
-    }, { passive: true });
-  }
 
   /* Search engines: the shop's pieces as structured data, from products.js */
   function productLd() {
@@ -1518,25 +1255,12 @@
     doc.head.appendChild(s);
   }
 
-  /* Gentle parallax on editorial photos: [data-parallax="0.08"] */
-  var parallaxEls = reduceMotion ? [] : $$("[data-parallax]");
-  function onScrollParallax() {
-    var vh = window.innerHeight;
-    parallaxEls.forEach(function (el) {
-      var r = el.getBoundingClientRect();
-      if (r.bottom < -100 || r.top > vh + 100) return;
-      var speed = parseFloat(el.getAttribute("data-parallax")) || 0.08;
-      var offset = (r.top + r.height / 2 - vh / 2) * -speed;
-      el.style.translate = "0 " + offset.toFixed(1) + "px";
-    });
-  }
-
   var ticking = false;
   function onScroll() {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(function () {
-      onScrollHeader(); onScrollScrub(); onScrollHero(); onScrollParallax();
+      onScrollHeader();
       ticking = false;
     });
   }
@@ -1586,7 +1310,4 @@
   }
   initLotties(doc);
   onScrollHeader();
-  onScrollScrub();
-  onScrollHero();
-  onScrollParallax();
 })();

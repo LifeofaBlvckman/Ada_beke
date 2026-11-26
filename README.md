@@ -4,7 +4,7 @@
 
 | Page | File | What's on it |
 | --- | --- | --- |
-| Home | `index.html` | Full-screen photo slideshow with the headline on top, a swipeable "Handpicked for you" slider, and "Shop by collection" cards. The early-access sign-up is in the footer |
+| Home | `index.html` | The shoot photos with their own backgrounds (one at a time on phones, three side by side on laptops), "Discover your style" and a shop button underneath, four pieces under "Handpicked for you", and "Shop by collection". The early-access sign-up is in the footer |
 | Shop | `shop.html` | All pieces with filters, a product details panel, and the bag |
 | About | `about.html` | The campaign film, brand story, the full "We're back" letter, Chic / relaxed / Elegance |
 | Contact | `contact.html` | How to order, a WhatsApp contact form, the free-size guide and questions |
@@ -115,7 +115,7 @@ Once the database is connected, use **Pieces** in the admin. Before that, edit *
 ```js
 {
   id: "new-piece",                 // used in links: shop.html?p=new-piece
-  name: "*Name* boubou",           // *stars* = italic
+  name: "Name boubou",
   colour: "Ivory",
   price: 55000,                    // or null for "Price on request"
   status: "available",             // "available", "soon", "sold_out" or "hidden"
@@ -139,9 +139,10 @@ These are ready but not in the shop yet, because the pieces need a name and pric
 ## Design
 
 - **Colours:** brand aqua `#58DADC` (taken from the ADA BEKE bags and end card), navy `#0F2A4A` (from the Omalicha fabric), and a pale aqua mist `#EAF8F8`, plus the rust of the boubou circle print `#C9602F` as an accent.
-- **Type:** Bodoni Moda italic (the high-contrast "fashion magazine" serif) for the headline and emphasised words, Jost (a Futura-style geometric sans) for headings and text, and Cinzel for the ADA BEKE wordmark.
-- **Motion:** the home headline appears letter by letter, then drifts up and fades as you scroll while the photos slowly push in. Section words appear one by one, photos fade up and drift gently (parallax), and an aqua ADA BEKE panel wipes between pages. All motion switches off for visitors who have "reduce motion" turned on.
-- **Lottie:** the "choosing a dress" animation appears when the bag is empty, on the Shop page, and on the Contact page. It's served from this site (`assets/lottie/choosing.js`), played with [lottie-web](https://github.com/airbnb/lottie-web) (MIT, `assets/vendor/`), and only loads when it's needed.
+- **Look:** simple and calm, after the brands Ada pointed to (Hertunba, Moye, Wanni Fuga): white pages, the photos with their real backgrounds, words beside or under the photos and never on the clothes, a light footer, and aqua and navy used for buttons and small accents.
+- **Type:** one font, Jost (a clean geometric sans), for everything; no italics. Product names are in small capitals. The ADA BEKE logo keeps its own lettering (Cinzel).
+- **Motion:** kept to a minimum. Things fade up gently as they come into view, and on phones the home photos change every 5 seconds. All motion switches off for visitors who have "reduce motion" turned on.
+- **Lottie:** the "choosing a dress" animation appears when the bag is empty, on the Shop page, and on the Contact page, with a shimmering placeholder until it's ready. It's served from this site (`assets/lottie/choosing.js`), played with [lottie-web](https://github.com/airbnb/lottie-web) (MIT, `assets/vendor/`), and only loads when it's needed.
 
 ## Search, sharing and metadata
 
@@ -149,32 +150,23 @@ These are ready but not in the shop yet, because the pieces need a name and pric
 - Structured data tells Google about the store (with WhatsApp contact and Instagram), the pages, and the contact page's questions. On the shop page, each priced piece is listed as a product with its price in naira and whether it's in stock, generated from the live list.
 - `robots.txt` allows the shop pages, keeps `/admin`, `/api/` and the order page out of search engines, and points to `sitemap.xml`, which lists the four pages and their main photos.
 - `site.webmanifest` plus the icons in `assets/img/icons/` let people add the site to their home screen with the aqua ADA BEKE icon.
-- `404.html` is a branded "Lost your way?" page that Vercel shows for any wrong address.
+- `404.html` is a simple "Page not found" page that Vercel shows for any wrong address.
 - `vercel.json` caches photos for a day and the versioned CSS/JS for a year.
 
 If the site moves to its own domain, change `SITE` at the top of `tools/build_pages.py` and rebuild.
 
-## Motion
-
-The extra decorations (rings, sparkles, outlined words, arch frames, wavy section edges and the scroll line) have been removed for a cleaner look. What's left:
-- Photos are revealed by an aqua panel sliding off them.
-- Text pops in one piece after another.
-- Buttons lean towards the mouse.
-
-All movement stops for visitors with "reduce motion" on.
-
 ## Loading
 
-- **Skeleton loading:** while things load, the shop grid and the "Handpicked" slider show shimmering placeholder cards, and every photo shows a mist shimmer until it arrives, then settles in from soft to sharp. The details panel, the bag, the order page, the dress animation and the admin dashboard do the same.
+- **Skeleton loading:** while things load, the shop grid and the home page's "Handpicked for you" show shimmering placeholder cards, and every photo shows a mist shimmer until it arrives, then settles in from soft to sharp. The details panel, the bag, the order page, the dress animation and the admin dashboard do the same.
 - **Safety net:** if the page script is very slow or fails, the page shows everything plainly after 4 seconds instead of waiting.
 
-## Home slideshow
+## Home photos
 
-Three photos from the shoot, set in the `SLIDES` list in the page builder: the circle-print boubou, Abira and Wifey, under the headline "Discover your style." On phones and laptops alike, each model is cut out of her photo and stands on a brand colour (navy, mist, aqua): "Discover" passes behind her and "your style." passes in front. Laptops also show a short line about the pieces beside the shop button. The cut-outs are `name-cut.webp` (2000 pixels tall) and `name-cut-1000.webp` in `assets/img/shoot/`. Each slide sets its colours and where the model stands on laptops (`x`) and on phones (`xp`). To change a slide, cut the model out of the original photo (transparent background, cropped to her outline) at those two sizes, then edit its line in `SLIDES`. Each slide is marked `light` or `dark` so the menu switches between navy and white. Photos change every 5.5 seconds, visitors can swipe on a phone, and the slideshow pauses when it's off screen.
+Three photos from the shoot, set in the `HERO_PHOTOS` list in the page builder: the circle-print boubou, Abira and Wifey, shown with their real backgrounds. Phones show one at a time (they change every 5 seconds, or swipe, or tap a dot); laptops show all three side by side so nothing is cropped tight. "Discover your style", a short line and the shop button sit under the photos. To change a photo, put the new one in `assets/img/shoot/` in the two sizes described under "Photos from the shoot" and edit its line in `HERO_PHOTOS`.
 
 ## Speed
 
-The home page downloads about 1 MB on a phone, most of it the sharp slideshow photos: the first model cut-out is preloaded (about 70 to 200 KB, depending on the screen), and the rest load one at a time in the background. The About page's film is about 4 MB and streams as it plays. The aqua curtain never waits for fonts, and moving between pages takes well under a second.
+The home page downloads about 1 MB, most of it the sharp photos. Phones preload the first photo and fetch the others one at a time; laptops load all three. The About page's film is about 4 MB and streams as it plays.
 
 ## Putting it online
 

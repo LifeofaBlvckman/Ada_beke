@@ -732,7 +732,7 @@
     body.innerHTML =
       '<div class="card" style="--i:0"><h2 class="card__title">Photos <span class="field__hint" style="text-transform:none;letter-spacing:0">First photo is the main one</span></h2><div class="photos" data-photos></div></div>' +
       '<div class="card stack" style="--i:1">' +
-        f("name", "Name", p.name, "Put a word between *stars* to show it in italics, like *Omalicha* set.", ' required autocomplete="off"') +
+        f("name", "Name", p.name, "As it shows in the shop, like Omalicha set.", ' required autocomplete="off"') +
         '<p class="name-preview" data-preview aria-live="polite"></p>' +
         '<div class="row2">' +
           '<div class="field"><label for="pe-price">Price</label><div class="money"><input id="pe-price" name="price" type="text" inputmode="numeric" value="' + (p.price == null ? "" : p.price.toLocaleString("en-NG")) + '" placeholder="45,000"></div><span class="field__hint">Leave empty for &ldquo;price on request&rdquo;.</span></div>' +
