@@ -569,7 +569,10 @@ ul, ol { padding: 0; list-style: none; }
    -------------------------------------------------------------------------- */
 /* rows of tall photos edge to edge: 3 across on laptops, 2 on phones, arrows at the sides */
 .rail-wrap { position: relative; }
-.rail { overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.rail { overflow-x: auto; overflow-y: hidden; touch-action: pan-x pan-y; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+/* cards in a sideways row don't slide up as they appear: that offset made the row
+   a little taller than its box, so a finger could push it up and down */
+.js .rail [data-reveal] { transform: none; }
 .rail::-webkit-scrollbar { display: none; }
 .rail:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
 .rail__track { display: flex; gap: 6px; }
