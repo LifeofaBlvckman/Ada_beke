@@ -375,7 +375,7 @@ ul, ol { padding: 0; list-style: none; }
 .menu-open { overflow: hidden; }
 
 /* --------------------------------------------------------------------------
-   Home — the shoot photos with their own backgrounds, one at a time (dots under).
+   Home — the shoot photos with their own backgrounds, one at a time.
    Phones: full width. Laptops: a wide banner with space either side, as Moye.
    -------------------------------------------------------------------------- */
 .hero { padding-top: var(--header-h); }
@@ -383,19 +383,6 @@ ul, ol { padding: 0; list-style: none; }
 .slide { position: absolute; inset: 0; margin: 0; opacity: 0; transition: opacity 0.9s var(--ease-in-out); }
 .slide.is-active { opacity: 1; z-index: 1; }
 .slide img { width: 100%; height: 100%; object-fit: cover; }
-.hero__dots { display: flex; justify-content: center; gap: 4px; padding-top: 10px; }
-.hero__dots button { position: relative; width: 28px; height: 28px; }
-.hero__dots button::after {
-  content: "";
-  position: absolute;
-  left: 50%; top: 50%;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--line-strong);
-  transform: translate(-50%, -50%);
-  transition: background 0.3s;
-}
-.hero__dots button[aria-current="true"]::after { background: var(--ink); }
 @media (min-width: 900px) {
   .hero { padding-top: calc(var(--header-h) + 24px); }
   .hero__slides { aspect-ratio: auto; width: min(1210px, calc(100% - 2 * var(--gutter))); height: min(784px, 54vw); margin-inline: auto; }

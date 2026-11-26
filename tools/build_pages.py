@@ -315,12 +315,6 @@ def slides_html():
     return "\n".join(figs)
 
 
-def dots_html():
-    return "".join(
-        f'<button type="button" data-dot aria-label="Show photo {k + 1}" aria-current="{str(k == 0).lower()}"></button>'
-        for k in range(len(HERO_PHOTOS)))
-
-
 VALUE_SIZES = "(min-width: 900px) 30vw, 100vw"
 
 # --------------------------------------------------------------------------
@@ -339,7 +333,6 @@ home = head(
     <div class="hero__slides" data-slides aria-roledescription="carousel" aria-label="New collection">
 {slides_html()}
     </div>
-    <div class="hero__dots" role="group" aria-label="Photos">{dots_html()}</div>
   </section>
 
   <section class="section rail-sec" aria-labelledby="edit-title">

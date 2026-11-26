@@ -1160,7 +1160,7 @@
   });
 
   /* Home photos: one at a time on every screen; they change on their own, or
-     swipe on a phone, or tap a dot. */
+     swipe on a phone. */
   var slideBox = $("[data-slides]");
   if (slideBox) (function () {
     var slides = $$(".slide", slideBox);
